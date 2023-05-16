@@ -62,6 +62,7 @@ bgm_extract.package_bggm <- function(fit, model, edge.prior, save,
   }
 
   output <- bggm_res
+  print("hi")
   return(output)
 }
 
