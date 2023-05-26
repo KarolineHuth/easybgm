@@ -5,7 +5,7 @@
 #' @name easybgm
 #'
 #' @param data An n x p matrix or dataframe containing the variables for n independent observations on p variables.
-#' @param type What is the data type? Options: continuos, mixed, ordinal, binary
+#' @param type What is the data type? Options: continuous, mixed, ordinal, binary
 #' @param package The R-package that should be used for fitting the network model. Optional argument;
 #'     default values are specified depending on the datatype.
 #' @param not.cont If data-type is mixed, a vector of length p, specifying the not-continuous
@@ -49,7 +49,7 @@
 #'
 #' \itemize{
 #'
-#' \item \code{samples_posterior} A k x iter matrix containing the posterior samples for each parameter (i.e., k = p/(p-1)) at each iteration (i.e., iter) of the sampler.
+#' \item \code{samples_posterior} A k x iter matrix containing the posterior samples for each parameter (i.e., k = (p/(p-1))/2) at each iteration (i.e., iter) of the sampler.
 #'
 #' \item \code{centrality} A p x iter matrix containing the centrality of a node at each iteration of the sampler.
 #' }
