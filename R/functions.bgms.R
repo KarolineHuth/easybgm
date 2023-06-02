@@ -67,3 +67,10 @@ bgm_extract.package_bgms <- function(fit, model, edge.prior, save,
   return(output)
 }
 
+
+# --------------------------------------------------------------------------------------------------
+# 3. Prior defaults function
+# --------------------------------------------------------------------------------------------------
+bgms.set_defaults_prior <- function(fit, type, data) {
+  
+}

@@ -140,3 +140,10 @@ bgm_extract.package_bdgraph <- function(fit, model, edge.prior, save,
   return(output)
 }
 
+
+# --------------------------------------------------------------------------------------------------
+# 3. Set defaults for priors
+# --------------------------------------------------------------------------------------------------
+bdgraph.set_prior_defaults <- function(fit, type, ) {
+  
+}

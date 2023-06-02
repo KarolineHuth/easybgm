@@ -128,7 +128,7 @@ plot_edgeevidence <- function(output, evidence_thresh = 10, split = F, show = "a
                      ...
       )
     }
-    if(split==T){
+    if(split == T){
       graph_inc <- graph_exc <- graph
       # plot included graph
       graph_inc[output$inc_probs >= .5] <- 1
@@ -205,7 +205,7 @@ plot_network <- function(output, exc_prob = .5, dashed = F, ...) {
     graph_dashed <- ifelse(output$BF < 10, "dashed", "solid")
     qgraph::qgraph(graph, lty = graph_dashed, ...)
   } else {
-    qgraph::qgraph(graph, ...)
+    qgraph::qgraph(graph, ...) 
   }
 
 

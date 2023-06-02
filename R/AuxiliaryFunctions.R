@@ -176,3 +176,14 @@ list2matrix <- function(obj, p) {
   }
   return(res)
 }
+
+# 9. general set default function
+set_defaults <- function(lst, ...) {
+  args <- list(...)
+  
+  # get elements that are in the dots but not in list
+  names2update <- setdiff(names(args), names(lst))
+  lst[names2update] <- args[names2update]
+  
+  return(lst)
+}
