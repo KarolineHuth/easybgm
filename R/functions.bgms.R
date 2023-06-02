@@ -11,9 +11,9 @@ bgm_fit.package_bgms <- function(fit, type, data, iter, save,
     save <- TRUE
   }
 
-  bgms_fit <- bgm(x = data,    #(M) n * p matrix of binary responses
+  bgms_fit <- bgm(x = data,           #(M) n * p matrix of binary responses
                   iter = iter,        #(O) no. iterations Gibbs sampler
-                  save = save,            #(O) if TRUE, outputs posterior draws
+                  save = TRUE,        #(O) if TRUE, outputs posterior draws
                   display_progress = progress,
                   ...)
   fit$model <- type
@@ -30,32 +30,26 @@ bgm_fit.package_bgms <- function(fit, type, data, iter, save,
 # --------------------------------------------------------------------------------------------------
 bgm_extract.package_bgms <- function(fit, model, edge.prior, save,
                                      not.cont, data, centrality, ...){
+  if(centrality == TRUE) save <- TRUE
+
   fit <- fit$packagefit
   bgms_res <- list()
-  if(save == FALSE){
+  p <- unlist(strsplit(colnames(fit$interactions)[ncol(fit$interactions)], ", "))[2]
+  p <- as.numeric(unlist(strsplit(p, ")"))[1])
+  bgms_res$parameters <- vector2matrix(colMeans(fit$interactions), p = p)
+  colnames(bgms_res$parameters) <- rownames(bgms_res$parameters) <- colnames(data)
+  bgms_res$inc_probs <- vector2matrix(colMeans(fit$gamma), p = p)
+  bgms_res$BF <- (bgms_res$inc_probs/(1-bgms_res$inc_probs))/(edge.prior /(1-edge.prior))
+  bgms_res$structure <- 1*(bgms_res$inc_probs > 0.5)
 
-    bgms_res$parameters <- fit$interactions
-    colnames(bgms_res$parameters) <- rownames(bgms_res$parameters) <- colnames(data)
-    bgms_res$inc_probs <- fit$gamma
-    bgms_res$BF <- fit$gamma/(1-fit$gamma)
-    bgms_res$structure <- 1*(bgms_res$inc_probs > 0.5)
-  }
+  #Obtain structure information
+  bgms_res$posterior_complexity <- table(rowSums(fit$gamma))/nrow(fit$gamma)
+  structures <- apply(fit$gamma, 1, paste0, collapse="")
+  table_structures <- as.data.frame(table(structures))
+  bgms_res$structure_probabilities <- table_structures[,2]/nrow(fit$gamma)
+  bgms_res$graph_weights <- table_structures[,2]
+  bgms_res$sample_graphs <- as.character(table_structures[, 1])
   if(save == TRUE){
-    p <- unlist(strsplit(colnames(fit$interactions)[ncol(fit$interactions)], ", "))[2]
-    p <- as.numeric(unlist(strsplit(p, ")"))[1])
-    bgms_res$parameters <- vector2matrix(colMeans(fit$interactions), p = p)
-    colnames(bgms_res$parameters) <- rownames(bgms_res$parameters) <- colnames(data)
-    bgms_res$inc_probs <- vector2matrix(colMeans(fit$gamma), p = p)
-    bgms_res$BF <- (bgms_res$inc_probs/(1-bgms_res$inc_probs))/(edge.prior /(1-edge.prior))
-    bgms_res$structure <- 1*(bgms_res$inc_probs > 0.5)
-
-    #Obtain structure information
-    bgms_res$posterior_complexity <- table(rowSums(fit$gamma))/nrow(fit$gamma)
-    structures <- apply(fit$gamma, 1, paste0, collapse="")
-    table_structures <- as.data.frame(table(structures))
-    bgms_res$structure_probabilities <- table_structures[,2]/nrow(fit$gamma)
-    bgms_res$graph_weights <- table_structures[,2]
-    bgms_res$sample_graphs <- as.character(table_structures[, 1])
     bgms_res$samples_posterior <- fit$interactions
     if(centrality == TRUE){
       #bgms_res$centrality_strength <- centrality_strength(bgms_res)
