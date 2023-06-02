@@ -176,3 +176,12 @@ list2matrix <- function(obj, p) {
   }
   return(res)
 }
+
+# 9. Set defaults of a function
+set_defaults <- function(args, ...) {
+  dots <- list(...)
+  def_args <- setdiff(names(args), names(dots))
+  dots[def_args] <- args[def_args]
+  
+  return(dots)
+}
