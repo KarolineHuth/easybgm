@@ -8,7 +8,7 @@ bgm_fit.package_bdgraph <- function(fit, type, data, iter, save,
     bdgraph_fit <- BDgraph::bdgraph(data = data,               #(M) n*p matrix of responses
                                     method ="ggm",           #(M) type of data
                                     iter = iter,           #(O) no. iterations sampler
-                                    save = save,               #(O) Should samples be stored
+                                    save = TRUE,           #(O) Should samples be stored
                                     ...)
 
     fit$model <- "ggm"
@@ -16,10 +16,10 @@ bgm_fit.package_bdgraph <- function(fit, type, data, iter, save,
   if(type %in% c("mixed", "ordinal")){
     if(type == "ordinal") not.cont <- rep(1, ncol(data))
     # fitting the model
-    bdgraph_fit <- BDgraph::bdgraph(data = data,               #(M) n*p matrix of responses
-                                    method="gcgm",           #(M) type of data
+    bdgraph_fit <- BDgraph::bdgraph(data = data,         #(M) n*p matrix of responses
+                                    method="gcgm",       #(M) type of data
                                     iter=iter,           #(O) no. iterations sampler
-                                    save= save,               #(O) Should samples be stored
+                                    save= TRUE,          #(O) Should samples be stored
                                     not.cont = not.cont, #(O) Specifies not continuous variables if method is gcgm
                                     ...)
     fit$model <- "gcgm"
@@ -29,7 +29,7 @@ bgm_fit.package_bdgraph <- function(fit, type, data, iter, save,
     bdgraph_fit <- bdgraph.mpl(data = data,
                                method = "dgm-binary",
                                iter = iter,
-                               save = save,
+                               save = TRUE,
                                ...)
     fit$model <-  "dgm-binary"
   }
