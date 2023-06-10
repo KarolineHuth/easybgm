@@ -54,9 +54,32 @@ test_that("easybgm works for bdgraph", {
 })
 
 ##--------------------------------
-## Plotting with bgms
+## Plotting with BDgraph
 ##--------------------------------
 
+# 1. Network plot
+network_bdgraph <- plot_network(res_bdgraph)
+vdiffr::expect_doppelganger("network plot Bdgraph", network_bdgraph)
+
+# 2. Evidence plot
+evidence_bdgraph <- plot_network(res_bdgraph)
+vdiffr::expect_doppelganger("evidence plot Bdgraph", evidence_bdgraph)
+
+# 3. Posterior structure plot
+poststruc_bdgraph <- plot_posteriorstructure(res_bdgraph)
+vdiffr::expect_doppelganger("posterior structure plot Bdgraph", poststruc_bdgraph)
+
+# 4. Posterior complexity plot
+postcompl_bdgraph <- plot_posteriorcomplexity(res_bdgraph)
+vdiffr::expect_doppelganger("posterior complexity plot Bdgraph", postcompl_bdgraph)
+
+# 5. structure plot
+struc_bdgraph <- plot_structure(res_bdgraph)
+vdiffr::expect_doppelganger("structure plot Bdgraph", struc_bdgraph)
+
+# 6. HDI plot
+HDI_bdgraph <-plot_parameterHDI(res_bdgraph)
+vdiffr::expect_doppelganger("HDI plot Bdgraph", HDI_bdgraph)
 
 ##--------------------------------
 ## Fitting with BGGM
