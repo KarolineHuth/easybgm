@@ -50,7 +50,7 @@ plot_posteriorstructure <- function(output, as.BF = FALSE, ...) {
             axis.ticks.length = args$axis.ticks.length)
   } else {
     data <- data.frame(structures = 1:nrow(sorted_structure_prob), Probs = sorted_structure_prob)
-    ggplot2::ggplot(data, aes(x = structures, y = posterior_prob)) +
+    ggplot2::ggplot(data, aes(x = structures, y = posterior_prob, ...)) +
       geom_point(size = 4, shape = 1) +
       args$theme +
       labs(x = args$xlab,
@@ -111,7 +111,7 @@ plot_posteriorcomplexity <- function(output, ...) {
     summarise(complexity_weight = sum(weights)) %>%
     mutate(complexity_weight = complexity_weight/sum(complexity_weight))
 
-  ggplot(data_complexity, aes(x = complexity, y = complexity_weight))+
+  ggplot(data_complexity, aes(x = complexity, y = complexity_weight, ...)) +
     geom_point() +
     ylab(args$ylab) +
     xlab(args$xlab)  +
@@ -328,7 +328,7 @@ plot_parameterHDI <- function(output, ...) {
 
 
   ggplot2::ggplot(data = posterior, aes(x = names, y = posterior_medians, ymin = lower,
-                                        ymax = upper), ...) +
+                                        ymax = upper, ...)) +
     args$geom_pointrange +
     args$theme +
     coord_flip() +
@@ -409,13 +409,13 @@ plot_centrality <- function(output, measure = "Strength", ... ){
   }
   centrality_summary %>%
     filter(Centrality %in% measure) %>%
-    ggplot(aes(x = node, y= value, group= Centrality), ...)+
+    ggplot(aes(x = node, y= value, group= Centrality, ...))+
     geom_line()+
     geom_point()+
     args$geom_errorbar+
     facet_wrap(.~ Centrality, ncol = 4, scales = "free_x") +
     coord_flip() +
     ylab(args$ylab) +
-    xlab(args$xlab) 
+    xlab(args$xlab)
 }
 
