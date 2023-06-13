@@ -10,12 +10,19 @@ bgm_fit.package_bgms <- function(fit, type, data, iter, save,
             set save = TRUE.")
     save <- TRUE
   }
-
-  bgms_fit <- bgm(x = data,    #(M) n * p matrix of binary responses
-                  iter = iter,        #(O) no. iterations Gibbs sampler
-                  save = save,            #(O) if TRUE, outputs posterior draws
-                  display_progress = progress,
-                  ...)
+  
+  prior_defaults <- list(
+    interaction_prior = "UnitInfo",
+    cauchy_scale = 2.5,
+    threshold_alpha = 1,
+    threshold_beta = 1
+  )
+  args <- set_defaults(prior_defaults, ...)
+  
+  bgms_fit <- do.call(
+    bgm, c(list(x = data, iter = iter, save = save, display_progress = progress),
+           args)
+  )
   fit$model <- type
   fit$packagefit <- bgms_fit
   class(fit) <- c("package_bgms", "easybgm")
@@ -65,12 +72,4 @@ bgm_extract.package_bgms <- function(fit, model, edge.prior, save,
   bgms_res$model <- model
   output <- bgms_res
   return(output)
-}
-
-
-# --------------------------------------------------------------------------------------------------
-# 3. Prior defaults function
-# --------------------------------------------------------------------------------------------------
-bgms.set_defaults_prior <- function(fit, type, data) {
-  
 }

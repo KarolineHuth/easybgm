@@ -4,15 +4,17 @@
 
 bgm_fit.package_bggm <- function(fit, type, data, iter, save,
                                  not.cont, centrality, progress, ...){
-
+  
+  prior_defaults <- list(
+    prior_sd = .25
+  )
+  
+  args <- set_defaults(prior_defaults, ...)
   # Fit the model
-  bggm_fit <- BGGM::explore(data,                        #(M) n*p matrix of responses
-                            type = type,                 #(O) type of data
-                            mixed_type = not.cont,       #(O) which data should be treated as ranks
-                            iter = iter,             #(O) no. iterations sampler
-                            progress = progress,            #(O) Should a progress bar be plotted?
-                            seed = NULL,                     #(O) Integer for random seed
-                            ...)
+  bggm_fit <- do.call(
+    BGGM::explore, c(list(Y = data, type = type, mixed_type = not.cont,
+                          iter = iter, progress = progress, seed = NULL), args)
+  )
   fit$model <- type
   fit$packagefit <- bggm_fit
   class(fit) <- c("package_bggm", "easybgm")
@@ -63,14 +65,4 @@ bgm_extract.package_bggm <- function(fit, model, edge.prior, save,
 
   output <- bggm_res
   return(output)
-}
-
-
-# --------------------------------------------------------------------------------------------------
-# 3. Function default prior
-# --------------------------------------------------------------------------------------------------
-
-bggm.set_defaults_prior <- function(args, ...) {
-  updated_defaults <- set_defaults(args, prior_sd = "0.25")
-  return(updated_defaults)
 }

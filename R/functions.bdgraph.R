@@ -4,33 +4,33 @@
 
 bgm_fit.package_bdgraph <- function(fit, type, data, iter, save,
                             not.cont, centrality, progress, ...){
+  
+  prior_defaults <- list(
+    g.prior = .2,
+    df.prior = 3
+  )
+  args <- set_defaults(prior_defaults, ...)
   if(type == "continuous"){
-    bdgraph_fit <- BDgraph::bdgraph(data = data,               #(M) n*p matrix of responses
-                                    method ="ggm",           #(M) type of data
-                                    iter = iter,           #(O) no. iterations sampler
-                                    save = save,               #(O) Should samples be stored
-                                    ...)
+    bdgraph_fit <- do.call(BDgraph::bdgraph,
+                           c(list(data = data, method ="ggm", iter = iter,
+                                     save = save), args))
 
     fit$model <- "ggm"
   }
   if(type %in% c("mixed", "ordinal")){
     if(type == "ordinal") not.cont <- rep(1, ncol(data))
     # fitting the model
-    bdgraph_fit <- BDgraph::bdgraph(data = data,               #(M) n*p matrix of responses
-                                    method="gcgm",           #(M) type of data
-                                    iter=iter,           #(O) no. iterations sampler
-                                    save= save,               #(O) Should samples be stored
-                                    not.cont = not.cont, #(O) Specifies not continuous variables if method is gcgm
-                                    ...)
+    bdgraph_fit <- do.call(BDgraph::bdgraph,
+                          c(list(data = data, method = "gcgm", 
+                               iter = iter, save = save,
+                               ), args))
     fit$model <- "gcgm"
 
   }
   if(type == "binary"){
-    bdgraph_fit <- bdgraph.mpl(data = data,
-                               method = "dgm-binary",
-                               iter = iter,
-                               save = save,
-                               ...)
+    bdgraph_fit <- do.call(bdgraph.mpl,
+                           c(list(data = data, method = "dgm-binary",
+                                  iter = iter, save = save), args))
     fit$model <-  "dgm-binary"
   }
   fit$packagefit <- bdgraph_fit
@@ -140,10 +140,3 @@ bgm_extract.package_bdgraph <- function(fit, model, edge.prior, save,
   return(output)
 }
 
-
-# --------------------------------------------------------------------------------------------------
-# 3. Set defaults for priors
-# --------------------------------------------------------------------------------------------------
-bdgraph.set_prior_defaults <- function(fit, type, ) {
-  
-}
