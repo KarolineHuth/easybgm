@@ -86,7 +86,7 @@ plot_posteriorcomplexity <- function(output, ...) {
     xlab = "Complexity",
     ylab = "Posterior Complexity Probability",
     theme = theme_minimal(),
-    legens.position = c(.85, .25),
+    legend.position = c(.85, .25),
     axis.text.size = 20,
     legend.background = element_rect(fill = NULL),
     panel.border = element_blank(),
@@ -294,20 +294,21 @@ plot_parameterHDI <- function(output, ...) {
   }
   
   def_args <- list(
-    theme = theme_bw(),
+    theme_ = theme_bw(),
     geom_pointrange = geom_pointrange(position = position_dodge(width = c(0.3)),
                                       size = .3),
     xlab = "",
     ylab = "Highest Density Interval of Parameter",
     geom_hline = geom_hline(yintercept = 0, linetype = "dashed", size = 1.3),
-    axis.tex = element_text(size=8),
+    theme = theme(
+    axis.text = element_text(size=8),
     panel.border = element_blank(),
     axis.line = element_line(colour = "black", size = 1.1),
     axis.ticks.length = unit(.2, "cm"),
     axis.ticks = element_line(size = .8),
     axis.title.x = element_text(size = 16, face = "bold"),
     plot.title = element_text(size = 18, face = "bold")
-    
+    )
   )
   
   args <- set_defaults(def_args, ...)
@@ -330,15 +331,12 @@ plot_parameterHDI <- function(output, ...) {
   ggplot2::ggplot(data = posterior, aes(x = names, y = posterior_medians, ymin = lower,
                                         ymax = upper, ...)) +
     args$geom_pointrange +
-    args$theme +
+    args$theme_ +
     coord_flip() +
     ylab(args$ylab)+
     xlab(args$xlab) +
     args$geom_hline +
-    theme(axis.text= args$axis.text, panel.border =  args$panel.border,
-          axis.line = args$axis.line, axis.ticks.length = args$axis.ticks.length,
-          axis.ticks = args$axis.ticks,
-          axis.title.x = args$axis.title.x, plot.title = args$plot.title)
+    args$theme
 }
 
 
@@ -409,7 +407,7 @@ plot_centrality <- function(output, measure = "Strength", ... ){
   }
   centrality_summary %>%
     filter(Centrality %in% measure) %>%
-    ggplot(aes(x = node, y= value, group= Centrality, ...))+
+    ggplot(aes(x = node, y = value, group= Centrality, ...))+
     geom_line()+
     geom_point()+
     args$geom_errorbar+
