@@ -5,7 +5,7 @@
 #' @name easybgm
 #'
 #' @param data An n x p matrix or dataframe containing the variables for n independent observations on p variables.
-#' @param type What is the data type? Options: continuos, mixed, ordinal, binary
+#' @param type What is the data type? Options: continuous, mixed, ordinal, binary
 #' @param package The R-package that should be used for fitting the network model. Optional argument;
 #'     default values are specified depending on the datatype.
 #' @param not.cont If data-type is mixed, a vector of length p, specifying the not-continuous
