@@ -6,7 +6,7 @@ bgm_fit.package_bdgraph <- function(fit, type, data, iter, save,
                             not.cont, centrality, progress, ...){
   
   prior_defaults <- list(
-    g.prior = .2,
+    g.prior = .5,
     df.prior = 3
   )
   args <- set_defaults(prior_defaults, ...)
