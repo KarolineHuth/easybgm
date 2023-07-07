@@ -146,7 +146,16 @@ plot_edgeevidence <- function(output, evidence_thresh = 10, split = F, show = "a
   
   default_args <- list(
     colors = c("#36648b", "#990000", "#bfbfbf"),
-    colnames = colnames(output$parameters)
+    colnames = colnames(output$parameters),
+    layout_avg = qgraph::averageLayout(output$parameters*output$structure),
+    theme = "TeamFortress",
+    legend = T,
+    vsize = 10,
+    nodeNames = colnames(output$parameters),
+    labels = colnames(output$parameters),
+    edge.width = 3,
+    label.cex = 1,
+    legend.cex = 1
     
   )
   args <- set_defaults(default_args, ...)
@@ -165,7 +174,16 @@ plot_edgeevidence <- function(output, evidence_thresh = 10, split = F, show = "a
       diag(graph) <- 1
       colnames(graph) <- args$colnames
       qgraph::qgraph(graph,
-                     edge.color = graph_color, # specifies the color of the edges
+                     edge.color = graph_color,
+                     layout = args$layout_avg,# specifies the color of the edges
+                     theme = args$theme,
+                     vsize = args$vsize,
+                     nodeNames = args$nodeNames,
+                     legend = args$legend,
+                     labels = args$labels,
+                     edge.width = args$edge.width,
+                     label.cex = args$label.cex,
+                     legend.cex = args$legend.cex,
                      ...
       )
     }
@@ -177,7 +195,16 @@ plot_edgeevidence <- function(output, evidence_thresh = 10, split = F, show = "a
       diag(graph_inc) <- 1
       colnames(graph_inc) <- colnames(output$parameters)
       qgraph::qgraph(graph_inc,
-                     edge.color = graph_color, # specifies the color of the edges
+                     edge_color = graph_color,
+                     layout = args$layout_avg,# specifies the color of the edges
+                     theme = args$theme,
+                     vsize = args$vsize,
+                     nodeNames = args$nodeNames,
+                     legend = args$legend,
+                     labels = args$labels,
+                     edge.width = args$edge.width,
+                     label.cex = args$label.cex,
+                     legend.cex = args$legend.cex, # specifies the color of the edges
                      ...
       )
       # Plot excluded graph
@@ -186,7 +213,17 @@ plot_edgeevidence <- function(output, evidence_thresh = 10, split = F, show = "a
       diag(graph_exc) <- 1
       colnames(graph_exc) <- colnames(output$parameters)
       qgraph::qgraph(graph_exc,
-                     edge.color = graph_color, # specifies the color of the edges
+                     edge.color = graph_color,
+                     # specifies the color of the edges
+                     layout = args$layout_avg,# specifies the color of the edges
+                     theme = args$theme,
+                     vsize = args$vsize,
+                     nodeNames = args$nodeNames,
+                     legend = args$legend,
+                     labels = args$labels,
+                     edge.width = args$edge.width,
+                     label.cex = args$label.cex,
+                     legend.cex = args$legend.cex,
                      ...
       )
     }
@@ -205,7 +242,15 @@ plot_edgeevidence <- function(output, evidence_thresh = 10, split = F, show = "a
       diag(graph_show) <- 1
       colnames(graph_show) <- colnames(output$parameters)
       qgraph::qgraph(graph_show,
-                     edge.color = graph_color, # specifies the color of the edges
+                     edge.color = graph_color,
+                     layout = args$layout_avg,# specifies the color of the edges
+                     theme = args$theme,
+                     vsize = args$vsize,
+                     nodeNames = args$nodeNames,
+                     legend = args$legend,
+                     labels = args$labels,
+                     label.cex = args$label.cex,
+                     legend.cex = args$legend.cex,# specifies the color of the edges
                      ...
       )
     }
@@ -234,7 +279,10 @@ plot_network <- function(output, exc_prob = .5, dashed = F, ...) {
          call. = FALSE)
   }
   graph <- output$parameters
-
+  default_args <- list(
+    evidence_thres = 10
+  )
+  args <- set_defaults(default_args, ...)
   # Exclude edges with a inclusion probability lower exc_prob
   inc_probs_m <- output$inc_probs
   graph[inc_probs_m < exc_prob] <- 0
@@ -242,7 +290,7 @@ plot_network <- function(output, exc_prob = .5, dashed = F, ...) {
 
   # Plot
   if(dashed == T){
-    graph_dashed <- ifelse(output$BF < 10, "dashed", "solid")
+    graph_dashed <- ifelse(output$BF < evidence_thres, "dashed", "solid")
     qgraph::qgraph(graph, lty = graph_dashed, ...)
   } else {
     qgraph::qgraph(graph, ...)
