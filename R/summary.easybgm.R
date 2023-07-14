@@ -60,7 +60,7 @@ summary.easybgm <- function(x, evidence_thresh = 10) {
       "Inclusion BF",
       "Category")
   }
-  # create list with
+  # create list with output
   out <- list()
   out$parameters <- results
   out$n_structures <- length(x$sample_graphs)
@@ -90,6 +90,9 @@ summary.easybgm <- function(x, evidence_thresh = 10) {
 #'
 
 print.easybgm <- function(x){
+  if(is.null(x$n_inclu_edges)){
+    print(summary.easybgm(x))
+  } else {
   cat("\n BAYESIAN ANALYSIS OF NETWORKS",
       "\n Model type:", x$model,
       "\n Number of nodes:", x$n_nodes,
@@ -112,5 +115,6 @@ print.easybgm <- function(x){
       "\n Number of possible structures:", x$possible_struc,
       "\n Posterior probability of most likely structure:", x$max_structure_prob,
       "\n---")
+  }
 }
 
