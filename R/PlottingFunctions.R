@@ -316,8 +316,9 @@ plot_centrality <- function(output, measure = "Strength"){
     as_tibble() %>%
     dplyr::group_by(Centrality) %>%
     dplyr::group_modify(~ as.data.frame(colMeans(.x)))
-  centrality_means <- cbind(centrality_means, rep(colnames(output$parameters), 4))
-  colnames(centrality_means)[2:3] <- c("value", "node")
+  centrality_means <- data.frame(Centrality = centrality_means$Centrality,
+             value = centrality_means$'colMeans(.x)',
+             node = rep(colnames(output$parameters), 4))
   centrality_means <- centrality_means[order(centrality_means$Centrality, centrality_means$node), ]
   centrality_hdi <- cent_samples %>%
     as_tibble() %>%
@@ -340,11 +341,11 @@ plot_centrality <- function(output, measure = "Strength"){
     measure <- c("Betweenness", "Closeness", "ExpectedInfluence", "Strength")
   }
   centrality_summary %>%
-    dplyr::filter(Centrality %in% measure) %>%
+    filter(Centrality %in% measure) %>%
     ggplot(aes(x = node, y=value, group = Centrality))+
     geom_line()+
     geom_point()+
-    geom_errorbar(aes(y= value, ymin =lower, ymax = upper), size = .5, width = 0.4)+
+    geom_errorbar(aes(y= value, ymin =lower, ymax = upper), linewidth = .5, width = 0.4)+
     facet_wrap(.~ Centrality, ncol = 4, scales = "free_x") +
     coord_flip() +
     ylab("Value") +
