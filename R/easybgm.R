@@ -56,9 +56,9 @@
 #'
 #' @export
 #'
-#' @import bgms
-#' @import BDgraph
-#' @import BGGM
+#' @importFrom bgms bgm
+#' @importFrom BDgraph bdgraph bdgraph.mpl plinks
+#' @importFrom BGGM explore select
 #'
 #' @examples
 #' \donttest{

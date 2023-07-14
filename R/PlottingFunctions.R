@@ -6,8 +6,7 @@
 #' @param as.BF if TRUE plots the y-axis as Bayes factor instead of posterior structure probability
 #'
 #' @export
-#' @import ggplot2
-#' @import dplyr
+#' @importFrom dplyr group_by summarise mutate group_modify filter
 #'
 
 plot_posteriorstructure <- function(output, as.BF = FALSE) {
@@ -73,9 +72,9 @@ plot_posteriorcomplexity <- function(output) {
   }
 
   data_complexity <- tibble(complexity, weights = output$graph_weights)  %>%
-    group_by(complexity) %>%
-    summarise(complexity_weight = sum(weights)) %>%
-    mutate(complexity_weight = complexity_weight/sum(complexity_weight))
+    dplyr::group_by(complexity) %>%
+    dplyr::summarise(complexity_weight = sum(weights)) %>%
+    dplyr::mutate(complexity_weight = complexity_weight/sum(complexity_weight))
 
   ggplot(data_complexity, aes(x = complexity, y = complexity_weight))+
     geom_point() +
@@ -97,13 +96,12 @@ plot_posteriorcomplexity <- function(output) {
 #' Edge evidence plot
 #'
 #' @param output Output object from the bgm_extract function
-#' @param evidence_thresh BF which will be considered sufficient evidence for in-/exclusion
+#' @param evidence_thresh Bayes Factor which will be considered sufficient evidence for in-/exclusion, default is 10.
 #' @param split if TRUE, plot is split in included and excluded edges
 #' @param show specifies which edges should be shown, indicated by "all", "included", "inconclusive", "excluded"
 #' @param ... Additional `qgraph` arguments
 #'
 #' @export
-#' @import qgraph
 #'
 plot_edgeevidence <- function(output, evidence_thresh = 10, split = F, show = "all", ...) {
   if(!any(class(output) == "easybgm")){
@@ -182,7 +180,6 @@ plot_edgeevidence <- function(output, evidence_thresh = 10, split = F, show = "a
 
 #'
 #' @export
-#' @import qgraph
 
 plot_network <- function(output, exc_prob = .5, dashed = F, ...) {
   if(!any(class(output) == "easybgm")){
@@ -317,19 +314,19 @@ plot_centrality <- function(output, measure = "Strength"){
 
   centrality_means <- cent_samples %>%
     as_tibble() %>%
-    group_by(Centrality) %>%
-    group_modify(~ as.data.frame(colMeans(.x)))
+    dplyr::group_by(Centrality) %>%
+    dplyr::group_modify(~ as.data.frame(colMeans(.x)))
   centrality_means <- cbind(centrality_means, rep(colnames(output$parameters), 4))
   colnames(centrality_means)[2:3] <- c("value", "node")
   centrality_means <- centrality_means[order(centrality_means$Centrality, centrality_means$node), ]
   centrality_hdi <- cent_samples %>%
     as_tibble() %>%
-    group_by(Centrality) %>%
-    group_modify(~ as.data.frame(hdi(.x, allowSplit = F)))
+    dplyr::group_by(Centrality) %>%
+    dplyr::group_modify(~ as.data.frame(hdi(.x, allowSplit = F)))
   firstnode <- colnames(output$parameters)[1]
   lastnode <- colnames(output$parameters)[nrow(output$parameters)]
   centrality_hdi <- centrality_hdi %>%
-    gather(node, value, firstnode:lastnode) %>%
+    tidyr::gather(node, value, firstnode:lastnode) %>%
     tibble::add_column(interval = rep(c("lower", "upper"), p*4)) %>%
     tidyr::spread(interval, value)
 
@@ -343,7 +340,7 @@ plot_centrality <- function(output, measure = "Strength"){
     measure <- c("Betweenness", "Closeness", "ExpectedInfluence", "Strength")
   }
   centrality_summary %>%
-    filter(Centrality %in% measure) %>%
+    dplyr::filter(Centrality %in% measure) %>%
     ggplot(aes(x = node, y=value, group = Centrality))+
     geom_line()+
     geom_point()+

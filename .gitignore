@@ -1,6 +1,6 @@
 .DS_Store
-.Rproj.user
 .Rhistory
 easybgm.Rproj
 R/bgm_extract.R
 R/bgm_fit.R
+.Rproj.user

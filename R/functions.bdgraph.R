@@ -26,7 +26,7 @@ bgm_fit.package_bdgraph <- function(fit, type, data, iter, save,
 
   }
   if(type == "binary"){
-    bdgraph_fit <- bdgraph.mpl(data = data,
+    bdgraph_fit <- BDgraph::bdgraph.mpl(data = data,
                                method = "dgm-binary",
                                iter = iter,
                                save = TRUE,
