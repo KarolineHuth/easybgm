@@ -83,8 +83,8 @@ plot_posteriorcomplexity <- function(output) {
     theme_minimal()+
     theme(legend.position = c(.85, 0.25), axis.text=element_text(size=20),
           legend.background = element_rect(fill = NULL), panel.border = element_blank(),
-          axis.line = element_line(colour = "black", size = 1.1), axis.ticks.length=unit(.2, "cm"),
-          axis.ticks = element_line(size= .8), legend.text = element_text(size=14),
+          axis.line = element_line(colour = "black", linewidth = 1.1), axis.ticks.length=unit(.2, "cm"),
+          axis.ticks = element_line(linewidth = .8), legend.text = element_text(size=14),
           axis.title.x = element_text(size=18,face="bold"),
           axis.title.y = element_text(size=18,face="bold"),
           panel.grid.major = element_blank()
@@ -275,10 +275,10 @@ plot_parameterHDI <- function(output) {
     coord_flip() +
     ylab("Highest Density Interval of Parameter")+
     xlab("") +
-    geom_hline(yintercept = 0, linetype = "dashed", size = 1.3) +
+    geom_hline(yintercept = 0, linetype = "dashed", linewidth = 1.3) +
     theme(axis.text=element_text(size=8), panel.border = element_blank(),
-          axis.line = element_line(colour = "black", size = 1.1), axis.ticks.length=unit(.2, "cm"),
-          axis.ticks = element_line(size= .8),
+          axis.line = element_line(colour = "black", linewidth = 1.1), axis.ticks.length=unit(.2, "cm"),
+          axis.ticks = element_line(linewidth = .8),
           axis.title.x = element_text(size=16,face="bold"), plot.title = element_text(size = 18, face = "bold"))
 }
 
