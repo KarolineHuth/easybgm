@@ -66,7 +66,7 @@
 #' library(easybgm)
 #' library(bgms)
 #'
-#' data <- Wenchuan
+#' data <- na.omit(Wenchuan)
 #'
 #' # Fitting the Wenchuan PTSD data
 #'

@@ -7,7 +7,7 @@
 plot_posteriorstructure(output, as.BF = FALSE)
 }
 \arguments{
-\item{output}{Output object from the bgm_extract function}
+\item{output}{Output object from the easybgm function}
 
 \item{as.BF}{if TRUE plots the y-axis as Bayes factor instead of posterior structure probability}
 }

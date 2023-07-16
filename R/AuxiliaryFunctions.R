@@ -79,21 +79,18 @@ gwish_samples <- function(G, S, nsamples=1000) {
 # 6. Centrality of weighted graphs
 
 # Strength centrality only ## FASTER CODE
-centrality_strength <- function(res){
+centrality <- function(res){
   Nsamples <- nrow(res$samples_posterior)
   p <- nrow(res$parameters)
   strength_samples <- matrix(0, nrow = Nsamples, ncol = p)
   for(i in 1:Nsamples){
     strength_samples[i, ] <- rowSums(abs(vector2matrix(res$samples_posterior[i,], p, bycolumn = T)))
   }
-  strength_mean <- colMeans(strength_samples)
-  strength_median <- apply(strength_samples,2,median)
-  return(list(centrality_strength_samples = strength_samples, centrality_strength_mean = strength_mean,
-              centrality_strength_median = strength_median))
+  return(strength_samples)
 }
 
 # Strength, betweenness and closeness centrality ## SLOWER CODE
-centrality <- function(res){
+centrality_all <- function(res){
   Nsamples <- nrow(res$samples_posterior)
   p <- as.numeric(nrow(res$parameters))
   samples <- res$samples_posterior

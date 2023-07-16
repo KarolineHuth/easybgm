@@ -85,7 +85,7 @@ Easy estimation of a Bayesian analysis of networks to obtain conditional (in)dep
 library(easybgm)
 library(bgms)
 
-data <- Wenchuan
+data <- na.omit(Wenchuan)
 
 # Fitting the Wenchuan PTSD data
 

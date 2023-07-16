@@ -6,8 +6,6 @@ bgm_fit.package_bgms <- function(fit, type, data, iter, save,
                                  not.cont, centrality, progress, ...){
 
   if(save == FALSE & centrality == TRUE){
-    warning("The centrality measures can only be obtained if the posterior samples are saved. Note that we automatically set
-            set save = TRUE.")
     save <- TRUE
   }
 

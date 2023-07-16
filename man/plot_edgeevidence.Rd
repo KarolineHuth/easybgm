@@ -7,7 +7,7 @@
 plot_edgeevidence(output, evidence_thresh = 10, split = F, show = "all", ...)
 }
 \arguments{
-\item{output}{Output object from the bgm_extract function}
+\item{output}{Output object from the easybgm function}
 
 \item{evidence_thresh}{Bayes Factor which will be considered sufficient evidence for in-/exclusion, default is 10.}
 

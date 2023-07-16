@@ -2,7 +2,7 @@
 
 #' Plot Posterior Structure Probabilities
 #'
-#' @param output Output object from the bgm_extract function
+#' @param output Output object from the easybgm function
 #' @param as.BF if TRUE plots the y-axis as Bayes factor instead of posterior structure probability
 #'
 #' @export
@@ -52,7 +52,7 @@ plot_posteriorstructure <- function(output, as.BF = FALSE) {
 
 #' Plot posterior structure complexity
 #'
-#' @param output Output object from the bgm_extract function
+#' @param output Output object from the easybgm function
 #'
 #' @export
 #' @import ggplot2
@@ -95,7 +95,7 @@ plot_posteriorcomplexity <- function(output) {
 
 #' Edge evidence plot
 #'
-#' @param output Output object from the bgm_extract function
+#' @param output Output object from the easybgm function
 #' @param evidence_thresh Bayes Factor which will be considered sufficient evidence for in-/exclusion, default is 10.
 #' @param split if TRUE, plot is split in included and excluded edges
 #' @param show specifies which edges should be shown, indicated by "all", "included", "inconclusive", "excluded"
@@ -173,7 +173,7 @@ plot_edgeevidence <- function(output, evidence_thresh = 10, split = F, show = "a
 
 #' Network plot
 #'
-#' @param output Output object from the bgm_extract function
+#' @param output Output object from the easybgm function
 #' @param exc_prob threshold for excluding edges; all edges with a lower inclusion probability will not be shown
 #' @param dashed binary parameter indicating whether edges with inconclusive evidence should be dashed
 #' @param ... Additional `qgraph` arguments
@@ -213,7 +213,7 @@ plot_network <- function(output, exc_prob = .5, dashed = F, ...) {
 
 #' Structure plot
 #'
-#' @param output Output object from the bgm_extract function
+#' @param output Output object from the easybgm function
 #' @param ... Additional `qgraph` arguments
 #'
 #' @export
@@ -237,7 +237,7 @@ plot_structure <- function(output, ...) {
 
 #' Plot of interaction parameters and their 95% highest density intervals
 #'
-#' @param output Output object from the bgm_extract function
+#' @param output Output object from the easybgm function
 #'
 #' @export
 #' @import ggplot2 HDInterval
@@ -288,16 +288,14 @@ plot_parameterHDI <- function(output) {
 
 #' Plot centrality measures and 95% highest density interval
 #'
-#' @param output Output object from the bgm_extract function
-#' @param measure Centrality measures that should be plotted. Users can choose "all" or a
-#'        subselection of the list: "Strength", "Closeness", "Betweenness", or "ExpectedInfluence"
+#' @param output Output object from the easybgm function
 #'
 #' @export
-#' @import tibble
-#' @import tidyr
 #'
 
-plot_centrality <- function(output, measure = "Strength"){
+plot_centrality <- function(output
+                            # , measure = "Strength"
+                            ){
 
   if(!any(class(output) == "easybgm")){
     stop("Wrong input provided. The function requires as input the output of the easybgm function.")
@@ -312,43 +310,73 @@ plot_centrality <- function(output, measure = "Strength"){
   rownames(cent_samples) <- NULL
   # Creating summary statistics
 
-  centrality_means <- cent_samples %>%
-    as_tibble() %>%
-    dplyr::group_by(Centrality) %>%
-    dplyr::group_modify(~ as.data.frame(colMeans(.x)))
-  centrality_means <- data.frame(Centrality = centrality_means$Centrality,
-             value = centrality_means$'colMeans(.x)',
-             node = rep(colnames(output$parameters), 4))
-  centrality_means <- centrality_means[order(centrality_means$Centrality, centrality_means$node), ]
-  centrality_hdi <- cent_samples %>%
-    as_tibble() %>%
-    dplyr::group_by(Centrality) %>%
-    dplyr::group_modify(~ as.data.frame(hdi(.x, allowSplit = F)))
-  firstnode <- colnames(output$parameters)[1]
-  lastnode <- colnames(output$parameters)[nrow(output$parameters)]
-  centrality_hdi <- centrality_hdi %>%
-    tidyr::gather(node, value, firstnode:lastnode) %>%
-    tibble::add_column(interval = rep(c("lower", "upper"), p*4)) %>%
-    tidyr::spread(interval, value)
+  centrality_means <- colMeans(cent_samples)
+  centrality_hdi <- apply(cent_samples, MARGIN = 2, FUN = hdi, allowSplit = F)
+  centrality_summary <- data.frame(node = colnames(output$parameters),
+                                 mean = centrality_means,
+                                 lower = centrality_hdi[1, ],
+                                 upper = centrality_hdi[2, ])
 
-  centrality_summary <- merge(centrality_hdi, centrality_means, all = T)
-
-  measure_options <- c("all", "Betweenness", "Closeness", "ExpectedInfluence", "Strength")
-  if(any((measure %in% measure_options) == FALSE)) {
-    stop("This centrality measure cannot be plotted. Please choose one or several of the following measures: Betweenness, Closeness, ExpectedInfluence, Strength.")
-  }
-  if(any(measure == "all")){
-    measure <- c("Betweenness", "Closeness", "ExpectedInfluence", "Strength")
-  }
   centrality_summary %>%
-    filter(Centrality %in% measure) %>%
-    ggplot(aes(x = node, y=value, group = Centrality))+
-    geom_line()+
+    arrange(mean) %>%
+    ggplot(aes(x = node, y=mean))+
     geom_point()+
-    geom_errorbar(aes(y= value, ymin =lower, ymax = upper), linewidth = .5, width = 0.4)+
-    facet_wrap(.~ Centrality, ncol = 4, scales = "free_x") +
+    geom_errorbar(aes(y= mean, ymin =lower, ymax = upper), linewidth = .5, width = 0.4)+
     coord_flip() +
     ylab("Value") +
     xlab("Nodes")
+
+
+    # if(!any(class(output) == "easybgm")){
+    #   stop("Wrong input provided. The function requires as input the output of the easybgm function.")
+    # }
+    #
+    # if(is.null(output$centrality)){
+    #   stop("Centrality results are required. When estimating the model, set \"centrality = TRUE\".")
+    # }
+    #
+    # cent_samples <- output$centrality
+    # p <- ncol(output$parameters)
+    # rownames(cent_samples) <- NULL
+    # # Creating summary statistics
+    #
+    # centrality_means <- cent_samples %>%
+    #   as_tibble() %>%
+    #   dplyr::group_by(Centrality) %>%
+    #   dplyr::group_modify(~ as.data.frame(colMeans(.x)))
+    # centrality_means <- data.frame(Centrality = centrality_means$Centrality,
+    #                                value = centrality_means$'colMeans(.x)',
+    #                                node = rep(colnames(output$parameters), 4))
+    # centrality_means <- centrality_means[order(centrality_means$Centrality, centrality_means$node), ]
+    # centrality_hdi <- cent_samples %>%
+    #   as_tibble() %>%
+    #   dplyr::group_by(Centrality) %>%
+    #   dplyr::group_modify(~ as.data.frame(hdi(.x, allowSplit = F)))
+    # firstnode <- colnames(output$parameters)[1]
+    # lastnode <- colnames(output$parameters)[nrow(output$parameters)]
+    # centrality_hdi <- centrality_hdi %>%
+    #   tidyr::gather(node, value, firstnode:lastnode) %>%
+    #   tibble::add_column(interval = rep(c("lower", "upper"), p*4)) %>%
+    #   tidyr::spread(interval, value)
+    #
+    # centrality_summary <- merge(centrality_hdi, centrality_means, all = T)
+    #
+    # measure_options <- c("all", "Betweenness", "Closeness", "ExpectedInfluence", "Strength")
+    # if(any((measure %in% measure_options) == FALSE)) {
+    #   stop("This centrality measure cannot be plotted. Please choose one or several of the following measures: Betweenness, Closeness, ExpectedInfluence, Strength.")
+    # }
+    # if(any(measure == "all")){
+    #   measure <- c("Betweenness", "Closeness", "ExpectedInfluence", "Strength")
+    # }
+    # centrality_summary %>%
+    #   filter(Centrality %in% measure) %>%
+    #   ggplot(aes(x = node, y=value, group = Centrality))+
+    #   geom_line()+
+    #   geom_point()+
+    #   geom_errorbar(aes(y= value, ymin =lower, ymax = upper), linewidth = .5, width = 0.4)+
+    #   facet_wrap(.~ Centrality, ncol = 4, scales = "free_x") +
+    #   coord_flip() +
+    #   ylab("Value") +
+    #   xlab("Nodes")
 }
 
