@@ -5,8 +5,7 @@
 #'
 #' @export
 
-summary.easybgm <- function(x, evidence_thresh = 10) {
-
+summary.easybgm <- function(x, evidence_thresh = 10, ...) {
 
   # nodes
   p <- ncol(x$parameters)
@@ -89,7 +88,8 @@ summary.easybgm <- function(x, evidence_thresh = 10) {
 #' @export
 #'
 
-print.easybgm <- function(x){
+print.easybgm <- function(x, ...){
+
   if(is.null(x$n_inclu_edges)){
     print(summary.easybgm(x))
   } else {

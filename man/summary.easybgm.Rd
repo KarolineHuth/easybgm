@@ -4,7 +4,7 @@
 \alias{summary.easybgm}
 \title{Summary function for easybgm objects}
 \usage{
-\method{summary}{easybgm}(x, evidence_thresh = 10)
+\method{summary}{easybgm}(x, evidence_thresh = 10, ...)
 }
 \arguments{
 \item{x}{easybgm object}

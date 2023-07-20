@@ -4,7 +4,7 @@
 \alias{print.easybgm}
 \title{Print function for easybgm objects}
 \usage{
-\method{print}{easybgm}(x)
+\method{print}{easybgm}(x, ...)
 }
 \arguments{
 \item{x}{easybgm object}

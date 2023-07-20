@@ -56,7 +56,6 @@ plot_posteriorstructure <- function(output, as.BF = FALSE) {
 #'
 #' @export
 #' @import ggplot2
-#' @import tibble
 #'
 
 plot_posteriorcomplexity <- function(output) {
@@ -72,9 +71,9 @@ plot_posteriorcomplexity <- function(output) {
     complexity[i] <- sum(as.numeric(unlist(strsplit(output$sample_graph[i], ""))))
   }
 
-  data_complexity <- tibble::tibble(complexity, weights = output$graph_weights)  %>%
-    dplyr::group_by(complexity) %>%
-    dplyr::summarise(complexity_weight = sum(weights)) %>%
+  data_complexity <- data.frame(complexity = complexity, weights = output$graph_weights) |>
+    dplyr::group_by(complexity) |>
+    dplyr::summarise(complexity_weight = sum(weights)) |>
     dplyr::mutate(complexity_weight = complexity_weight/sum(complexity_weight))
 
   ggplot(data_complexity, aes(x = complexity, y = complexity_weight))+
@@ -316,8 +315,8 @@ plot_centrality <- function(output){
                                  lower = centrality_hdi[1, ],
                                  upper = centrality_hdi[2, ])
 
-  centrality_summary %>%
-    arrange(mean) %>%
+  centrality_summary |>
+    arrange(mean) |>
     ggplot(aes(x = node, y=mean))+
     geom_point()+
     geom_errorbar(aes(y= mean, ymin =lower, ymax = upper), linewidth = .5, width = 0.4)+
