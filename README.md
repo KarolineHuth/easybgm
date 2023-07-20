@@ -126,4 +126,6 @@ Wickham, H. (2016). ggplot2: Elegant graphics for data analysis. Springer-Verlag
 
 Williams, Donald R, and Joris Mulder. (2019). “Bayesian Hypothesis Testing for Gaussian Graphical Models: Conditional Independence and Order Constraints.” PsyArXiv. https://doi.org/10.31234/osf.io/ypxd8.
 
-
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/KarolineHuth/easybgm/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/KarolineHuth/easybgm/actions/workflows/R-CMD-check.yaml)
+<!-- badges: end -->
