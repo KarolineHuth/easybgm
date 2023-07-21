@@ -86,7 +86,7 @@
 
 easybgm <- function(data, type, package = NULL, not.cont = NULL, iter = 1e4,
                     save = FALSE, centrality = FALSE, progress = TRUE,
-                    edge.prior = 0.5, ...){
+                    ...){
 
 
   if(type == "mixed" & is.null(not.cont)){
@@ -131,7 +131,6 @@ easybgm <- function(data, type, package = NULL, not.cont = NULL, iter = 1e4,
 
   # Extract the results
   res <- bgm_extract(fit, model = fit$model,
-                     edge.prior = edge.prior,
                      save = save, not.cont = not.cont,
                      data = data, centrality = centrality, ...)
 

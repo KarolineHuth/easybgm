@@ -9,7 +9,9 @@ bgm_fit.package_bdgraph <- function(fit, type, data, iter, save,
     g.prior = .5,
     df.prior = 3
   )
+  
   args <- set_defaults(prior_defaults, ...)
+  
   if(type == "continuous"){
     bdgraph_fit <- do.call(BDgraph::bdgraph,
                            c(list(data = data, method ="ggm", iter = iter,
@@ -22,7 +24,7 @@ bgm_fit.package_bdgraph <- function(fit, type, data, iter, save,
     # fitting the model
     bdgraph_fit <- do.call(BDgraph::bdgraph,
                           c(list(data = data, method = "gcgm", 
-                               iter = iter, save = save,
+                               iter = iter, save = save
                                ), args))
     fit$model <- "gcgm"
 
@@ -44,13 +46,20 @@ bgm_fit.package_bdgraph <- function(fit, type, data, iter, save,
 # 2. Extracting results function
 # --------------------------------------------------------------------------------------------------
 
-bgm_extract.package_bdgraph <- function(fit, model, edge.prior, save,
+bgm_extract.package_bdgraph <- function(fit, model, save,
                                 not.cont, data, centrality, ...){
   if(is.null(model)){
     stop("Please specify the type of model estimated with BDgraph (e.g., ggm, gcgm, dgm-binary).",
          call. = FALSE)
   }
   fit <- fit$packagefit
+  
+  defaults <- list(
+    g.prior = .5
+  )
+  
+  args <- set_defaults(defaults, ...)
+  edge.prior = args$g.prior
   bdgraph_res <- list()
   if(model %in% "ggm"){
     #Bayesian model-averaged estimates
