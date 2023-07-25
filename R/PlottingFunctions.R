@@ -151,11 +151,10 @@ plot_edgeevidence <- function(output, evidence_thresh = 10, split = F, show = "a
     theme = "TeamFortress",
     legend = T,
     vsize = 10,
-    nodeNames = colnames(output$parameters),
     labels = colnames(output$parameters),
     edge.width = 3,
     label.cex = 1,
-    legend.cex = 1
+    legend.cex = .8
     
   )
   args <- set_defaults(default_args, ...)
@@ -280,9 +279,17 @@ plot_network <- function(output, exc_prob = .5, dashed = F, ...) {
   }
   graph <- output$parameters
   default_args <- list(
-    evidence_thres = 10
+    evidence_thres = 10,
+    theme = "TeamFortress",
+    vsize = 10,
+    nodeNames = colnames(output$parameters),
+    legend = T,
+    labels = colnames(output$parameters),
+    label.cex = 1,
+    legend.cex = .8
   )
   args <- set_defaults(default_args, ...)
+  
   # Exclude edges with a inclusion probability lower exc_prob
   inc_probs_m <- output$inc_probs
   graph[inc_probs_m < exc_prob] <- 0
@@ -290,10 +297,21 @@ plot_network <- function(output, exc_prob = .5, dashed = F, ...) {
 
   # Plot
   if(dashed == T){
-    graph_dashed <- ifelse(output$BF < evidence_thres, "dashed", "solid")
-    qgraph::qgraph(graph, lty = graph_dashed, ...)
+    graph_dashed <- ifelse(output$BF < args$evidence_thres, "dashed", "solid")
+    qgraph::qgraph(graph, lty = graph_dashed, 
+                   theme = args$theme, vsize = args$vsize,
+                   nodeNames = args$nodeNames,
+                   legend = args$legend,
+                   labels = args$labels,
+                   label.cex = args$label.cex,
+                   legend.cex = args$legend.cex, ...)
   } else {
-    qgraph::qgraph(graph, ...)
+    qgraph::qgraph(graph, theme = args$theme, vsize = args$vsize,
+                   nodeNames = args$nodeNames,
+                   legend = args$legend,
+                   labels = args$labels,
+                   label.cex = args$label.cex,
+                   legend.cex = args$legend.cex, ...)
   }
 
 }
