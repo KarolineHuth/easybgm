@@ -71,7 +71,7 @@ bgm_extract.package_bdgraph <- function(fit, model, save,
     bdgraph_res$structure <- 1*(bdgraph_res$inc_probs > 0.5)
     bdgraph_res$structure_probabilities <- fit$graph_weights/sum(fit$graph_weights)
     bdgraph_res$graph_weights <- fit$graph_weights
-    bdgraph_res$sample_graph <- fit$sample_graphs
+    bdgraph_res$sample_graphs <- fit$sample_graphs
     # bdgraph_res$package <- "bdgraph"
     bdgraph_res$model <- "ggm"
 
@@ -105,7 +105,7 @@ bgm_extract.package_bdgraph <- function(fit, model, save,
     bdgraph_res$structure <- 1*(bdgraph_res$inc_probs > 0.5)
     bdgraph_res$structure_probabilities <- fit$graph_weights/sum(fit$graph_weights)
     bdgraph_res$graph_weights <- fit$graph_weights
-    bdgraph_res$sample_graph <- fit$sample_graphs
+    bdgraph_res$sample_graphs <- fit$sample_graphs
     # bdgraph_res$package <- "bdgraph"
     bdgraph_res$model <- "gcgm"
 
