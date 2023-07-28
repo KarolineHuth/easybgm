@@ -6,7 +6,7 @@
 #'
 #' @param data An n x p matrix or dataframe containing the variables for n independent observations on p variables.
 #' @param type What is the data type? Options: continuous, mixed, ordinal, binary
-#' @param package The R-package that should be used for fitting the network model. Optional argument;
+#' @param package The R-package that should be used for fitting the network model; supports BGGM, BDgraph, and bgms. Optional argument;
 #'     default values are specified depending on the datatype.
 #' @param not.cont If data-type is mixed, a vector of length p, specifying the not-continuous
 #'     variables (1 = not continuous, 0 = continuous).
@@ -56,9 +56,9 @@
 #'
 #' @export
 #'
-#' @import bgms
-#' @import BDgraph
-#' @import BGGM
+#' @importFrom bgms bgm
+#' @importFrom BDgraph bdgraph bdgraph.mpl plinks
+#' @importFrom BGGM explore select
 #'
 #' @examples
 #' \donttest{
@@ -66,7 +66,7 @@
 #' library(easybgm)
 #' library(bgms)
 #'
-#' data <- Wenchuan
+#' data <- na.omit(Wenchuan)
 #'
 #' # Fitting the Wenchuan PTSD data
 #'

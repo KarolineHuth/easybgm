@@ -2,12 +2,11 @@
 
 #' Plot Posterior Structure Probabilities
 #'
-#' @param output Output object from the bgm_extract function
+#' @param output Output object from the easybgm function
 #' @param as.BF if TRUE plots the y-axis as Bayes factor instead of posterior structure probability
 #'
 #' @export
-#' @import ggplot2
-#' @import dplyr
+#' @importFrom dplyr group_by summarise mutate group_modify filter
 #'
 
 plot_posteriorstructure <- function(output, as.BF = FALSE, ...) {
@@ -67,7 +66,7 @@ plot_posteriorstructure <- function(output, as.BF = FALSE, ...) {
 
 #' Plot posterior structure complexity
 #'
-#' @param output Output object from the bgm_extract function
+#' @param output Output object from the easybgm function
 #'
 #' @export
 #' @import ggplot2
@@ -106,10 +105,10 @@ plot_posteriorcomplexity <- function(output, ...) {
     complexity[i] <- sum(as.numeric(unlist(strsplit(output$sample_graph[i], ""))))
   }
 
-  data_complexity <- tibble(complexity, weights = output$graph_weights)  %>%
-    group_by(complexity) %>%
-    summarise(complexity_weight = sum(weights)) %>%
-    mutate(complexity_weight = complexity_weight/sum(complexity_weight))
+  data_complexity <- data.frame(complexity = complexity, weights = output$graph_weights) |>
+    dplyr::group_by(complexity) |>
+    dplyr::summarise(complexity_weight = sum(weights)) |>
+    dplyr::mutate(complexity_weight = complexity_weight/sum(complexity_weight))
 
   ggplot(data_complexity, aes(x = complexity, y = complexity_weight, ...)) +
     geom_point() +
@@ -123,6 +122,7 @@ plot_posteriorcomplexity <- function(output, ...) {
           axis.title.x = args$axis.title.x,
           axis.title.y = args$axis.title.y,
           panel.grid.major = args$panel.grid.major
+
     )
 }
 
@@ -130,14 +130,13 @@ plot_posteriorcomplexity <- function(output, ...) {
 
 #' Edge evidence plot
 #'
-#' @param output Output object from the bgm_extract function
-#' @param evidence_thresh BF which will be considered sufficient evidence for in-/exclusion
+#' @param output Output object from the easybgm function
+#' @param evidence_thresh Bayes Factor which will be considered sufficient evidence for in-/exclusion, default is 10.
 #' @param split if TRUE, plot is split in included and excluded edges
 #' @param show specifies which edges should be shown, indicated by "all", "included", "inconclusive", "excluded"
 #' @param ... Additional `qgraph` arguments
 #'
 #' @export
-#' @import qgraph
 #'
 plot_edgeevidence <- function(output, evidence_thresh = 10, split = F, show = "all", ...) {
   if(!any(class(output) == "easybgm")){
@@ -260,14 +259,13 @@ plot_edgeevidence <- function(output, evidence_thresh = 10, split = F, show = "a
 
 #' Network plot
 #'
-#' @param output Output object from the bgm_extract function
+#' @param output Output object from the easybgm function
 #' @param exc_prob threshold for excluding edges; all edges with a lower inclusion probability will not be shown
 #' @param dashed binary parameter indicating whether edges with inconclusive evidence should be dashed
 #' @param ... Additional `qgraph` arguments
 
 #'
 #' @export
-#' @import qgraph
 
 plot_network <- function(output, exc_prob = .5, dashed = F, ...) {
   if(!any(class(output) == "easybgm")){
@@ -320,7 +318,7 @@ plot_network <- function(output, exc_prob = .5, dashed = F, ...) {
 
 #' Structure plot
 #'
-#' @param output Output object from the bgm_extract function
+#' @param output Output object from the easybgm function
 #' @param ... Additional `qgraph` arguments
 #'
 #' @export
@@ -344,7 +342,7 @@ plot_structure <- function(output, ...) {
 
 #' Plot of interaction parameters and their 95% highest density intervals
 #'
-#' @param output Output object from the bgm_extract function
+#' @param output Output object from the easybgm function
 #'
 #' @export
 #' @import ggplot2 HDInterval
@@ -403,6 +401,7 @@ plot_parameterHDI <- function(output, ...) {
     xlab(args$xlab) +
     args$geom_hline +
     args$theme
+
 }
 
 
@@ -411,16 +410,13 @@ plot_parameterHDI <- function(output, ...) {
 
 #' Plot centrality measures and 95% highest density interval
 #'
-#' @param output Output object from the bgm_extract function
-#' @param measure Centrality measures that should be plotted. Users can choose "all" or a
-#'        subselection of the list: "Strength", "Closeness", "Betweenness", or "ExpectedInfluence"
+#' @param output Output object from the easybgm function
 #'
 #' @export
-#' @import tibble
-#' @import tidyr
 #'
 
-plot_centrality <- function(output, measure = "Strength", ... ){
+
+plot_centrality <- function(output){
 
   if(!any(class(output) == "easybgm")){
     stop("Wrong input provided. The function requires as input the output of the easybgm function.")
@@ -444,40 +440,18 @@ plot_centrality <- function(output, measure = "Strength", ... ){
   rownames(cent_samples) <- NULL
   # Creating summary statistics
 
-  centrality_means <- cent_samples %>%
-    as_tibble() %>%
-    group_by(Centrality) %>%
-    group_modify(~ as.data.frame(colMeans(.x)))
-  centrality_means <- cbind(centrality_means, rep(colnames(output$parameters), 4))
-  colnames(centrality_means)[2:3] <- c("value", "node")
-  centrality_means <- centrality_means[order(centrality_means$Centrality, centrality_means$node), ]
-  centrality_hdi <- cent_samples %>%
-    as_tibble() %>%
-    group_by(Centrality) %>%
-    group_modify(~ as.data.frame(hdi(.x, allowSplit = F)))
-  firstnode <- colnames(output$parameters)[1]
-  lastnode <- colnames(output$parameters)[nrow(output$parameters)]
-  centrality_hdi <- centrality_hdi %>%
-    gather(node, value, firstnode:lastnode) %>%
-    tibble::add_column(interval = rep(c("lower", "upper"), p*4)) %>%
-    tidyr::spread(interval, value)
+  centrality_means <- colMeans(cent_samples)
+  centrality_hdi <- apply(cent_samples, MARGIN = 2, FUN = hdi, allowSplit = F)
+  centrality_summary <- data.frame(node = colnames(output$parameters),
+                                 mean = centrality_means,
+                                 lower = centrality_hdi[1, ],
+                                 upper = centrality_hdi[2, ])
 
-  centrality_summary <- merge(centrality_hdi, centrality_means, all = T)
-
-  measure_options <- c("all", "Betweenness", "Closeness", "ExpectedInfluence", "Strength")
-  if(any((measure %in% measure_options) == FALSE)) {
-    stop("This centrality measure cannot be plotted. Please choose one or several of the following measures: Betweenness, Closeness, ExpectedInfluence, Strength.")
-  }
-  if(any(measure == "all")){
-    measure <- c("Betweenness", "Closeness", "ExpectedInfluence", "Strength")
-  }
-  centrality_summary %>%
-    filter(Centrality %in% measure) %>%
-    ggplot(aes(x = node, y = value, group= Centrality, ...))+
-    geom_line()+
+  centrality_summary |>
+    arrange(mean) |>
+    ggplot(aes(x = node, y=mean))+
     geom_point()+
     args$geom_errorbar+
-    facet_wrap(.~ Centrality, ncol = 4, scales = "free_x") +
     coord_flip() +
     ylab(args$ylab) +
     xlab(args$xlab)

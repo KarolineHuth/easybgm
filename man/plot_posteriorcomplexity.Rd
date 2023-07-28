@@ -7,7 +7,7 @@
 plot_posteriorcomplexity(output)
 }
 \arguments{
-\item{output}{Output object from the bgm_extract function}
+\item{output}{Output object from the easybgm function}
 }
 \description{
 Plot posterior structure complexity

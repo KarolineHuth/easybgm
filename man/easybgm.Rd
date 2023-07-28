@@ -20,9 +20,9 @@ easybgm(
 \arguments{
 \item{data}{An n x p matrix or dataframe containing the variables for n independent observations on p variables.}
 
-\item{type}{What is the data type? Options: continuos, mixed, ordinal, binary}
+\item{type}{What is the data type? Options: continuous, mixed, ordinal, binary}
 
-\item{package}{The R-package that should be used for fitting the network model. Optional argument;
+\item{package}{The R-package that should be used for fitting the network model; supports BGGM, BDgraph, and bgms. Optional argument;
 default values are specified depending on the datatype.}
 
 \item{not.cont}{If data-type is mixed, a vector of length p, specifying the not-continuous
@@ -71,7 +71,7 @@ For all packages, when setting \code{save = TRUE} and \code{centrality = TRUE}, 
 
 \itemize{
 
-\item \code{samples_posterior} A k x iter matrix containing the posterior samples for each parameter (i.e., k = p/(p-1)) at each iteration (i.e., iter) of the sampler.
+\item \code{samples_posterior} A k x iter matrix containing the posterior samples for each parameter (i.e., k = (p/(p-1))/2) at each iteration (i.e., iter) of the sampler.
 
 \item \code{centrality} A p x iter matrix containing the centrality of a node at each iteration of the sampler.
 }
@@ -85,7 +85,7 @@ Easy estimation of a Bayesian analysis of networks to obtain conditional (in)dep
 library(easybgm)
 library(bgms)
 
-data <- Wenchuan
+data <- na.omit(Wenchuan)
 
 # Fitting the Wenchuan PTSD data
 

@@ -4,13 +4,10 @@
 \alias{plot_centrality}
 \title{Plot centrality measures and 95\% highest density interval}
 \usage{
-plot_centrality(output, measure = "Strength")
+plot_centrality(output)
 }
 \arguments{
-\item{output}{Output object from the bgm_extract function}
-
-\item{measure}{Centrality measures that should be plotted. Users can choose "all" or a
-subselection of the list: "Strength", "Closeness", "Betweenness", or "ExpectedInfluence"}
+\item{output}{Output object from the easybgm function}
 }
 \description{
 Plot centrality measures and 95\% highest density interval
