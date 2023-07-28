@@ -1,6 +1,4 @@
 .DS_Store
 .Rhistory
 easybgm.Rproj
-R/bgm_extract.R
-R/bgm_fit.R
 .Rproj.user

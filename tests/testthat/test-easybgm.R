@@ -12,7 +12,7 @@ data <- na.omit(Wenchuan)
 res_bgms <- easybgm(data[1:100, 1:5], type = "ordinal",
                     package = "bgms", save = T)
 test_that("easybgm works for bgms", {
-  expect_snapshot(summary(res_bgms))
+  testthat::expect_snapshot(summary(res_bgms))
 })
 
 ##--------------------------------
@@ -50,7 +50,7 @@ set.seed(123)
 res_bdgraph <- easybgm(data[1:100, 1:5], type = "continuous",
                     package = "BDgraph", save = T)
 test_that("easybgm works for bdgraph", {
-  expect_snapshot(summary(res_bdgraph))
+  testthat::expect_snapshot(summary(res_bdgraph))
 })
 
 ##--------------------------------
@@ -89,7 +89,7 @@ vdiffr::expect_doppelganger("HDI plot Bdgraph", HDI_bdgraph)
 # res_bggm <- easybgm(data[1:300, 1:5], type = "continuous",
 #                        package = "BGGM")
 # test_that("easybgm works for bggm", {
-#   expect_snapshot(summary(res_bggm))
+#   vdiffr::expect_snapshot(summary(res_bggm))
 # })
 
 
