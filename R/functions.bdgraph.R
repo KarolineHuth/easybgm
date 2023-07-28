@@ -13,26 +13,32 @@ bgm_fit.package_bdgraph <- function(fit, type, data, iter, save,
   args <- set_defaults(prior_defaults, ...)
   
   if(type == "continuous"){
+
     bdgraph_fit <- do.call(BDgraph::bdgraph,
                            c(list(data = data, method ="ggm", iter = iter,
-                                     save = save), args))
+                                     save = TRUE), args))
+
 
     fit$model <- "ggm"
   }
   if(type %in% c("mixed", "ordinal")){
     if(type == "ordinal") not.cont <- rep(1, ncol(data))
     # fitting the model
+
     bdgraph_fit <- do.call(BDgraph::bdgraph,
                           c(list(data = data, method = "gcgm", 
-                               iter = iter, save = save
+                               iter = iter, save = TRUE
                                ), args))
+
     fit$model <- "gcgm"
 
   }
   if(type == "binary"){
+
     bdgraph_fit <- do.call(bdgraph.mpl,
                            c(list(data = data, method = "dgm-binary",
-                                  iter = iter, save = save), args))
+                                  iter = iter, save = TRUE), args))
+
     fit$model <-  "dgm-binary"
   }
   fit$packagefit <- bdgraph_fit
