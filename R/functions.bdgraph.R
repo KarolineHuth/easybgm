@@ -4,33 +4,41 @@
 
 bgm_fit.package_bdgraph <- function(fit, type, data, iter, save,
                             not.cont, centrality, progress, ...){
+  
+  prior_defaults <- list(
+    g.prior = .5,
+    df.prior = 3
+  )
+  
+  args <- set_defaults(prior_defaults, ...)
+  
   if(type == "continuous"){
-    bdgraph_fit <- BDgraph::bdgraph(data = data,               #(M) n*p matrix of responses
-                                    method ="ggm",           #(M) type of data
-                                    iter = iter,           #(O) no. iterations sampler
-                                    save = TRUE,           #(O) Should samples be stored
-                                    ...)
+
+    bdgraph_fit <- do.call(BDgraph::bdgraph,
+                           c(list(data = data, method ="ggm", iter = iter,
+                                     save = TRUE), args))
+
 
     fit$model <- "ggm"
   }
   if(type %in% c("mixed", "ordinal")){
     if(type == "ordinal") not.cont <- rep(1, ncol(data))
     # fitting the model
-    bdgraph_fit <- BDgraph::bdgraph(data = data,         #(M) n*p matrix of responses
-                                    method="gcgm",       #(M) type of data
-                                    iter=iter,           #(O) no. iterations sampler
-                                    save= TRUE,          #(O) Should samples be stored
-                                    not.cont = not.cont, #(O) Specifies not continuous variables if method is gcgm
-                                    ...)
+
+    bdgraph_fit <- do.call(BDgraph::bdgraph,
+                          c(list(data = data, method = "gcgm", 
+                               iter = iter, save = TRUE
+                               ), args))
+
     fit$model <- "gcgm"
 
   }
   if(type == "binary"){
-    bdgraph_fit <- BDgraph::bdgraph.mpl(data = data,
-                               method = "dgm-binary",
-                               iter = iter,
-                               save = TRUE,
-                               ...)
+    bdgraph_fit <- do.call(bdgraph.mpl,
+                           c(list(data = data, method = "dgm-binary",
+                                  iter = iter, save = TRUE), args))
+
+
     fit$model <-  "dgm-binary"
   }
   fit$packagefit <- bdgraph_fit
@@ -44,13 +52,20 @@ bgm_fit.package_bdgraph <- function(fit, type, data, iter, save,
 # 2. Extracting results function
 # --------------------------------------------------------------------------------------------------
 
-bgm_extract.package_bdgraph <- function(fit, model, edge.prior, save,
+bgm_extract.package_bdgraph <- function(fit, model, save,
                                 not.cont, data, centrality, ...){
   if(is.null(model)){
     stop("Please specify the type of model estimated with BDgraph (e.g., ggm, gcgm, dgm-binary).",
          call. = FALSE)
   }
   fit <- fit$packagefit
+  
+  defaults <- list(
+    g.prior = .5
+  )
+  
+  args <- set_defaults(defaults, ...)
+  edge.prior = args$g.prior
   bdgraph_res <- list()
   if(model %in% "ggm"){
     #Bayesian model-averaged estimates
@@ -62,7 +77,7 @@ bgm_extract.package_bdgraph <- function(fit, model, edge.prior, save,
     bdgraph_res$structure <- 1*(bdgraph_res$inc_probs > 0.5)
     bdgraph_res$structure_probabilities <- fit$graph_weights/sum(fit$graph_weights)
     bdgraph_res$graph_weights <- fit$graph_weights
-    bdgraph_res$sample_graph <- fit$sample_graphs
+    bdgraph_res$sample_graphs <- fit$sample_graphs
     # bdgraph_res$package <- "bdgraph"
     bdgraph_res$model <- "ggm"
 
@@ -96,7 +111,7 @@ bgm_extract.package_bdgraph <- function(fit, model, edge.prior, save,
     bdgraph_res$structure <- 1*(bdgraph_res$inc_probs > 0.5)
     bdgraph_res$structure_probabilities <- fit$graph_weights/sum(fit$graph_weights)
     bdgraph_res$graph_weights <- fit$graph_weights
-    bdgraph_res$sample_graph <- fit$sample_graphs
+    bdgraph_res$sample_graphs <- fit$sample_graphs
     # bdgraph_res$package <- "bdgraph"
     bdgraph_res$model <- "gcgm"
 

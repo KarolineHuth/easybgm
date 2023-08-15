@@ -185,7 +185,9 @@ plot_edgeevidence <- function(output, evidence_thresh = 10, split = F, show = "a
                      ...
       )
     }
+
     if (split == T) {
+
       graph_inc <- graph_exc <- graph
       # plot included graph
       graph_inc[output$inc_probs >= .5] <- 1
@@ -310,6 +312,7 @@ plot_network <- function(output, exc_prob = .5, dashed = F, ...) {
                    labels = args$labels,
                    label.cex = args$label.cex,
                    legend.cex = args$legend.cex, ...)
+
   }
 
 }
