@@ -60,8 +60,9 @@ We want to illustrate the package use with an example. In particular, we use the
 library(easybgm)
 library(bgms)
 
-data <- Wenchuan
-res <- easybgm(data, type = "ordinal")
+data <- na.omit(Wenchuan)
+res <- easybgm(as.matrix(data), type = "ordinal")
+summary(res)
 ```
 
 Having fitted the model, we can now visualize its results. In a first step, we assess the edge evidence plot in which edges represent the inclusion Bayes factor $\text{BF}_{10}$. Especially in a large network like ours, it is useful to split the edge evidence plot in two parts by setting the `split` argument to `TRUE`. As such, the left plot shows edges with some evidence for inclusion (i.e., $\text{BF}_{10} > 1$), where blue edges represent evidence for inclusion ($\text{BF}_{10} > 10$) and grey edges absence of evidence ($1 < \text{BF}_{10} < 10$). The right edge evidence plot shows edges with some evidence for exclusion (i.e., $\text{BF}_{10} < 1$) with evidence for exclusion shown as red ($\text{BF}_{01} > 10$) and inconclusive evidence as grey ($0.1 < \text{BF}_{10} < 1$).
@@ -120,6 +121,12 @@ Marsman, M., Haslbeck, J. M. B. (2023). Bayesian Analysis of the Ordinal Markov 
 
 Mohammadi, Reza, and Ernst C Wit. (2015). "BDgraph: An R Package for Bayesian Structure Learning in Graphical Models." Journal of Statistical Software 89 (3). <https://doi.org/10.18637/jss.v089.i03>.
 
+
 Wickham, H. (2016). ggplot2: Elegant graphics for data analysis. Springer-Verlag New York. Retrieved from <https://ggplot2.tidyverse.org>
 
 Williams, Donald R, and Joris Mulder. (2019). "Bayesian Hypothesis Testing for Gaussian Graphical Models: Conditional Independence and Order Constraints." PsyArXiv. <https://doi.org/10.31234/osf.io/ypxd8>.
+
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/KarolineHuth/easybgm/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/KarolineHuth/easybgm/actions/workflows/R-CMD-check.yaml)
+<!-- badges: end -->
+

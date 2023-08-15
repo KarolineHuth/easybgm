@@ -2,12 +2,11 @@
 
 #' Plot Posterior Structure Probabilities
 #'
-#' @param output Output object from the bgm_extract function
+#' @param output Output object from the easybgm function
 #' @param as.BF if TRUE plots the y-axis as Bayes factor instead of posterior structure probability
 #'
 #' @export
-#' @import ggplot2
-#' @import dplyr
+#' @importFrom dplyr group_by summarise mutate group_modify filter
 #'
 
 plot_posteriorstructure <- function(output, as.BF = FALSE) {
@@ -53,7 +52,7 @@ plot_posteriorstructure <- function(output, as.BF = FALSE) {
 
 #' Plot posterior structure complexity
 #'
-#' @param output Output object from the bgm_extract function
+#' @param output Output object from the easybgm function
 #'
 #' @export
 #' @import ggplot2
@@ -72,10 +71,10 @@ plot_posteriorcomplexity <- function(output) {
     complexity[i] <- sum(as.numeric(unlist(strsplit(output$sample_graph[i], ""))))
   }
 
-  data_complexity <- tibble(complexity, weights = output$graph_weights)  %>%
-    group_by(complexity) %>%
-    summarise(complexity_weight = sum(weights)) %>%
-    mutate(complexity_weight = complexity_weight/sum(complexity_weight))
+  data_complexity <- data.frame(complexity = complexity, weights = output$graph_weights) |>
+    dplyr::group_by(complexity) |>
+    dplyr::summarise(complexity_weight = sum(weights)) |>
+    dplyr::mutate(complexity_weight = complexity_weight/sum(complexity_weight))
 
   ggplot(data_complexity, aes(x = complexity, y = complexity_weight))+
     geom_point() +
@@ -84,8 +83,8 @@ plot_posteriorcomplexity <- function(output) {
     theme_minimal()+
     theme(legend.position = c(.85, 0.25), axis.text=element_text(size=20),
           legend.background = element_rect(fill = NULL), panel.border = element_blank(),
-          axis.line = element_line(colour = "black", size = 1.1), axis.ticks.length=unit(.2, "cm"),
-          axis.ticks = element_line(size= .8), legend.text = element_text(size=14),
+          axis.line = element_line(colour = "black", linewidth = 1.1), axis.ticks.length=unit(.2, "cm"),
+          axis.ticks = element_line(linewidth = .8), legend.text = element_text(size=14),
           axis.title.x = element_text(size=18,face="bold"),
           axis.title.y = element_text(size=18,face="bold"),
           panel.grid.major = element_blank()
@@ -96,14 +95,13 @@ plot_posteriorcomplexity <- function(output) {
 
 #' Edge evidence plot
 #'
-#' @param output Output object from the bgm_extract function
-#' @param evidence_thresh BF which will be considered sufficient evidence for in-/exclusion
+#' @param output Output object from the easybgm function
+#' @param evidence_thresh Bayes Factor which will be considered sufficient evidence for in-/exclusion, default is 10.
 #' @param split if TRUE, plot is split in included and excluded edges
 #' @param show specifies which edges should be shown, indicated by "all", "included", "inconclusive", "excluded"
 #' @param ... Additional `qgraph` arguments
 #'
 #' @export
-#' @import qgraph
 #'
 plot_edgeevidence <- function(output, evidence_thresh = 10, split = F, show = "all", ...) {
   if(!any(class(output) == "easybgm")){
@@ -175,14 +173,13 @@ plot_edgeevidence <- function(output, evidence_thresh = 10, split = F, show = "a
 
 #' Network plot
 #'
-#' @param output Output object from the bgm_extract function
+#' @param output Output object from the easybgm function
 #' @param exc_prob threshold for excluding edges; all edges with a lower inclusion probability will not be shown
 #' @param dashed binary parameter indicating whether edges with inconclusive evidence should be dashed
 #' @param ... Additional `qgraph` arguments
 
 #'
 #' @export
-#' @import qgraph
 
 plot_network <- function(output, exc_prob = .5, dashed = F, ...) {
   if(!any(class(output) == "easybgm")){
@@ -216,7 +213,7 @@ plot_network <- function(output, exc_prob = .5, dashed = F, ...) {
 
 #' Structure plot
 #'
-#' @param output Output object from the bgm_extract function
+#' @param output Output object from the easybgm function
 #' @param ... Additional `qgraph` arguments
 #'
 #' @export
@@ -240,7 +237,7 @@ plot_structure <- function(output, ...) {
 
 #' Plot of interaction parameters and their 95% highest density intervals
 #'
-#' @param output Output object from the bgm_extract function
+#' @param output Output object from the easybgm function
 #'
 #' @export
 #' @import ggplot2 HDInterval
@@ -278,10 +275,10 @@ plot_parameterHDI <- function(output) {
     coord_flip() +
     ylab("Highest Density Interval of Parameter")+
     xlab("") +
-    geom_hline(yintercept = 0, linetype = "dashed", size = 1.3) +
+    geom_hline(yintercept = 0, linetype = "dashed", linewidth = 1.3) +
     theme(axis.text=element_text(size=8), panel.border = element_blank(),
-          axis.line = element_line(colour = "black", size = 1.1), axis.ticks.length=unit(.2, "cm"),
-          axis.ticks = element_line(size= .8),
+          axis.line = element_line(colour = "black", linewidth = 1.1), axis.ticks.length=unit(.2, "cm"),
+          axis.ticks = element_line(linewidth = .8),
           axis.title.x = element_text(size=16,face="bold"), plot.title = element_text(size = 18, face = "bold"))
 }
 
@@ -291,16 +288,12 @@ plot_parameterHDI <- function(output) {
 
 #' Plot centrality measures and 95% highest density interval
 #'
-#' @param output Output object from the bgm_extract function
-#' @param measure Centrality measures that should be plotted. Users can choose "all" or a
-#'        subselection of the list: "Strength", "Closeness", "Betweenness", or "ExpectedInfluence"
+#' @param output Output object from the easybgm function
 #'
 #' @export
-#' @import tibble
-#' @import tidyr
 #'
 
-plot_centrality <- function(output, measure = "Strength"){
+plot_centrality <- function(output){
 
   if(!any(class(output) == "easybgm")){
     stop("Wrong input provided. The function requires as input the output of the easybgm function.")
@@ -315,40 +308,18 @@ plot_centrality <- function(output, measure = "Strength"){
   rownames(cent_samples) <- NULL
   # Creating summary statistics
 
-  centrality_means <- cent_samples %>%
-    as_tibble() %>%
-    group_by(Centrality) %>%
-    group_modify(~ as.data.frame(colMeans(.x)))
-  centrality_means <- cbind(centrality_means, rep(colnames(output$parameters), 4))
-  colnames(centrality_means)[2:3] <- c("value", "node")
-  centrality_means <- centrality_means[order(centrality_means$Centrality, centrality_means$node), ]
-  centrality_hdi <- cent_samples %>%
-    as_tibble() %>%
-    group_by(Centrality) %>%
-    group_modify(~ as.data.frame(hdi(.x, allowSplit = F)))
-  firstnode <- colnames(output$parameters)[1]
-  lastnode <- colnames(output$parameters)[nrow(output$parameters)]
-  centrality_hdi <- centrality_hdi %>%
-    gather(node, value, firstnode:lastnode) %>%
-    tibble::add_column(interval = rep(c("lower", "upper"), p*4)) %>%
-    tidyr::spread(interval, value)
+  centrality_means <- colMeans(cent_samples)
+  centrality_hdi <- apply(cent_samples, MARGIN = 2, FUN = hdi, allowSplit = F)
+  centrality_summary <- data.frame(node = colnames(output$parameters),
+                                 mean = centrality_means,
+                                 lower = centrality_hdi[1, ],
+                                 upper = centrality_hdi[2, ])
 
-  centrality_summary <- merge(centrality_hdi, centrality_means, all = T)
-
-  measure_options <- c("all", "Betweenness", "Closeness", "ExpectedInfluence", "Strength")
-  if(any((measure %in% measure_options) == FALSE)) {
-    stop("This centrality measure cannot be plotted. Please choose one or several of the following measures: Betweenness, Closeness, ExpectedInfluence, Strength.")
-  }
-  if(any(measure == "all")){
-    measure <- c("Betweenness", "Closeness", "ExpectedInfluence", "Strength")
-  }
-  centrality_summary %>%
-    filter(Centrality %in% measure) %>%
-    ggplot(aes(x = node, y=value, group = Centrality))+
-    geom_line()+
+  centrality_summary |>
+    arrange(mean) |>
+    ggplot(aes(x = node, y=mean))+
     geom_point()+
-    geom_errorbar(aes(y= value, ymin =lower, ymax = upper), size = .5, width = 0.4)+
-    facet_wrap(.~ Centrality, ncol = 4, scales = "free_x") +
+    geom_errorbar(aes(y= mean, ymin =lower, ymax = upper), linewidth = .5, width = 0.4)+
     coord_flip() +
     ylab("Value") +
     xlab("Nodes")

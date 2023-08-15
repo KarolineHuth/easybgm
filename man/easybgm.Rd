@@ -13,7 +13,6 @@ easybgm(
   save = FALSE,
   centrality = FALSE,
   progress = TRUE,
-  edge.prior = 0.5,
   ...
 )
 }
@@ -36,14 +35,10 @@ variables (1 = not continuous, 0 = continuous).}
 
 \item{progress}{Logical. Should a progress bar be shown (default = TRUE)?}
 
-\item{edge.prior}{Default is 0.5. Single value or p x p matrix with one value per edge.}
-
 \item{...}{Additional arguments that are handed to the fitting functions of the packages, e.g., informed prior specifications.}
 }
 \value{
-The returned object of \code{easybgm} contains a lot of information that
-is used for visualizing and interpreting the results of a Bayesian analysis of network.
-The output includes:
+The returned object of \code{easybgm} contains several elements:
 
 \itemize{
 
@@ -79,13 +74,53 @@ For all packages, when setting \code{save = TRUE} and \code{centrality = TRUE}, 
 \description{
 Easy estimation of a Bayesian analysis of networks to obtain conditional (in)dependence relations between variables in a network.
 }
+\details{
+Users may oftentimes wish to deviate from the default, usually uninformative, prior specifications of the
+packages to informed priors. This can be done by simply adding additional arguments to the \code{easybgm} function.
+Depending on the package that is running the underlying network estimation, researcher can specify different prior
+arguments. We give an overview of the prior arguments per package below.
+
+\strong{bgms}:
+
+\itemize{
+
+\item \code{interaction_prior} prior distribution of the interaction parameters, can be either "UnitInfo" for the Unit Information prior, or "Cauchy" for the Cauchy distribution. The default is set to "UnitInfo".
+
+\item \code{edge_prior} prior on the graph structure, which can be either "Bernoulli" or "Beta-Bernoulli". The default is "Bernoulli".
+
+\item \code{inclusion_prior} prior edge inclusion probability for the "Bernoulli" distribution. The default is 0.5.
+
+\item \code{beta_bernoulli_alpha} and \code{beta_bernoulli_alpha} the parameters of the "Beta-Bernoulli" distribution. The default is 1 for both.
+
+\item \code{threshold_alpha} and \code{threshold_beta} the parameters of the beta-prime distribution for the threshold parameters. The defaults are both set to 1.
+
+}
+
+\strong{BDgraph}:
+
+\itemize{
+
+\item \code{df.prior} prior on the parameters (i.e., inverse covariance matrix), degrees of freedom of the prior G-Wishart distribution. The default is set to 2.5.
+
+\item \code{g.prior} prior probability of edge inclusion. This can be either a scalar, if it is the same for all edges, or a matrix, if it should be different among the edges. The default is set to 0.5.
+
+}
+\strong{BGGM}:
+
+\itemize{
+
+\item \code{prior_sd} the standard deviation of the prior distribution of the interaction parameters, approximately the scale of a beta distribution. The default is 0.25.
+}
+
+We would always encourage researcher to conduct prior robustness checks.
+}
 \examples{
 \donttest{
 
 library(easybgm)
 library(bgms)
 
-data <- Wenchuan
+data <- na.omit(Wenchuan)
 
 # Fitting the Wenchuan PTSD data
 

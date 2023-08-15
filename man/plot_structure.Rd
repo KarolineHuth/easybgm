@@ -7,7 +7,7 @@
 plot_structure(output, ...)
 }
 \arguments{
-\item{output}{Output object from the bgm_extract function}
+\item{output}{Output object from the easybgm function}
 
 \item{...}{Additional \code{qgraph} arguments}
 }

@@ -6,8 +6,6 @@ bgm_fit.package_bgms <- function(fit, type, data, iter, save,
                                  not.cont, centrality, progress, ...){
 
   if(save == FALSE & centrality == TRUE){
-    warning("The centrality measures can only be obtained if the posterior samples are saved. Note that we automatically set
-            set save = TRUE.")
     save <- TRUE
   }
   
@@ -94,12 +92,11 @@ bgm_extract.package_bgms <- function(fit, model, save,
   bgms_res$structure <- 1*(bgms_res$inc_probs > 0.5)
 
   #Obtain structure information
-  bgms_res$posterior_complexity <- table(rowSums(fit$gamma))/nrow(fit$gamma)
   structures <- apply(fit$gamma, 1, paste0, collapse="")
   table_structures <- as.data.frame(table(structures))
   bgms_res$structure_probabilities <- table_structures[,2]/nrow(fit$gamma)
   bgms_res$graph_weights <- table_structures[,2]
-  bgms_res$sample_graphs <- as.character(table_structures[, 1])
+  bgms_res$sample_graph <- as.character(table_structures[, 1])
   if(save == TRUE){
     bgms_res$samples_posterior <- fit$interactions
     if(centrality == TRUE){

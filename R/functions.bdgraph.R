@@ -34,10 +34,10 @@ bgm_fit.package_bdgraph <- function(fit, type, data, iter, save,
 
   }
   if(type == "binary"){
-
     bdgraph_fit <- do.call(bdgraph.mpl,
                            c(list(data = data, method = "dgm-binary",
                                   iter = iter, save = TRUE), args))
+
 
     fit$model <-  "dgm-binary"
   }
