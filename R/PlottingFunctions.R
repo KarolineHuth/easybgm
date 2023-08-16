@@ -148,9 +148,8 @@ if(!any(class(output) == "easybgm")){
     colnames = colnames(output$parameters),
     layout_avg = qgraph::averageLayout(output$parameters*output$structure),
     theme = "TeamFortress",
-    legend = FALSE,
+    legend = TRUE,
     vsize = 10,
-    labels = colnames(output$parameters),
     nodeNames = colnames(output$parameters),
     edge.width = 3,
     label.cex = 1,
@@ -179,7 +178,6 @@ if(!any(class(output) == "easybgm")){
                      vsize = args$vsize,
                      nodeNames = args$nodeNames,
                      legend = args$legend,
-                     labels = args$labels,
                      edge.width = args$edge.width,
                      label.cex = args$label.cex,
                      legend.cex = args$legend.cex,
@@ -202,7 +200,6 @@ if(!any(class(output) == "easybgm")){
                      vsize = args$vsize,
                      nodeNames = args$nodeNames,
                      legend = args$legend,
-                     labels = args$labels,
                      edge.width = args$edge.width,
                      label.cex = args$label.cex,
                      legend.cex = args$legend.cex, # specifies the color of the edges
@@ -221,7 +218,6 @@ if(!any(class(output) == "easybgm")){
                      vsize = args$vsize,
                      nodeNames = args$nodeNames,
                      legend = args$legend,
-                     labels = args$labels,
                      edge.width = args$edge.width,
                      label.cex = args$label.cex,
                      legend.cex = args$legend.cex,
@@ -249,7 +245,6 @@ if(!any(class(output) == "easybgm")){
                      vsize = args$vsize,
                      nodeNames = args$nodeNames,
                      legend = args$legend,
-                     labels = args$labels,
                      label.cex = args$label.cex,
                      legend.cex = args$legend.cex,# specifies the color of the edges
                      ...
