@@ -139,30 +139,31 @@ plot_posteriorcomplexity <- function(output, ...) {
 #' @export
 #'
 plot_edgeevidence <- function(output, evidence_thresh = 10, split = F, show = "all", ...) {
-  if(!any(class(output) == "easybgm")){
+if(!any(class(output) == "easybgm")){
     stop("Wrong input provided. The function requires as input the output of the easybgm function.")
   }
-
+  
   default_args <- list(
     colors = c("#36648b", "#990000", "#bfbfbf"),
     colnames = colnames(output$parameters),
     layout_avg = qgraph::averageLayout(output$parameters*output$structure),
     theme = "TeamFortress",
-    legend = T,
+    legend = FALSE,
     vsize = 10,
     labels = colnames(output$parameters),
+    nodeNames = colnames(output$parameters),
     edge.width = 3,
     label.cex = 1,
     legend.cex = .8
-
+    
   )
   args <- set_defaults(default_args, ...)
   graph <- output$BF
   diag(graph) <- 1
-
+  
   # assign a color to each edge (inclusion - blue, exclusion - red, no conclusion - grey)
   graph_color <- graph
-  graph_color <-  ifelse(graph < evidence_thresh & graph > 1/evidence_thresh,
+  graph_color <-  ifelse(graph < evidence_thresh & graph > 1/evidence_thresh, 
                          graph_color <- args$colors[3], graph_color <- args$colors[1])
   graph_color[graph < (1/evidence_thresh)] <- args$colors[2]
 
