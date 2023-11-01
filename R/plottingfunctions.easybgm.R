@@ -121,7 +121,7 @@ if(!any(class(output) == "easybgm")){
   default_args <- list(
     colors = c("#36648b", "#990000", "#bfbfbf"),
     colnames = colnames(output$parameters),
-    layout_avg = qgraph::averageLayout(output$parameters*output$structure),
+    layout = qgraph::averageLayout(output$parameters*output$structure),
     theme = "TeamFortress",
     legend = TRUE,
     vsize = 10,
@@ -148,7 +148,7 @@ if(!any(class(output) == "easybgm")){
       colnames(graph) <- args$colnames
       qgraph_plot <- qgraph::qgraph(graph,
                      edge.color = graph_color,
-                     layout = args$layout_avg,# specifies the color of the edges
+                     layout = args$layout,# specifies the color of the edges
                      theme = args$theme,
                      vsize = args$vsize,
                      nodeNames = args$nodeNames,
@@ -170,7 +170,7 @@ if(!any(class(output) == "easybgm")){
       colnames(graph_inc) <- colnames(output$parameters)
       qgraph_plot1 <- qgraph::qgraph(graph_inc,
                      edge.color = graph_color,
-                     layout = args$layout_avg,# specifies the color of the edges
+                     layout = args$layout,# specifies the color of the edges
                      theme = args$theme,
                      vsize = args$vsize,
                      nodeNames = args$nodeNames,
@@ -188,7 +188,7 @@ if(!any(class(output) == "easybgm")){
       qgraph_plot2 <- qgraph::qgraph(graph_exc,
                      edge.color = graph_color,
                      # specifies the color of the edges
-                     layout = args$layout_avg,# specifies the color of the edges
+                     layout = args$layout,# specifies the color of the edges
                      theme = args$theme,
                      vsize = args$vsize,
                      nodeNames = args$nodeNames,
@@ -215,7 +215,7 @@ if(!any(class(output) == "easybgm")){
       colnames(graph_show) <- colnames(output$parameters)
       qgraph_plot <- qgraph::qgraph(graph_show,
                      edge.color = graph_color,
-                     layout = args$layout_avg,# specifies the color of the edges
+                     layout = args$layout,# specifies the color of the edges
                      theme = args$theme,
                      vsize = args$vsize,
                      nodeNames = args$nodeNames,
@@ -297,7 +297,7 @@ plot_network.easybgm <- function(output, exc_prob = 0.5, evidence_thresh = 10,  
 #' @export
 plot_structure.easybgm <- function(output, donotplot = FALSE, ...) {
   default_args <- list(
-    layout_avg = qgraph::averageLayout(output$parameters*output$structure),
+    layout = qgraph::averageLayout(output$parameters*output$structure),
     theme = "TeamFortress",
     vsize = 10,
     nodeNames = colnames(output$parameters),
@@ -312,7 +312,7 @@ plot_structure.easybgm <- function(output, donotplot = FALSE, ...) {
   graph <- output$structure
   colnames(graph) <- colnames(output$parameters)
   # Plot
-  qgraph_plot <- qgraph::qgraph(graph, layout = args$layout_avg,
+  qgraph_plot <- qgraph::qgraph(graph, layout = args$layout,
                  theme = args$theme, vsize = args$vsize,
                  nodeNames = args$nodeNames,
                  legend = args$legend,
