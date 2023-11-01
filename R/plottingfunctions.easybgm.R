@@ -270,7 +270,8 @@ plot_network.easybgm <- function(output, exc_prob = 0.5, evidence_thresh = 10,  
 
   # Plot
   if(dashed){
-    graph_dashed <- ifelse(output$inc_BF < args$evidence_thres, "dashed", "solid")
+    graph_dashed <- ifelse(output$inc_BF < args$evidence_thres, 2, 1)
+
     qgraph_plot <- qgraph::qgraph(graph, layout = args$layout, lty = graph_dashed,
                    theme = args$theme, vsize = args$vsize,
                    nodeNames = args$nodeNames,
