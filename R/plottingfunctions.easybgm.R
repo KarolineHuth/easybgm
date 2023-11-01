@@ -252,7 +252,7 @@ plot_network.easybgm <- function(output, exc_prob = 0.5, evidence_thresh = 10,  
   }
   graph <- output$parameters
   default_args <- list(
-    layout_avg = qgraph::averageLayout(output$parameters*output$structure),
+    layout = qgraph::averageLayout(output$parameters*output$structure),
     evidence_thres = 10,
     theme = "TeamFortress",
     vsize = 10,
@@ -271,14 +271,14 @@ plot_network.easybgm <- function(output, exc_prob = 0.5, evidence_thresh = 10,  
   # Plot
   if(dashed){
     graph_dashed <- ifelse(output$inc_BF < args$evidence_thres, "dashed", "solid")
-    qgraph_plot <- qgraph::qgraph(graph, layout = args$layout_avg, lty = graph_dashed,
+    qgraph_plot <- qgraph::qgraph(graph, layout = args$layout, lty = graph_dashed,
                    theme = args$theme, vsize = args$vsize,
                    nodeNames = args$nodeNames,
                    legend = args$legend,
                    label.cex = args$label.cex,
                    legend.cex = args$legend.cex, ...)
   } else {
-    qgraph_plot <- qgraph::qgraph(graph, theme = args$theme, layout = args$layout_avg, vsize = args$vsize,
+    qgraph_plot <- qgraph::qgraph(graph, theme = args$theme, layout = args$layout, vsize = args$vsize,
                    nodeNames = args$nodeNames,
                    legend = args$legend,
                    label.cex = args$label.cex,
