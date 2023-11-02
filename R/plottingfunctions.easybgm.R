@@ -113,7 +113,7 @@ plot_complexity_probabilities.easybgm <- function(output, ...) {
 
 # ---------------------------------------------------------------------------------------------------------------
 #' @export
-plot_edgeevidence.easybgm <- function(output, evidence_thresh = 10, split = FALSE, show = "all", donotplot = FALSE, ...) {
+plot_edgeevidence.easybgm <- function(output, evidence_thresh = 10, split = FALSE, show = "all", ...) {
 if(!any(class(output) == "easybgm")){
     stop("Wrong input provided. The function requires as input the output of the easybgm function.")
   }
@@ -225,15 +225,10 @@ if(!any(class(output) == "easybgm")){
                      ...
       )
     }
-  if(donotplot && split){
-    return(invisible(list(qgraph_plot1, qgraph_plot2)))
-  } else if(donotplot && !split){
-    return(invisible(qgraph_plot))
-  } else if(!donotplot && split){
-    return(plot(qgraph_plot1))
-    return(plot(qgraph_plot2))
+  if (split) {
+    return(list(invisible(qgraph_plot1), invisible(qgraph_plot2)))
   } else {
-    return(plot(qgraph_plot))
+    return(invisible(qgraph_plot))
   }
 }
 
@@ -241,7 +236,7 @@ if(!any(class(output) == "easybgm")){
 
 
 #' @export
-plot_network.easybgm <- function(output, exc_prob = 0.5, evidence_thresh = 10,  dashed = TRUE, donotplot = FALSE, ...) {
+plot_network.easybgm <- function(output, exc_prob = 0.5, evidence_thresh = 10,  dashed = TRUE, ...) {
 
   if(!any(class(output) == "easybgm")){
     stop("Wrong input provided. The function requires as input the output of the easybgm function.")
@@ -286,16 +281,12 @@ plot_network.easybgm <- function(output, exc_prob = 0.5, evidence_thresh = 10,  
                    legend.cex = args$legend.cex, ...)
 
   }
-  if(donotplot){
-    return(invisible(qgraph_plot))
-  } else {
-    return(plot(qgraph_plot))
-  }
+  return(invisible(qgraph_plot))
 }
 
 # -------------------------------------------------
 #' @export
-plot_structure.easybgm <- function(output, donotplot = FALSE, ...) {
+plot_structure.easybgm <- function(output, ...) {
   default_args <- list(
     layout = qgraph::averageLayout(output$parameters*output$structure),
     theme = "TeamFortress",
@@ -318,11 +309,8 @@ plot_structure.easybgm <- function(output, donotplot = FALSE, ...) {
                  legend = args$legend,
                  label.cex = args$label.cex,
                  legend.cex = args$legend.cex, ...)
-  if(donotplot){
-    return(invisible(qgraph_plot))
-  } else {
-    return(plot(qgraph_plot))
-  }
+  
+  return(invisible(qgraph_plot))
 }
 
 # ---------------------------------------------------------------------------------------------------------------
