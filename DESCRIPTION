@@ -20,7 +20,6 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
 Imports: 
     BDgraph,
-    BGGM,
     bgms (>= 0.1.1),
     dplyr,
     ggplot2,

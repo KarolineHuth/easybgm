@@ -7,7 +7,7 @@
 #' @param data An n x p matrix or dataframe containing the variables for n independent observations on p variables.
 #' @param type What is the data type? Options: continuous, mixed, ordinal, binary
 #' @param package The R-package that should be used for fitting the network model; supports BGGM, BDgraph, and bgms. Optional argument;
-#'     default values are specified depending on the datatype.
+#'     default values are specified depending on the datatype. Temporarily BGGM is not supported due to issues with the package itself. 
 #' @param not_cont If data-type is mixed, a vector of length p, specifying the not-continuous
 #'     variables (1 = not continuous, 0 = continuous).
 #' @param iter number of iterations for the sampler.
@@ -97,7 +97,10 @@
 #'
 #' @importFrom bgms bgm
 #' @importFrom BDgraph bdgraph bdgraph.mpl plinks
-#' @importFrom BGGM explore select
+#' 
+### Temporary removal for BGGM errror
+# @importFrom BGGM explore select
+###---
 #' @importFrom utils packageVersion
 #'
 #' @examples
@@ -131,18 +134,20 @@
 easybgm <- function(data, type, package = NULL, not_cont = NULL, iter = 1e4,
                     save = FALSE, centrality = FALSE, progress = TRUE,
                     ...){
-
-
+  
+  
   if(type == "mixed" & is.null(not_cont)){
     stop("Please provide a binary vector of length p specifying the not continuous variables
          (1 = not continuous, 0 = continuous).",
          call. = FALSE)
   }
-
+  
   # Set default values for fitting if package is unspecified
   if(is.null(package)){
-    if(type == "continuous") package <- "package_bggm"
-    if(type == "mixed") package <- "package_bggm"
+    ### Adapted for BGGM temporary removal.
+    if(type == "continuous") package <- "package_bdgraph"
+    if(type == "mixed") package <- "package_bdgraph"
+    ### ---
     if(type == "ordinal") package <- "package_bgms"
     if(type == "binary") package <- "package_bgms"
   } else {
@@ -150,26 +155,30 @@ easybgm <- function(data, type, package = NULL, not_cont = NULL, iter = 1e4,
     if(package == "BGGM") package <- "package_bggm"
     if(package == "bgms") package <- "package_bgms"
   }
-
+  
   if(type =="continuous" & package == "package_bdgraph" & any(is.na(data))){
     warning("The data contains missing values which cannot be handled as continuous data by BDgraph.
             Note that we switched the type to \"mixed\", which estimates a GCGM and can impute missing data.")
     type <- "mixed"
     not_cont <- rep(0, ncol(data))
   }
-
+  
   if((package == "package_bgms") & (type %in% c("continuous", "mixed"))){
     warning("bgms can only fit ordinal or binary datatypes. For continuous or mixed data,
            choose either the BDgraph or BGGM package. By default we have changed the package to BDgraph",
             call. = FALSE)
     package <- "package_bdgraph"
-
+    
   }
-
-
+  ### Added for BGGM temporary removal.
+  if((package == "package_bggm")){
+    stop("BGGM is temporarily not supported due to issues with the package. Please choose BDGraph instead.")
+  }
+  ###----
+  
   fit <- list()
   class(fit) <- c(package, "easybgm")
-
+  
   # Fit the model
   tryCatch(
     {fit <- bgm_fit(fit, data = data, type = type, not_cont = not_cont, iter = iter,
@@ -179,12 +188,12 @@ easybgm <- function(data, type, package = NULL, not_cont = NULL, iter = 1e4,
       # If an error occurs, stop running the code
       stop(paste("Error meassage: ", e$message, "Please consult the original message for more information.") )
     })
-
+  
   # Extract the results
   res <- bgm_extract(fit, type = type,
                      save = save, not_cont = not_cont,
                      data = data, centrality = centrality, ...)
-
+  
   # Output results
   class(res) <- c(package, "easybgm")
   return(res)

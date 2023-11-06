@@ -22,7 +22,7 @@ easybgm(
 \item{type}{What is the data type? Options: continuous, mixed, ordinal, binary}
 
 \item{package}{The R-package that should be used for fitting the network model; supports BGGM, BDgraph, and bgms. Optional argument;
-default values are specified depending on the datatype.}
+default values are specified depending on the datatype. Temporarily BGGM is not supported due to issues with the package itself.}
 
 \item{not_cont}{If data-type is mixed, a vector of length p, specifying the not-continuous
 variables (1 = not continuous, 0 = continuous).}
