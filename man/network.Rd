@@ -35,7 +35,7 @@ The network plot visualizes the strength of interactions between two nodes, the 
 }
 \examples{
 
-
+\donttest{
 library(easybgm)
 library(bgms)
 
@@ -51,5 +51,5 @@ plot_network(fit, exc_prob = 0.1)
 
 # Indicate which edges have insufficient evidence for inclusion through a dashed line
 plot_network(fit, dashed = TRUE, evidence_thresh = 10)
-
+}
 }

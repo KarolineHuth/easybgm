@@ -160,7 +160,7 @@ plot_edgeevidence <- function(output, evidence_thresh = 10, split = FALSE, show 
 #' @export
 #' @examples
 #'
-#'
+#' \donttest{
 #' library(easybgm)
 #' library(bgms)
 #'
@@ -176,7 +176,7 @@ plot_edgeevidence <- function(output, evidence_thresh = 10, split = FALSE, show 
 #'
 #' # Indicate which edges have insufficient evidence for inclusion through a dashed line
 #' plot_network(fit, dashed = TRUE, evidence_thresh = 10)
-#' 
+#' }
 
 plot_network <- function(output, exc_prob = .5, evidence_thresh = 10, dashed = FALSE, donotplot = FALSE,...) {
   if(any(any(class(output) == "easybgm"), any(class(output) == "bgms")) == FALSE){

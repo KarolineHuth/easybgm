@@ -123,13 +123,13 @@ library(bgms)
 data <- na.omit(Wenchuan)
 
 # Fitting the Wenchuan PTSD data
-
+\donttest{
 fit <- easybgm(data, type = "continuous",
                 iter = 1000 # for demonstration only (> 5e4 recommended)
                 )
 
 summary(fit)
-
+}
 \donttest{
 # To extract the posterior parameter distribution
 # and centrality measures
