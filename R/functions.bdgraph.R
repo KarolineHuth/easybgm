@@ -43,7 +43,11 @@ bgm_fit.package_bdgraph <- function(fit, type, data, iter, save,
     fit$model <-  "dgm-binary"
   }
   fit$packagefit <- bdgraph_fit
-
+   if(is.null(colnames(data))){
+     fit$var_names <- paste0("V", 1:ncol(data))
+   } else {
+     fit$var_names <-colnames(data)
+  }
   class(fit) <- c("package_bdgraph", "easybgm")
   return(fit)
 }
@@ -60,6 +64,7 @@ bgm_extract.package_bdgraph <- function(fit, type, save,
     stop("Please specify the type of model estimated with BDgraph (e.g., ggm, gcgm, dgm-binary).",
          call. = FALSE)
   }
+  varnames <- fit$var_names
   fit <- fit$packagefit
 
   defaults <- list(
@@ -73,6 +78,7 @@ bgm_extract.package_bdgraph <- function(fit, type, save,
     #Bayesian model-averaged estimates
     bdgraph_res$parameters <- pr2pc(fit$K_hat)
     diag(bdgraph_res$parameters) <- 0
+    colnames(bdgraph_res$parameters) <- varnames
     bdgraph_res$inc_probs <- as.matrix(BDgraph::plinks(fit))
     bdgraph_res$inc_probs  <- bdgraph_res$inc_probs + t(bdgraph_res$inc_probs)
     bdgraph_res$inc_BF <- (bdgraph_res$inc_probs / (1 - bdgraph_res$inc_probs))/(edge.prior /(1-edge.prior))
@@ -108,6 +114,7 @@ bgm_extract.package_bdgraph <- function(fit, type, save,
     #Bayesian model-averaged estimates
     bdgraph_res$parameters <- pr2pc(fit$K_hat)
     diag(bdgraph_res$parameters) <- 0
+    colnames(bdgraph_res$parameters) <- varnames
     bdgraph_res$inc_probs <- as.matrix(BDgraph::plinks(fit))
     bdgraph_res$inc_probs  <- bdgraph_res$inc_probs + t(bdgraph_res$inc_probs)
     bdgraph_res$inc_BF <- (bdgraph_res$inc_probs / (1 - bdgraph_res$inc_probs))/(edge.prior/(1-edge.prior))

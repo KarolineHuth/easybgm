@@ -53,6 +53,11 @@ bgm_fit.package_bgms <- function(fit, type, data, iter, save,
 
   fit$model <- type
   fit$packagefit <- bgms_fit
+  if(is.null(colnames(data))){
+    fit$var_names <- paste0("V", 1:ncol(data))
+  } else {
+    fit$var_names <-colnames(data)
+  }
   class(fit) <- c("package_bgms", "easybgm")
   return(fit)
 }

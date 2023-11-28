@@ -17,6 +17,11 @@ bgm_fit.package_bggm <- function(fit, type, data, iter, save,
   )
   fit$model <- type
   fit$packagefit <- bggm_fit
+  if(is.null(colnames(data))){
+    fit$var_names <- paste0("V", 1:ncol(data))
+  } else {
+    fit$var_names <-colnames(data)
+  }
   class(fit) <- c("package_bggm", "easybgm")
   return(fit)
 }
@@ -29,12 +34,13 @@ bgm_fit.package_bggm <- function(fit, type, data, iter, save,
 
 bgm_extract.package_bggm <- function(fit, type, save,
                                      not_cont, data, centrality, ...){
+  varnames <- fit$var_names
   fit <- fit$packagefit
 
   out_select <- BGGM::select(fit)
   bggm_res <- list()
   bggm_res$parameters <- out_select$pcor_mat
-  colnames(bggm_res$parameters) <- colnames(fit$Y)
+  colnames(bdgraph_res$parameters) <- varnames
   bggm_res$inc_BF <- out_select$BF_10
   bggm_res$inc_probs <- out_select$BF_10/(out_select$BF_10 + 1)
   bggm_res$structure <- out_select$Adj_10

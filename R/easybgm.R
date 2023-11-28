@@ -141,8 +141,8 @@ easybgm <- function(data, type, package = NULL, not_cont = NULL, iter = 1e4,
 
   # Set default values for fitting if package is unspecified
   if(is.null(package)){
-    if(type == "continuous") package <- "package_bggm"
-    if(type == "mixed") package <- "package_bggm"
+    if(type == "continuous") package <- "package_bdgraph"
+    if(type == "mixed") package <- "package_bdgraph"
     if(type == "ordinal") package <- "package_bgms"
     if(type == "binary") package <- "package_bgms"
   } else {
