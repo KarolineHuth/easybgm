@@ -40,7 +40,7 @@ bgm_extract.package_bggm <- function(fit, type, save,
   out_select <- BGGM::select(fit)
   bggm_res <- list()
   bggm_res$parameters <- out_select$pcor_mat
-  colnames(bdgraph_res$parameters) <- varnames
+  colnames(bggm_res$parameters) <- varnames
   bggm_res$inc_BF <- out_select$BF_10
   bggm_res$inc_probs <- out_select$BF_10/(out_select$BF_10 + 1)
   bggm_res$structure <- out_select$Adj_10
