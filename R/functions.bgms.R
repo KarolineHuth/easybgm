@@ -58,6 +58,7 @@ bgm_fit.package_bgms <- function(fit, type, data, iter, save,
   } else {
     fit$var_names <- colnames(data)
   }
+  
   class(fit) <- c("package_bgms", "easybgm")
   return(fit)
 }
@@ -71,13 +72,11 @@ bgm_fit.package_bgms <- function(fit, type, data, iter, save,
 bgm_extract.package_bgms <- function(fit, type, save,
                                      not_cont, data, centrality, ...){
   if(centrality) save <- TRUE
-
   if(any(class(fit) != "bgms")){
   varnames <- fit$var_names
   fit <- fit$packagefit
   save <- TRUE
   }
-
   if(packageVersion("bgms") > "0.1.0"){
     defaults <- list(
       edge_prior = "Bernoulli"
@@ -111,11 +110,10 @@ bgm_extract.package_bgms <- function(fit, type, save,
   }
   bgms_res <- list()
   if(save){
-    p <- length(fit$colnames)
+    p <- ncol(data)
     bgms_res$parameters <- vector2matrix(colMeans(fit$interactions), p = p)
     bgms_res$thresholds <- as.matrix(colMeans(fit$thresholds))
     colnames(bgms_res$parameters) <- varnames
-    
     bgms_res$inc_probs <- vector2matrix(colMeans(fit$gamma), p = p)
     bgms_res$inc_BF <- (bgms_res$inc_probs/(1-bgms_res$inc_probs))/(edge.prior /(1-edge.prior))
     bgms_res$structure <- 1*(bgms_res$inc_probs > 0.5)
@@ -143,7 +141,6 @@ bgm_extract.package_bgms <- function(fit, type, save,
   # Adapt column names of output
   colnames(bgms_res$inc_probs) <- colnames(bgms_res$parameters)
   colnames(bgms_res$inc_BF) <- colnames(bgms_res$parameters)
-
   bgms_res$model <- type
   output <- bgms_res
   class(output) <- c("package_bgms", "easybgm")
