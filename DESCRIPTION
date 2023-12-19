@@ -1,14 +1,18 @@
 Package: easybgm
 Type: Package
 Title: Extracting and Visualizing Bayesian Graphical Models
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: c(
   person("Karoline", "Huth", , "k.huth@uva.nl", role = c("aut", "cre"), 
         comment = c(ORCID = "0000-0002-0662-1591")), 
   person("Sara", "Keetelaar", role = c("ctb"))
   )
 Maintainer: Karoline Huth <k.huth@uva.nl>
-Description: The package helps extracting and visualizing the results of a Bayesian analysis of networks commonly found in psychology. Until now it supports the extraction of cross-sectional network models fitted using `BDgraph` and `BGGM`. The package allows to extract the parameter estimates, posterior inclusion probability, inclusion Bayes factor and the posterior density of the parameters. In addition, for `BDgraph` it allows to assess and visualize the posterior probability of the structure space. For more information on the Bayesian background, its application to networks and the respective plots, check out: Huth, K., de Ron, J., Luigjes, J., Goudriaan, A., Mohammadi, R., van Holst, R., Wagenmakers, E.J., \& Marsman, M. (2023). Bayesian Analysis of Cross-sectional Networks: A Tutorial in R and JASP. \textit{PsyArXiv} (<doi:10.31234/osf.io/ub5tc>).
+Description: Fit and visualize the results of a Bayesian analysis of networks commonly found in psychology. 
+    The package supports fitting cross-sectional network models fitted using the packages 'BDgraph', 'bgms' and 'BGGM'. 
+    The package provides the parameter estimates, posterior inclusion probabilities, inclusion Bayes factor, and the 
+    posterior density of the parameters. In addition, for 'BDgraph' and 'bgms' it allows to assess the posterior 
+    structure space. Furthermore, the package comes with an extensive suite for visualizing results.
 License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
@@ -17,7 +21,7 @@ RoxygenNote: 7.2.3
 Imports: 
     BDgraph,
     BGGM,
-    bgms (>= 0.1.1),
+    bgms (>= 0.1.2),
     dplyr,
     ggplot2,
     HDInterval,
@@ -26,4 +30,5 @@ Imports:
 Suggests: 
     testthat (>= 3.0.0),
     vdiffr
+Remotes: donaldRwilliams/BGGM
 Config/testthat/edition: 3

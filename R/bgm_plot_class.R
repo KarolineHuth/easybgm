@@ -7,19 +7,22 @@
 #' @param output Output object from the easybgm function. Supports also objects from the bgm function of the `bgms` package.
 #' @param as_BF If TRUE plots the y-axis as Bayes factors instead of posterior structure probability. Default is FALSE.
 #' @param ... Additional arguments passed onto `ggplot2`
-#'
+#' 
+#' @return Returns a plot
+#' 
 #' @export
 #' @importFrom dplyr group_by summarise mutate group_modify filter
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #'
 #' library(easybgm)
 #' library(bgms)
 #'
 #' data <- na.omit(Wenchuan)
 #' fit <- easybgm(data, type = "ordinal",
-#'                 iter = 1000)
+#'                 iter = 1000  # for demonstration only (> 5e4 recommended)
+#'                 )
 #'
 #' plot_structure_probabilities(fit)
 #' }
@@ -47,19 +50,22 @@ plot_structure_probabilities <- function(output, as_BF = FALSE, ...) {
 #'
 #' @param output Output object from the easybgm function. Supports also objects from the bgm function of the `bgms` package.
 #' @param ... Additional arguments passed onto `ggplot2`
-#'
+#' 
+#' @return Returns a plot
+#' 
 #' @export
 #' @import ggplot2
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #'
 #' library(easybgm)
 #' library(bgms)
 #'
 #' data <- na.omit(Wenchuan)
 #' fit <- easybgm(data, type = "ordinal",
-#'                 iter = 1000)
+#'                 iter = 1000  # for demonstration only (> 5e4 recommended)
+#'                 )
 #'
 #' plot_complexity_probabilities(fit)
 #' }
@@ -91,22 +97,24 @@ plot_complexity_probabilities <- function(output, ...) {
 #' @param donotplot Runs function but does not plot (default is FALSE). Useful for saving the output (i.e. layout) without plotting.
 #' @param ... Additional arguments passed onto `qgraph`.
 #'
-#'
+#' @return Returns a plot
 #'
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#'
+#' \donttest{
 #' library(easybgm)
 #' library(bgms)
 #'
 #' data <- na.omit(Wenchuan)
-#' fit <- easybgm(data, type = "ordinal",
-#'                 iter = 1000)
+#' fit <- easybgm(data, type = "continuous",
+#'                 iter = 1000  # for demonstration only (> 5e4 recommended)
+#'                 )
 #'
 #' plot_edgeevidence(fit)
 #'
+#' oldpar <- par(mfrow = c(1,1))
+#' 
 #' par(mfrow = c(1, 2))
 #' plot_edgeevidence(fit, split = TRUE)
 #'
@@ -114,7 +122,10 @@ plot_complexity_probabilities <- function(output, ...) {
 #' plot_edgeevidence(fit, show = "included")
 #' plot_edgeevidence(fit, show = "inconclusive")
 #' plot_edgeevidence(fit, show = "excluded")
+#' 
+#' par(oldpar)
 #' }
+
 
 plot_edgeevidence <- function(output, evidence_thresh = 10, split = FALSE, show = "all", donotplot = FALSE,...) {
   if(any(any(class(output) == "easybgm"), any(class(output) == "bgms")) == FALSE){
@@ -143,18 +154,20 @@ plot_edgeevidence <- function(output, evidence_thresh = 10, split = FALSE, show 
 #' @param evidence_thresh If dashed = TRUE, users can specify the threshold for sufficient evidence for inclusion. All edges with evidence lower than `evidence_tresh` are dashed.
 #' @param donotplot Runs function but does not plot (default is FALSE). Useful for saving the output (i.e. layout) without plotting.
 #' @param ... Additional arguments passed onto `qgraph`.
-
+#' 
+#' @return Returns a plot
 #'
 #' @export
 #' @examples
-#' \dontrun{
+#'
 #'
 #' library(easybgm)
 #' library(bgms)
 #'
 #' data <- na.omit(Wenchuan)
-#' fit <- easybgm(data, type = "ordinal",
-#'                 iter = 1000)
+#' fit <- easybgm(data, type = "continuous",
+#'                 iter = 1000  # for demonstration only (> 5e4 recommended)
+#'                 )
 #'
 #' plot_network(fit)
 #'
@@ -163,7 +176,7 @@ plot_edgeevidence <- function(output, evidence_thresh = 10, split = FALSE, show 
 #'
 #' # Indicate which edges have insufficient evidence for inclusion through a dashed line
 #' plot_network(fit, dashed = TRUE, evidence_thresh = 10)
-#' }
+#' 
 
 plot_network <- function(output, exc_prob = .5, evidence_thresh = 10, dashed = FALSE, donotplot = FALSE,...) {
   if(any(any(class(output) == "easybgm"), any(class(output) == "bgms")) == FALSE){
@@ -190,19 +203,22 @@ plot_network <- function(output, exc_prob = .5, evidence_thresh = 10, dashed = F
 #' @param donotplot Runs function but does not plot (default is FALSE). Useful for saving the output (i.e. layout) without plotting.
 #' @param ... Additional arguments passed onto `qgraph`
 #'
+#' @return Returns a plot
+#' 
 #' @export
 #'
 #' @import qgraph
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #'
 #' library(easybgm)
 #' library(bgms)
 #'
 #' data <- na.omit(Wenchuan)
 #' fit <- easybgm(data, type = "ordinal",
-#'                 iter = 1000)
+#'                 iter = 1000  # for demonstration only (> 5e4 recommended)
+#'                )
 #'
 #' plot_structure(fit)
 #' }
@@ -232,12 +248,14 @@ plot_structure <- function(output, donotplot = FALSE,...) {
 #' @param output Output object from the easybgm function. Supports also objects from the bgm function of the `bgms` package.
 #' @param ... Additional arguments passed onto `ggplot2`
 #'
+#' @return Returns a plot
+#' 
 #' @export
 #' @import ggplot2 HDInterval
 #' @importFrom stats median
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #'
 #' library(easybgm)
 #' library(bgms)
@@ -245,7 +263,8 @@ plot_structure <- function(output, donotplot = FALSE,...) {
 #'
 #' data <- na.omit(Wenchuan)
 #' fit <- easybgm(data, type = "ordinal",
-#'               iter = 1000, save = TRUE)
+#'               iter = 1000,  # for demonstration only (> 5e4 recommended)
+#'               save = TRUE)
 #' plot_parameterHDI(fit)
 #' }
 
@@ -273,19 +292,22 @@ plot_parameterHDI <- function(output, ...) {
 #' @param output Output object from the easybgm function. Supports also objects from the bgm function of the `bgms` package.
 #' @param ... Additional arguments passed onto `ggplot2`
 #'
+#' @return Returns a plot
+#' 
 #' @importFrom dplyr arrange
 #' @importFrom ggplot2 .data
 #' @export
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #'
 #' library(easybgm)
 #' library(bgms)
 #'
 #' data <- na.omit(Wenchuan)
 #' fit <- easybgm(data, type = "ordinal",
-#'                 iter = 1000, save = TRUE, centrality = TRUE)
+#'                 iter = 1000,  # for demonstration only (> 5e4 recommended)
+#'                 save = TRUE, centrality = TRUE)
 #'
 #' plot_centrality(fit)
 #' }

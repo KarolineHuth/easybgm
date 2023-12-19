@@ -12,18 +12,22 @@ plot_centrality(output, ...)
 
 \item{...}{Additional arguments passed onto \code{ggplot2}}
 }
+\value{
+Returns a plot
+}
 \description{
 Visualize the strength centralities and their uncertainties. The centrality estimate can be obtained for each sample of the posterior distribution of the association parameters to obtain an estimate of the uncertainty of the strength centrality estimate.
 }
 \examples{
-\dontrun{
+\donttest{
 
 library(easybgm)
 library(bgms)
 
 data <- na.omit(Wenchuan)
 fit <- easybgm(data, type = "ordinal",
-                iter = 1000, save = TRUE, centrality = TRUE)
+                iter = 1000,  # for demonstration only (> 5e4 recommended)
+                save = TRUE, centrality = TRUE)
 
 plot_centrality(fit)
 }

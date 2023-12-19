@@ -14,18 +14,22 @@ plot_structure_probabilities(output, as_BF = FALSE, ...)
 
 \item{...}{Additional arguments passed onto \code{ggplot2}}
 }
+\value{
+Returns a plot
+}
 \description{
 Plots the posterior structure probabilities of all visited structures, sorted from the most to the least probable.
 }
 \examples{
-\dontrun{
+\donttest{
 
 library(easybgm)
 library(bgms)
 
 data <- na.omit(Wenchuan)
 fit <- easybgm(data, type = "ordinal",
-                iter = 1000)
+                iter = 1000  # for demonstration only (> 5e4 recommended)
+                )
 
 plot_structure_probabilities(fit)
 }

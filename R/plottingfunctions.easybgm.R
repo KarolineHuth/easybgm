@@ -113,7 +113,7 @@ plot_complexity_probabilities.easybgm <- function(output, ...) {
 
 # ---------------------------------------------------------------------------------------------------------------
 #' @export
-plot_edgeevidence.easybgm <- function(output, evidence_thresh = 10, split = FALSE, show = "all", donotplot = FALSE, ...) {
+plot_edgeevidence.easybgm <- function(output, evidence_thresh = 10, split = FALSE, show = "all", ...) {
 if(!any(class(output) == "easybgm")){
     stop("Wrong input provided. The function requires as input the output of the easybgm function.")
   }
@@ -121,7 +121,7 @@ if(!any(class(output) == "easybgm")){
   default_args <- list(
     colors = c("#36648b", "#990000", "#bfbfbf"),
     colnames = colnames(output$parameters),
-    layout_avg = qgraph::averageLayout(output$parameters*output$structure),
+    layout = qgraph::averageLayout(output$parameters*output$structure),
     theme = "TeamFortress",
     legend = TRUE,
     vsize = 10,
@@ -148,7 +148,7 @@ if(!any(class(output) == "easybgm")){
       colnames(graph) <- args$colnames
       qgraph_plot <- qgraph::qgraph(graph,
                      edge.color = graph_color,
-                     layout = args$layout_avg,# specifies the color of the edges
+                     layout = args$layout,# specifies the color of the edges
                      theme = args$theme,
                      vsize = args$vsize,
                      nodeNames = args$nodeNames,
@@ -170,7 +170,7 @@ if(!any(class(output) == "easybgm")){
       colnames(graph_inc) <- colnames(output$parameters)
       qgraph_plot1 <- qgraph::qgraph(graph_inc,
                      edge.color = graph_color,
-                     layout = args$layout_avg,# specifies the color of the edges
+                     layout = args$layout,# specifies the color of the edges
                      theme = args$theme,
                      vsize = args$vsize,
                      nodeNames = args$nodeNames,
@@ -188,7 +188,7 @@ if(!any(class(output) == "easybgm")){
       qgraph_plot2 <- qgraph::qgraph(graph_exc,
                      edge.color = graph_color,
                      # specifies the color of the edges
-                     layout = args$layout_avg,# specifies the color of the edges
+                     layout = args$layout,# specifies the color of the edges
                      theme = args$theme,
                      vsize = args$vsize,
                      nodeNames = args$nodeNames,
@@ -215,7 +215,7 @@ if(!any(class(output) == "easybgm")){
       colnames(graph_show) <- colnames(output$parameters)
       qgraph_plot <- qgraph::qgraph(graph_show,
                      edge.color = graph_color,
-                     layout = args$layout_avg,# specifies the color of the edges
+                     layout = args$layout,# specifies the color of the edges
                      theme = args$theme,
                      vsize = args$vsize,
                      nodeNames = args$nodeNames,
@@ -225,15 +225,10 @@ if(!any(class(output) == "easybgm")){
                      ...
       )
     }
-  if(donotplot && split){
-    return(invisible(list(qgraph_plot1, qgraph_plot2)))
-  } else if(donotplot && !split){
-    return(invisible(qgraph_plot))
-  } else if(!donotplot && split){
-    return(plot(qgraph_plot1))
-    return(plot(qgraph_plot2))
+  if (split) {
+    return(list(invisible(qgraph_plot1), invisible(qgraph_plot2)))
   } else {
-    return(plot(qgraph_plot))
+    return(invisible(qgraph_plot))
   }
 }
 
@@ -241,7 +236,7 @@ if(!any(class(output) == "easybgm")){
 
 
 #' @export
-plot_network.easybgm <- function(output, exc_prob = 0.5, evidence_thresh = 10,  dashed = TRUE, donotplot = FALSE, ...) {
+plot_network.easybgm <- function(output, exc_prob = 0.5, evidence_thresh = 10,  dashed = TRUE, ...) {
 
   if(!any(class(output) == "easybgm")){
     stop("Wrong input provided. The function requires as input the output of the easybgm function.")
@@ -252,7 +247,7 @@ plot_network.easybgm <- function(output, exc_prob = 0.5, evidence_thresh = 10,  
   }
   graph <- output$parameters
   default_args <- list(
-    layout_avg = qgraph::averageLayout(output$parameters*output$structure),
+    layout = qgraph::averageLayout(output$parameters*output$structure),
     evidence_thres = 10,
     theme = "TeamFortress",
     vsize = 10,
@@ -270,33 +265,30 @@ plot_network.easybgm <- function(output, exc_prob = 0.5, evidence_thresh = 10,  
 
   # Plot
   if(dashed){
-    graph_dashed <- ifelse(output$inc_BF < args$evidence_thres, "dashed", "solid")
-    qgraph_plot <- qgraph::qgraph(graph, layout = args$layout_avg, lty = graph_dashed,
+    graph_dashed <- ifelse(output$inc_BF < args$evidence_thres, 2, 1)
+
+    qgraph_plot <- qgraph::qgraph(graph, layout = args$layout, lty = graph_dashed,
                    theme = args$theme, vsize = args$vsize,
                    nodeNames = args$nodeNames,
                    legend = args$legend,
                    label.cex = args$label.cex,
                    legend.cex = args$legend.cex, ...)
   } else {
-    qgraph_plot <- qgraph::qgraph(graph, theme = args$theme, layout = args$layout_avg, vsize = args$vsize,
+    qgraph_plot <- qgraph::qgraph(graph, theme = args$theme, layout = args$layout, vsize = args$vsize,
                    nodeNames = args$nodeNames,
                    legend = args$legend,
                    label.cex = args$label.cex,
                    legend.cex = args$legend.cex, ...)
 
   }
-  if(donotplot){
-    return(invisible(qgraph_plot))
-  } else {
-    return(plot(qgraph_plot))
-  }
+  return(invisible(qgraph_plot))
 }
 
 # -------------------------------------------------
 #' @export
-plot_structure.easybgm <- function(output, donotplot = FALSE, ...) {
+plot_structure.easybgm <- function(output, ...) {
   default_args <- list(
-    layout_avg = qgraph::averageLayout(output$parameters*output$structure),
+    layout = qgraph::averageLayout(output$parameters*output$structure),
     theme = "TeamFortress",
     vsize = 10,
     nodeNames = colnames(output$parameters),
@@ -311,17 +303,14 @@ plot_structure.easybgm <- function(output, donotplot = FALSE, ...) {
   graph <- output$structure
   colnames(graph) <- colnames(output$parameters)
   # Plot
-  qgraph_plot <- qgraph::qgraph(graph, layout = args$layout_avg,
+  qgraph_plot <- qgraph::qgraph(graph, layout = args$layout,
                  theme = args$theme, vsize = args$vsize,
                  nodeNames = args$nodeNames,
                  legend = args$legend,
                  label.cex = args$label.cex,
                  legend.cex = args$legend.cex, ...)
-  if(donotplot){
-    return(invisible(qgraph_plot))
-  } else {
-    return(plot(qgraph_plot))
-  }
+  
+  return(invisible(qgraph_plot))
 }
 
 # ---------------------------------------------------------------------------------------------------------------

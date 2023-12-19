@@ -101,7 +101,7 @@
 #' @importFrom utils packageVersion
 #'
 #' @examples
-#' \dontrun{
+#' 
 #'
 #' library(easybgm)
 #' library(bgms)
@@ -110,15 +110,19 @@
 #'
 #' # Fitting the Wenchuan PTSD data
 #'
-#' fit <- easybgm(data, type = "ordinal",
-#'                 iter = 1000 # note for demonstrative purposes, normally 1e5 is recommended
+#' fit <- easybgm(data, type = "continuous",
+#'                 iter = 1000 # for demonstration only (> 5e4 recommended)
 #'                 )
 #'
+#' summary(fit)
+#' 
+#' \donttest{
 #' # To extract the posterior parameter distribution
 #' # and centrality measures
 #'
-#' fit <- easybgm(data, type = "ordinal",
-#'                 iter = 1000, save = TRUE,
+#' fit <- easybgm(data, type = "continuous",
+#'                 iter = 1000, # for demonstrative purposes, generally, 1e5 iterations are recommended
+#'                 save = TRUE,
 #'                 centrality = TRUE)
 #' }
 
@@ -137,8 +141,8 @@ easybgm <- function(data, type, package = NULL, not_cont = NULL, iter = 1e4,
 
   # Set default values for fitting if package is unspecified
   if(is.null(package)){
-    if(type == "continuous") package <- "package_bggm"
-    if(type == "mixed") package <- "package_bggm"
+    if(type == "continuous") package <- "package_bdgraph"
+    if(type == "mixed") package <- "package_bdgraph"
     if(type == "ordinal") package <- "package_bgms"
     if(type == "binary") package <- "package_bgms"
   } else {

@@ -11,6 +11,9 @@
 
 \item{...}{unused argument}
 }
+\value{
+Prints the output of a Bayesian cross-sectional network model fitted with 'easybgm'
+}
 \description{
 Used to print easybgm results. The nicest overview is created by first feeding it to
 \code{summary()}

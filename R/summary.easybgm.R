@@ -7,6 +7,8 @@
 #' @param evidence_thresh Bayes Factor which will be considered sufficient evidence for in-/exclusion, default is 10.
 #' @param ... unused argument
 #'
+#' @return Creates and prints the output of a Bayesian cross-sectional network analysis. The summary output has four parts. The first part lists the package used, the number of variables, and the data type. The second part is a matrix of edge-specific information. Each edge is listed in a row. This row contains the posterior parameter estimate, the posterior inclusion probability, the inclusion Bayes factor, and the categorization of the edge. The category encodes whether an edge is included, excluded, or inconclusive based on the inclusion Bayes factor. Users can set the threshold for the Bayes factor classification with the evidence threshold. By default, the threshold is set to $10$. The third part of the summary provides aggregated edge information. It lists the number of included, excluded, and inconclusive edges in the network, as well as the number of possible edges. This gives the user a quick overview of the robustness and density of the network. The higher the number of conclusive edges (i.e., classified as either included or excluded), the more robust the network. Conversely, if the network has a high percentage of inconclusive edges, the network is not robust. Researchers should refrain from making strong inferential conclusions. The final output section is a description of the structure uncertainty. It shows the number of structures visited, the number of possible structures, and the highest posterior structure probability. This last section can only be obtained for networks fitted with 'BDgraph' and 'bgms'. 
+#'
 #' @export
 
 summary.easybgm <- function(object, evidence_thresh = 10, ...) {
@@ -109,7 +111,9 @@ summary.easybgm <- function(object, evidence_thresh = 10, ...) {
 #'
 #' @param x easybgm object
 #' @param ... unused argument
-#'
+#' 
+#' @return Prints the output of a Bayesian cross-sectional network model fitted with 'easybgm'
+#' 
 #' @export
 #'
 

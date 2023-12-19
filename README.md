@@ -16,6 +16,12 @@ package comes with an extensive suite of visualization functions.
 
 ## Installation
 
+To install this package from CRAN use:
+
+``` r
+install.packages("easybgm")
+```
+
 To install this package from Github use
 
 ``` r

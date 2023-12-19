@@ -12,18 +12,22 @@ plot_complexity_probabilities(output, ...)
 
 \item{...}{Additional arguments passed onto \code{ggplot2}}
 }
+\value{
+Returns a plot
+}
 \description{
 Plots the posterior complexity probabilities of all visited structures, where complexity comprises the network density.
 }
 \examples{
-\dontrun{
+\donttest{
 
 library(easybgm)
 library(bgms)
 
 data <- na.omit(Wenchuan)
 fit <- easybgm(data, type = "ordinal",
-                iter = 1000)
+                iter = 1000  # for demonstration only (> 5e4 recommended)
+                )
 
 plot_complexity_probabilities(fit)
 }

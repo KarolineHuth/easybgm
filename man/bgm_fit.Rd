@@ -4,10 +4,10 @@
 \alias{bgm_fit}
 \title{Fit a Bayesian analysis of networks}
 \usage{
-bgm_fit(x, ...)
+bgm_fit(fit, ...)
 }
 \arguments{
-\item{x}{Object with a particular class that will dispatch to the respective package functions}
+\item{fit}{Object with a particular class that will dispatch to the respective package functions}
 
 \item{...}{Additional arguments to be passed onto the respective fitting functions}
 }

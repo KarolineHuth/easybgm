@@ -115,7 +115,7 @@ arguments. We give an overview of the prior arguments per package below.
 We would always encourage researcher to conduct prior robustness checks.
 }
 \examples{
-\dontrun{
+
 
 library(easybgm)
 library(bgms)
@@ -124,15 +124,19 @@ data <- na.omit(Wenchuan)
 
 # Fitting the Wenchuan PTSD data
 
-fit <- easybgm(data, type = "ordinal",
-                iter = 1000 # note for demonstrative purposes, normally 1e5 is recommended
+fit <- easybgm(data, type = "continuous",
+                iter = 1000 # for demonstration only (> 5e4 recommended)
                 )
 
+summary(fit)
+
+\donttest{
 # To extract the posterior parameter distribution
 # and centrality measures
 
-fit <- easybgm(data, type = "ordinal",
-                iter = 1000, save = TRUE,
+fit <- easybgm(data, type = "continuous",
+                iter = 1000, # for demonstrative purposes, generally, 1e5 iterations are recommended
+                save = TRUE,
                 centrality = TRUE)
 }
 }
