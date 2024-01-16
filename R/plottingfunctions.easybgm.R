@@ -430,3 +430,68 @@ plot_centrality.easybgm <- function(output, ...){
     args$theme
 }
 
+#' @export
+plot_prior_sensitivity.easybgm <- function(output, edge_priors, 
+                                           evidence_thres = 10, ...) {
+  if(any(class(output) == "easybgm")) {
+    stop("Wrong input provided. The function requires as input 
+         a list of output values of the easybgm function.")
+  }
+  defaults <- list(
+    cex.main = 1.5, mar = c(5, 6, 4, 5) + .1,
+    mgp = c(3.5, 1, 0), cex.lab = 1.5, font.lab = 2, cex.axis = 1.3,
+    bty = "n", las = 1, type = "l", col = c("#36648b", "#990000", "#bfbfbf"),
+    lwd = 2, xlim = c(0, 1), ylim = c(0, 1), xlab = "Prior inclusion probability",
+    ylab = "Relative number of edges", xline = 2.5, las = 0, yline = 3.7,
+    legend = TRUE
+  )
+  args <- set_defaults(defaults, ...)
+  no_priors <- length(output)
+  
+  print(no_priors)
+  for (i in 1:no_priors) {
+    if (!any(class(output[[i]]) == "easybgm")) {
+      stop(paste0("Wrong input provided on index ", i, ". The function requires
+                  as input a list of output values of the easybgm function."))
+    }
+  }
+  
+  incl_edges = excl_edges = inconcl_edges <- rep(NA, no_priors)
+  
+  for (i in 1:no_priors) {
+    print(output[[i]])
+    incl_bf <- output[[i]]$inc_BF
+    incl_bf <- incl_bf[lower.tri(incl_bf)]
+    
+    k <- length(incl_bf)
+    
+    incl_edges[i] <- length(which(incl_bf > evidence_thres)) / k
+    excl_edges[i] <- length(which(incl_bf < (1 / evidence_thres))) / k
+    
+  }
+  
+  inconcl_edges <- 1 - incl_edges - excl_edges
+  
+  
+  op <- par(cex.main = args$cex.main, mar = args$mar, mgp = args$mgp,
+            cex.lab = args$cex.lab, font.lab = args$font.lab,
+            cex.axis = args$cex.axis, bty = args$bty, las = args$las)
+  
+
+  plot(edge_priors, incl_edges, type = args$type, col = args$col[1], lwd = args$lwd,
+       xlim = args$xlim, ylim = args$ylim, xlab = "", ylab = "")
+  lines(edge_priors, excl_edges, col = args$col[2], lwd = args$lwd)
+  lines(edge_priors, inconcl_edges, col = args$col[3], lwd = args$lwd)
+  
+  mtext(args$xlab, side = 1, line = args$xline, cex = args$cex.lab)
+  mtext(args$ylab, side = 2, line = args$yline, cex = args$cex.lab,
+        las = 0)
+  
+  if (args$legend == TRUE)
+    legend(0, 1, legend = c("Included", "Excluded", "Inconclusive"),
+         col = c("#36648b", "#990000", "#bfbfbf"), lty = 1, lwd = args$lwd,
+         bty = args$bty)
+  
+  
+}
+
