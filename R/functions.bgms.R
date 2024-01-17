@@ -126,12 +126,14 @@ bgm_extract.package_bgms <- function(fit, type, save,
     bgms_res$structure_probabilities <- table_structures[,2]/nrow(fit$gamma)
     bgms_res$graph_weights <- table_structures[,2]
     bgms_res$sample_graph <- as.character(table_structures[, 1])
+    bgms_res$edge.prior <- edge.prior
   } else {
     bgms_res$parameters <- fit$interactions
     bgms_res$thresholds <- fit$thresholds
     bgms_res$inc_probs <- fit$gamma
     bgms_res$inc_BF <- (bgms_res$inc_probs/(1-bgms_res$inc_probs))/(edge.prior /(1-edge.prior))
     bgms_res$structure <- 1*(bgms_res$inc_probs > 0.5)
+    bgms_res$edge.prior <- edge.prior
   }
   if(save){
     bgms_res$samples_posterior <- fit$interactions

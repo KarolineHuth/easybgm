@@ -430,25 +430,27 @@ plot_centrality.easybgm <- function(output, ...){
     args$theme
 }
 
+# -------------------------------------------------------------------------------
 #' @export
-plot_prior_sensitivity.easybgm <- function(output, edge_priors, 
+plot_prior_sensitivity.list <- function(output,
                                            evidence_thres = 10, ...) {
   if(any(class(output) == "easybgm")) {
     stop("Wrong input provided. The function requires as input 
          a list of output values of the easybgm function.")
   }
+  
   defaults <- list(
     cex.main = 1.5, mar = c(5, 6, 4, 5) + .1,
     mgp = c(3.5, 1, 0), cex.lab = 1.5, font.lab = 2, cex.axis = 1.3,
     bty = "n", las = 1, type = "l", col = c("#36648b", "#990000", "#bfbfbf"),
     lwd = 2, xlim = c(0, 1), ylim = c(0, 1), xlab = "Prior inclusion probability",
     ylab = "Relative number of edges", xline = 2.5, las = 0, yline = 3.7,
-    legend = TRUE
+    legend = TRUE, legend.x = 0, legend.y = .5
   )
   args <- set_defaults(defaults, ...)
   no_priors <- length(output)
+  edge_priors <- rep(NA, no_priors)
   
-  print(no_priors)
   for (i in 1:no_priors) {
     if (!any(class(output[[i]]) == "easybgm")) {
       stop(paste0("Wrong input provided on index ", i, ". The function requires
@@ -459,8 +461,17 @@ plot_prior_sensitivity.easybgm <- function(output, edge_priors,
   incl_edges = excl_edges = inconcl_edges <- rep(NA, no_priors)
   
   for (i in 1:no_priors) {
-    print(output[[i]])
-    incl_bf <- output[[i]]$inc_BF
+    res <- output[[i]]
+    
+    if (is.null(res$edge.prior)) {
+      stop("Wrong input provided. At least one of the output of the easybgm
+           function does not include an edge prior. Please note that this is not
+           possible for the package BGGM.")
+    }
+    edge_priors[i] <- res$edge.prior
+    
+  
+    incl_bf <- res$inc_BF
     incl_bf <- incl_bf[lower.tri(incl_bf)]
     
     k <- length(incl_bf)
@@ -488,7 +499,7 @@ plot_prior_sensitivity.easybgm <- function(output, edge_priors,
         las = 0)
   
   if (args$legend == TRUE)
-    legend(0, 1, legend = c("Included", "Excluded", "Inconclusive"),
+    legend(args$legend.x, args$legend.y, legend = c("Included", "Excluded", "Inconclusive"),
          col = c("#36648b", "#990000", "#bfbfbf"), lty = 1, lwd = args$lwd,
          bty = args$bty)
   
