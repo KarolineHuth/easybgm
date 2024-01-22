@@ -438,16 +438,38 @@ plot_prior_sensitivity.list <- function(output,
     stop("Wrong input provided. The function requires as input 
          a list of output values of the easybgm function.")
   }
-  
-  defaults <- list(
-    cex.main = 1.5, mar = c(5, 6, 4, 5) + .1,
-    mgp = c(3.5, 1, 0), cex.lab = 1.5, font.lab = 2, cex.axis = 1.3,
-    bty = "n", las = 1, type = "l", col = c("#36648b", "#990000", "#bfbfbf"),
-    lwd = 2, xlim = c(0, 1), ylim = c(0, 1), xlab = "Prior inclusion probability",
-    ylab = "Relative number of edges", xline = 2.5, las = 0, yline = 3.7,
-    legend = TRUE, legend.x = 0, legend.y = .5
+  default_args <- list(
+    theme_ = theme_minimal(),
+    ylab = xlab("Relative no edges"),
+    xlab = ylab("Prior probability"),
+    xlim = xlim(0,1),
+    ylim = ylim(0,1),
+    theme = theme(
+      axis.text = element_text(size=16),
+      panel.border = element_blank(),
+      axis.line = element_line(colour = "black", linewidth = 1.1),
+      axis.ticks.length = unit(.2, "cm"),
+      axis.ticks = element_line(linewidth = .8),
+      axis.title.x = element_text(size = 18, face = "bold"),
+      axis.title.y = element_text(size = 18, face = "bold"),
+      plot.title = element_text(size = 18, face = "bold"),
+      panel.grid.major = element_blank(),
+      legend.text = element_text(size = 12),
+
+    ),
+    colors = c("#36648b", "#990000", "#bfbfbf"),
+    size = 1
   )
-  args <- set_defaults(defaults, ...)
+  
+  # defaults <- list(
+  #   cex.main = 1.5, mar = c(5, 6, 4, 5) + .1,
+  #   mgp = c(3.5, 1, 0), cex.lab = 1.5, font.lab = 2, cex.axis = 1.3,
+  #   bty = "n", las = 1, type = "l", col = c("#36648b", "#990000", "#bfbfbf"),
+  #   lwd = 2, xlim = c(0, 1), ylim = c(0, 1), xlab = "Prior inclusion probability",
+  #   ylab = "Relative number of edges", xline = 2.5, las = 0, yline = 3.7,
+  #   legend = TRUE, legend.x = 0, legend.y = .5
+  # )
+  args <- set_defaults(default_args, ...)
   no_priors <- length(output)
   edge_priors <- rep(NA, no_priors)
   
@@ -483,25 +505,14 @@ plot_prior_sensitivity.list <- function(output,
   
   inconcl_edges <- 1 - incl_edges - excl_edges
   
+  data <- data.frame(cbind(edge_priors, incl_edges, excl_edges, inconcl_edges))
   
-  op <- par(cex.main = args$cex.main, mar = args$mar, mgp = args$mgp,
-            cex.lab = args$cex.lab, font.lab = args$font.lab,
-            cex.axis = args$cex.axis, bty = args$bty, las = args$las)
-  
-
-  plot(edge_priors, incl_edges, type = args$type, col = args$col[1], lwd = args$lwd,
-       xlim = args$xlim, ylim = args$ylim, xlab = "", ylab = "")
-  lines(edge_priors, excl_edges, col = args$col[2], lwd = args$lwd)
-  lines(edge_priors, inconcl_edges, col = args$col[3], lwd = args$lwd)
-  
-  mtext(args$xlab, side = 1, line = args$xline, cex = args$cex.lab)
-  mtext(args$ylab, side = 2, line = args$yline, cex = args$cex.lab,
-        las = 0)
-  
-  if (args$legend == TRUE)
-    legend(args$legend.x, args$legend.y, legend = c("Included", "Excluded", "Inconclusive"),
-         col = c("#36648b", "#990000", "#bfbfbf"), lty = 1, lwd = args$lwd,
-         bty = args$bty)
+  ggplot2::ggplot(data, aes(x = edge_priors, ...)) +
+    geom_line(aes(y = incl_edges, color = "included"), size = args$size) + 
+    geom_line(aes(y = excl_edges, color = "excluded"), size = args$size) +
+    geom_line(aes(y = inconcl_edges, color = "inconclusive"), size = args$size) +
+    args$theme + args$xlab + args$ylab + scale_color_manual(values = args$colors, name = "")  +
+    args$xlim + args$ylim
   
   
 }
