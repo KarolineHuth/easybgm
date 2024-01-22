@@ -434,10 +434,7 @@ plot_centrality.easybgm <- function(output, ...){
 #' @export
 plot_prior_sensitivity.list <- function(output,
                                            evidence_thres = 10, ...) {
-  if(any(class(output) == "easybgm")) {
-    stop("Wrong input provided. The function requires as input 
-         a list of output values of the easybgm function.")
-  }
+
   default_args <- list(
     theme_ = theme_minimal(),
     ylab = xlab("Relative no edges"),
@@ -474,9 +471,9 @@ plot_prior_sensitivity.list <- function(output,
   edge_priors <- rep(NA, no_priors)
   
   for (i in 1:no_priors) {
-    if (!any(class(output[[i]]) == "easybgm")) {
+    if (!(any(class(output[[i]]) == "easybgm") | any(class(output[[i]]) == "package_bgms"))) {
       stop(paste0("Wrong input provided on index ", i, ". The function requires
-                  as input a list of output values of the easybgm function."))
+                  as input a list of output values of the easybgm or the bgms function."))
     }
   }
   
