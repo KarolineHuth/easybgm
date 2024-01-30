@@ -22,8 +22,7 @@ bgm_fit.package_bgms <- function(fit, type, data, iter, save,
       extra_args <- list(
         inclusion_probability = .5
       )
-    }
-    else {
+    } else {
       extra_args <- list(
         beta_bernoulli_alpha = 1,
         beta_bernoulli_beta = 1
@@ -88,9 +87,7 @@ bgm_extract.package_bgms <- function(fit, type, save,
       extra_defaults <- list(
         inclusion_probability = .5
       )
-    }
-
-    else {
+    } else {
       extra_defaults <- list(
         beta_bernoulli_alpha = 1,
         beta_bernoulli_beta = 1
