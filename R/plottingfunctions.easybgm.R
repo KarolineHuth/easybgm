@@ -129,7 +129,6 @@ if(!any(class(output) == "easybgm")){
     edge.width = 3,
     label.cex = 1,
     legend.cex = .6
-
   )
   args <- set_defaults(default_args, ...)
   graph <- output$inc_BF
@@ -225,8 +224,8 @@ if(!any(class(output) == "easybgm")){
                      ...
       )
     }
-  if (split) {
-    return(list(invisible(qgraph_plot1), invisible(qgraph_plot2)))
+  if (split == TRUE) {
+    return(invisible(list(qgraph_plot1, qgraph_plot2)))
   } else {
     return(invisible(qgraph_plot))
   }
@@ -254,7 +253,8 @@ plot_network.easybgm <- function(output, exc_prob = 0.5, evidence_thresh = 10,  
     nodeNames = colnames(output$parameters),
     legend = T,
     label.cex = 1.2,
-    legend.cex = .6
+    legend.cex = .6, 
+    edge.labels = TRUE
   )
   args <- set_defaults(default_args, ...)
 
@@ -272,13 +272,13 @@ plot_network.easybgm <- function(output, exc_prob = 0.5, evidence_thresh = 10,  
                    nodeNames = args$nodeNames,
                    legend = args$legend,
                    label.cex = args$label.cex,
-                   legend.cex = args$legend.cex, ...)
+                   legend.cex = args$legend.cex, edge.labels = args$edge.labels, ...)
   } else {
     qgraph_plot <- qgraph::qgraph(graph, theme = args$theme, layout = args$layout, vsize = args$vsize,
                    nodeNames = args$nodeNames,
                    legend = args$legend,
                    label.cex = args$label.cex,
-                   legend.cex = args$legend.cex, ...)
+                   legend.cex = args$legend.cex, edge.labels = args$edge.labels, ...)
 
   }
   return(invisible(qgraph_plot))
