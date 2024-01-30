@@ -125,7 +125,7 @@ plot_complexity_probabilities.bgms <- function(output, ...) {
 
 #' @export
 
-plot_edgeevidence.bgms <- function(output, evidence_thresh = 10, split = FALSE, show = "all", donotplot = FALSE,...) {
+plot_edgeevidence.bgms <- function(output, evidence_thresh = 10, split = FALSE, show = "all", ...) {
   # Extract the results from bgms
   res <- bgm_extract.package_bgms(fit = output, save = output$save, centrality = FALSE,
                                   type = NULL, not_cont = NULL, data = NULL,
@@ -243,22 +243,17 @@ plot_edgeevidence.bgms <- function(output, evidence_thresh = 10, split = FALSE, 
                                   ...
     )
   }
-  if(donotplot && split){
+  if (split == TRUE) {
     return(invisible(list(qgraph_plot1, qgraph_plot2)))
-  } else if(donotplot && !split){
-    return(invisible(qgraph_plot))
-  } else if(!donotplot && split){
-    return(plot(qgraph_plot1))
-    return(plot(qgraph_plot2))
   } else {
-    return(plot(qgraph_plot))
+    return(invisible(qgraph_plot))
   }
 }
 
 # ---------------------------------------------------------------------------------------------------------------
 #' @export
 
-plot_network.bgms <- function(output, exc_prob = .5, evidence_thresh = 10, dashed = FALSE, donotplot = FALSE,...) {
+plot_network.bgms <- function(output, exc_prob = .5, evidence_thresh = 10, dashed = TRUE, ...) {
   # Extract the results from bgms
   res <- bgm_extract.package_bgms(fit = output, save = output$save, centrality = FALSE,
                                   type = NULL, not_cont = NULL, data = NULL,
@@ -305,18 +300,14 @@ plot_network.bgms <- function(output, exc_prob = .5, evidence_thresh = 10, dashe
                                   legend.cex = args$legend.cex, ...)
 
   }
-  if(donotplot){
-    return(invisible(qgraph_plot))
-  } else {
-    return(plot(qgraph_plot))
-  }
+  return(invisible(qgraph_plot))
 }
 
 # -------------------------------------------------
 
 #' @export
 
-plot_structure.bgms <- function(output, donotplot = FALSE,...) {
+plot_structure.bgms <- function(output, ...) {
   # Extract the results from bgms
   res <- bgm_extract.package_bgms(fit = output, save = output$save, centrality = FALSE,
                                   type = NULL, not_cont = NULL, data = NULL,
@@ -349,11 +340,7 @@ plot_structure.bgms <- function(output, donotplot = FALSE,...) {
                                 legend = args$legend,
                                 label.cex = args$label.cex,
                                 legend.cex = args$legend.cex, ...)
-  if(donotplot){
-    return(invisible(qgraph_plot))
-  } else {
-    return(plot(qgraph_plot))
-  }
+  return(invisible(qgraph_plot))
 }
 
 # ---------------------------------------------------------------------------------------------------------------
