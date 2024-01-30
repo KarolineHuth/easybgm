@@ -437,8 +437,8 @@ plot_prior_sensitivity.list <- function(output,
 
   default_args <- list(
     theme_ = theme_minimal(),
-    ylab = xlab("Relative no edges"),
-    xlab = ylab("Prior probability"),
+    ylab = ylab("Relative no. edges"),
+    xlab = xlab("Prior edge probability"),
     xlim = xlim(0,1),
     ylim = ylim(0,1),
     theme = theme(
@@ -458,14 +458,6 @@ plot_prior_sensitivity.list <- function(output,
     size = 1
   )
   
-  # defaults <- list(
-  #   cex.main = 1.5, mar = c(5, 6, 4, 5) + .1,
-  #   mgp = c(3.5, 1, 0), cex.lab = 1.5, font.lab = 2, cex.axis = 1.3,
-  #   bty = "n", las = 1, type = "l", col = c("#36648b", "#990000", "#bfbfbf"),
-  #   lwd = 2, xlim = c(0, 1), ylim = c(0, 1), xlab = "Prior inclusion probability",
-  #   ylab = "Relative number of edges", xline = 2.5, las = 0, yline = 3.7,
-  #   legend = TRUE, legend.x = 0, legend.y = .5
-  # )
   args <- set_defaults(default_args, ...)
   no_priors <- length(output)
   edge_priors <- rep(NA, no_priors)
@@ -484,8 +476,8 @@ plot_prior_sensitivity.list <- function(output,
     
     if (is.null(res$edge.prior)) {
       stop("Wrong input provided. At least one of the output of the easybgm
-           function does not include an edge prior. Please note that this is not
-           possible for the package BGGM.")
+           function does not include a specification of the edge prior. Please note that this 
+           plot cannot be obtained with the package BGGM.")
     }
     edge_priors[i] <- res$edge.prior
     
@@ -506,8 +498,11 @@ plot_prior_sensitivity.list <- function(output,
   
   ggplot2::ggplot(data, aes(x = edge_priors, ...)) +
     geom_line(aes(y = incl_edges, color = "included"), size = args$size) + 
+    geom_point(aes(y = incl_edges, color = "included"), size = args$size+ 0.5) +
     geom_line(aes(y = excl_edges, color = "excluded"), size = args$size) +
+    geom_point(aes(y = excl_edges, color = "excluded"), size = args$size + 0.5) +
     geom_line(aes(y = inconcl_edges, color = "inconclusive"), size = args$size) +
+    geom_point(aes(y = inconcl_edges, color = "inconclusive"), size = args$size + 0.5) +
     args$theme + args$xlab + args$ylab + scale_color_manual(values = args$colors, name = "")  +
     args$xlim + args$ylim
   

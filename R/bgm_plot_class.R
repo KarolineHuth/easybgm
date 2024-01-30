@@ -326,12 +326,12 @@ plot_centrality <- function(output, ...){
 
 
 #' Prior sensitivity plot
-#' @title Plot prior sensitivity of data 
-#' @description For a given list of outputs with different prior inclusion probabilities
-#'  plot the edges that are included excluded and inconclusive over different priors.
+#' @title Plot sensitivity to edge inclusion prior setting
+#' @description For a given list of easybgm outputs with different prior edge inclusion probabilities, the function
+#'  plots the percentage of edges that are included, excluded, and inconclusive.
 #' @name prior_sensitivity 
-#' @param output 
-#' @param ... Additional arguments passed onto plot, not implemented yet.
+#' @param output A list of easybgm outputs with different prior edge inclusion probabilities
+#' @param ... Additional arguments passed onto ggplot2.
 #'
 #' @return Returns a plot
 #' 
@@ -348,11 +348,11 @@ plot_centrality <- function(output, ...){
 #'                 iter = 1000  # for demonstration only (> 5e4 recommended),
 #'                 inclusion_probability = .1
 #'                )
-#'fit2 <- easybgm(data, type = "ordinal",
+#' fit2 <- easybgm(data, type = "ordinal",
 #'                   iter = 1000,
 #'                   inclusion_probability = .5
 #'              )
-#'fit3 <- easybgm(data, type = "ordinal",
+#' fit3 <- easybgm(data, type = "ordinal",
 #'                 iter = 1000, inclusion_probability = .9)              
 #' 
 #' plot_prior_sensitivity(list(fit1, fit2, fit3))
