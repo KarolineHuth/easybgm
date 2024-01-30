@@ -1,7 +1,7 @@
 Package: easybgm
 Type: Package
 Title: Extracting and Visualizing Bayesian Graphical Models
-Version: 0.1.1
+Version: 0.1.2
 Authors@R: c(
   person("Karoline", "Huth", , "k.huth@uva.nl", role = c("aut", "cre"), 
         comment = c(ORCID = "0000-0002-0662-1591")), 
@@ -14,6 +14,8 @@ Description: Fit and visualize the results of a Bayesian analysis of networks co
     posterior density of the parameters. In addition, for 'BDgraph' and 'bgms' it allows to assess the posterior 
     structure space. Furthermore, the package comes with an extensive suite for visualizing results.
 License: GPL (>= 2)
+URL: https://github.com/KarolineHuth/easybgm
+BugReports: https://github.com/KarolineHuth/easybgm/issues
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
