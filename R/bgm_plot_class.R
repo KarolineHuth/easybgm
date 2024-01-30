@@ -94,7 +94,6 @@ plot_complexity_probabilities <- function(output, ...) {
 #' @param evidence_thresh Bayes Factor which will be considered sufficient evidence for in-/exclusion, default is 10.
 #' @param split if TRUE, plot is split in included and excluded edges. Note that by default separate plots are shown and appear after each other in the plot window. To show the plots side-by-side specify par(mfrow = c(1, 2)).
 #' @param show specifies which edges should be shown, indicated by "all", "included", "inconclusive", "excluded".
-#' @param donotplot Runs function but does not plot (default is FALSE). Useful for saving the output (i.e. layout) without plotting.
 #' @param ... Additional arguments passed onto `qgraph`.
 #'
 #' @return Returns a plot
@@ -127,7 +126,7 @@ plot_complexity_probabilities <- function(output, ...) {
 #' }
 
 
-plot_edgeevidence <- function(output, evidence_thresh = 10, split = FALSE, show = "all", donotplot = FALSE,...) {
+plot_edgeevidence <- function(output, evidence_thresh = 10, split = FALSE, show = "all",...) {
   if(any(any(class(output) == "easybgm"), any(class(output) == "bgms")) == FALSE){
     stop("Wrong input provided. The function requires as input the output of the easybgm or bgm function.")
   }
@@ -150,9 +149,8 @@ plot_edgeevidence <- function(output, evidence_thresh = 10, split = FALSE, show 
 #'
 #' @param output Output object from the easybgm function. Supports also objects from the bgm function of the `bgms` package.
 #' @param exc_prob The threshold for excluding edges. All edges with a lower inclusion probability will not be shown. The default is set to 0.5 in line with the median probability plot.
-#' @param dashed A binary parameter indicating whether edges with inconclusive evidence should be dashed. Default is FALSE.
+#' @param dashed A binary parameter indicating whether edges with inconclusive evidence should be dashed. Default is TRUE.
 #' @param evidence_thresh If dashed = TRUE, users can specify the threshold for sufficient evidence for inclusion. All edges with evidence lower than `evidence_tresh` are dashed.
-#' @param donotplot Runs function but does not plot (default is FALSE). Useful for saving the output (i.e. layout) without plotting.
 #' @param ... Additional arguments passed onto `qgraph`.
 #' 
 #' @return Returns a plot
@@ -178,7 +176,7 @@ plot_edgeevidence <- function(output, evidence_thresh = 10, split = FALSE, show 
 #' plot_network(fit, dashed = TRUE, evidence_thresh = 10)
 #' 
 
-plot_network <- function(output, exc_prob = .5, evidence_thresh = 10, dashed = FALSE, donotplot = FALSE,...) {
+plot_network <- function(output, exc_prob = .5, evidence_thresh = 10, dashed = TRUE, ...) {
   if(any(any(class(output) == "easybgm"), any(class(output) == "bgms")) == FALSE){
     stop("Wrong input provided. The function requires as input the output of the easybgm or bgm function.")
   }
@@ -200,7 +198,6 @@ plot_network <- function(output, exc_prob = .5, evidence_thresh = 10, dashed = F
 #' @name structure
 #'
 #' @param output Output object from the easybgm function. Supports also objects from the bgm function of the `bgms` package.
-#' @param donotplot Runs function but does not plot (default is FALSE). Useful for saving the output (i.e. layout) without plotting.
 #' @param ... Additional arguments passed onto `qgraph`
 #'
 #' @return Returns a plot
@@ -223,7 +220,7 @@ plot_network <- function(output, exc_prob = .5, evidence_thresh = 10, dashed = F
 #' plot_structure(fit)
 #' }
 
-plot_structure <- function(output, donotplot = FALSE,...) {
+plot_structure <- function(output, ...) {
   if(any(any(class(output) == "easybgm"), any(class(output) == "bgms")) == FALSE){
     stop("Wrong input provided. The function requires as input the output of the easybgm or bgm function.")
   }
