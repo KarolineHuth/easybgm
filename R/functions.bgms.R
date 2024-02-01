@@ -107,11 +107,14 @@ bgm_extract.package_bgms <- function(fit, type, save,
     edge.prior <- 0.5
   }
   bgms_res <- list()
+  if(packageVersion("bgms") < "0.1.3"){
+    
   if(save){
     p <- length(fit$colnames)
     bgms_res$parameters <- vector2matrix(colMeans(fit$interactions), p = p)
     bgms_res$thresholds <- as.matrix(colMeans(fit$thresholds))
     colnames(bgms_res$parameters) <- varnames
+    
     
     bgms_res$inc_probs <- vector2matrix(colMeans(fit$gamma), p = p)
     bgms_res$inc_BF <- (bgms_res$inc_probs/(1-bgms_res$inc_probs))/(edge.prior /(1-edge.prior))
@@ -140,7 +143,48 @@ bgm_extract.package_bgms <- function(fit, type, save,
   # Adapt column names of output
   colnames(bgms_res$inc_probs) <- colnames(bgms_res$parameters)
   colnames(bgms_res$inc_BF) <- colnames(bgms_res$parameters)
-
+  } 
+  if(packageVersion("bgms") > "0.1.2"){
+    if(save){
+      p <- length(fit$colnames)
+      bgms_res$parameters <- vector2matrix(colMeans(fit$interactions), p = p)
+      bgms_res$thresholds <- as.matrix(colMeans(fit$thresholds))
+      colnames(bgms_res$parameters) <- varnames
+      
+      if(fit$bgm_arguments$edge_selection){
+      bgms_res$inc_probs <- vector2matrix(colMeans(fit$gamma), p = p)
+      bgms_res$inc_BF <- (bgms_res$inc_probs/(1-bgms_res$inc_probs))/(edge.prior /(1-edge.prior))
+      bgms_res$structure <- 1*(bgms_res$inc_probs > 0.5)
+      
+      #Obtain structure information
+      structures <- apply(fit$gamma, 1, paste0, collapse="")
+      table_structures <- as.data.frame(table(structures))
+      bgms_res$structure_probabilities <- table_structures[,2]/nrow(fit$gamma)
+      bgms_res$graph_weights <- table_structures[,2]
+      bgms_res$sample_graph <- as.character(table_structures[, 1])
+      }
+    } else {
+      bgms_res$parameters <- fit$interactions
+      bgms_res$thresholds <- fit$thresholds
+      if(fit$bgm_arguments$edge_selection){
+      bgms_res$inc_probs <- fit$gamma
+      bgms_res$inc_BF <- (bgms_res$inc_probs/(1-bgms_res$inc_probs))/(edge.prior /(1-edge.prior))
+      bgms_res$structure <- 1*(bgms_res$inc_probs > 0.5)
+      }
+    }
+    if(save){
+      bgms_res$samples_posterior <- fit$interactions
+      if(centrality){
+        #bgms_res$centrality_strength <- centrality_strength(bgms_res)
+        bgms_res$centrality <- centrality(bgms_res)
+      }
+    }
+    if(fit$bgm_arguments$edge_selection){
+    # Adapt column names of output
+    colnames(bgms_res$inc_probs) <- colnames(bgms_res$parameters)
+    colnames(bgms_res$inc_BF) <- colnames(bgms_res$parameters) 
+    }
+  }
   bgms_res$model <- type
   output <- bgms_res
   class(output) <- c("package_bgms", "easybgm")
