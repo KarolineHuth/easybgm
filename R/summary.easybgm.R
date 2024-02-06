@@ -16,6 +16,7 @@ summary.easybgm <- function(object, evidence_thresh = 10, ...) {
   dots_check(...)
   
   # nodes
+
   if(is.null(object$inc_probs)){
     p <- ncol(object$parameters)
   } else {

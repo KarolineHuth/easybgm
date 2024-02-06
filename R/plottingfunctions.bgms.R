@@ -166,6 +166,7 @@ plot_complexity_probabilities.bgms <- function(output, ...) {
 #' @export
 
 plot_edgeevidence.bgms <- function(output, evidence_thresh = 10, split = FALSE, show = "all", ...) {
+
   if(packageVersion("bgms") < "0.1.3"){
     res <- bgm_extract.package_bgms(fit = output, save = output$save, centrality = FALSE,
                                     type = NULL, not_cont = NULL, data = NULL,
@@ -182,6 +183,7 @@ plot_edgeevidence.bgms <- function(output, evidence_thresh = 10, split = FALSE, 
                                     beta_bernoulli_alpha = output$bgm_arguments$beta_bernoulli_alpha,
                                     beta_bernoulli_beta = output$bgm_arguments$beta_bernoulli_beta)
   }
+
   output <- res
 
   # Specify default arguments for function
@@ -303,6 +305,7 @@ plot_edgeevidence.bgms <- function(output, evidence_thresh = 10, split = FALSE, 
 #' @export
 
 plot_network.bgms <- function(output, exc_prob = .5, evidence_thresh = 10, dashed = TRUE, ...) {
+
   if(packageVersion("bgms") < "0.1.3"){
     res <- bgm_extract.package_bgms(fit = output, save = output$save, centrality = FALSE,
                                     type = NULL, not_cont = NULL, data = NULL,
@@ -319,6 +322,7 @@ plot_network.bgms <- function(output, exc_prob = .5, evidence_thresh = 10, dashe
                                     beta_bernoulli_alpha = output$bgm_arguments$beta_bernoulli_alpha,
                                     beta_bernoulli_beta = output$bgm_arguments$beta_bernoulli_beta)
   }
+
   output <- res
 
   # Specify default arguments for function
@@ -366,6 +370,7 @@ plot_network.bgms <- function(output, exc_prob = .5, evidence_thresh = 10, dashe
 #' @export
 
 plot_structure.bgms <- function(output, ...) {
+
   if(packageVersion("bgms") < "0.1.3"){
     res <- bgm_extract.package_bgms(fit = output, save = output$save, centrality = FALSE,
                                     type = NULL, not_cont = NULL, data = NULL,
@@ -382,6 +387,7 @@ plot_structure.bgms <- function(output, ...) {
                                     beta_bernoulli_alpha = output$bgm_arguments$beta_bernoulli_alpha,
                                     beta_bernoulli_beta = output$bgm_arguments$beta_bernoulli_beta)
   }
+
   output <- res
 
   # Specify default arguments for function

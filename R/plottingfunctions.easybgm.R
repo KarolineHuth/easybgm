@@ -156,6 +156,7 @@ plot_edgeevidence.easybgm <- function(output, evidence_thresh = 10, split = FALS
     )
   }
 
+
   args <- set_defaults(default_args, ...)
   graph <- output$inc_BF
   diag(graph) <- 1
@@ -236,6 +237,7 @@ plot_edgeevidence.easybgm <- function(output, evidence_thresh = 10, split = FALS
     if("inconclusive" %in% show){
       graph_show[(output$inc_BF > (1/evidence_thresh)) & (output$BF < evidence_thresh)] <- 1
     }
+
     diag(graph_show) <- 1
     colnames(graph_show) <- colnames(output$parameters)
     qgraph_plot <- qgraph::qgraph(graph_show,
@@ -250,6 +252,7 @@ plot_edgeevidence.easybgm <- function(output, evidence_thresh = 10, split = FALS
                                   ...
     )
   }
+
   if (split == TRUE) {
     return(invisible(list(qgraph_plot1, qgraph_plot2)))
   } else {
@@ -300,6 +303,7 @@ plot_network.easybgm <- function(output, exc_prob = 0.5, evidence_thresh = 10,  
   # Plot
   if(dashed){
     graph_dashed <- ifelse(output$inc_BF < args$evidence_thresh, 2, 1)
+
     
     qgraph_plot <- qgraph::qgraph(graph, layout = args$layout, 
                                   lty = graph_dashed,
@@ -318,6 +322,7 @@ plot_network.easybgm <- function(output, exc_prob = 0.5, evidence_thresh = 10,  
                                   legend.cex = args$legend.cex, 
                                   edge.labels = args$edge.labels, ...)
     
+
   }
   return(invisible(qgraph_plot))
 }

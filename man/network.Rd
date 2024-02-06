@@ -14,7 +14,9 @@ plot_network(output, exc_prob = 0.5, evidence_thresh = 10, dashed = FALSE, ...)
 
 \item{evidence_thresh}{If dashed = TRUE, users can specify the threshold for sufficient evidence for inclusion. All edges with evidence lower than \code{evidence_tresh} are dashed.}
 
+
 \item{dashed}{A binary parameter indicating whether edges with inconclusive evidence should be dashed. Default is FALSE}
+
 
 \item{...}{Additional arguments passed onto \code{qgraph}.}
 }
