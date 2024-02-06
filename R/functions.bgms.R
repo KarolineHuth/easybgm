@@ -4,11 +4,11 @@
 
 bgm_fit.package_bgms <- function(fit, type, data, iter, save,
                                  not_cont, centrality, progress, ...){
-
+  
   if(!save && centrality){
     save <- TRUE
   }
-
+  
   if(packageVersion("bgms") > "0.1.0"){
     prior_defaults <- list(
       interaction_prior = "UnitInfo",
@@ -29,8 +29,8 @@ bgm_fit.package_bgms <- function(fit, type, data, iter, save,
       )
     }
     prior_defaults <- append(prior_defaults, extra_args)
-
-
+    
+    
     args <- set_defaults(prior_defaults, ...)
     bgms_fit <- do.call(
       bgm, c(list(x = data, iter = iter, save = TRUE, display_progress = progress),
@@ -49,7 +49,7 @@ bgm_fit.package_bgms <- function(fit, type, data, iter, save,
              args)
     )
   }
-
+  
   fit$model <- type
   fit$packagefit <- bgms_fit
   if(is.null(colnames(data))){
@@ -70,18 +70,18 @@ bgm_fit.package_bgms <- function(fit, type, data, iter, save,
 bgm_extract.package_bgms <- function(fit, type, save,
                                      not_cont, data, centrality, ...){
   if(centrality) save <- TRUE
-
+  
   if(any(class(fit) != "bgms")){
-  varnames <- fit$var_names
-  fit <- fit$packagefit
-  save <- TRUE
+    varnames <- fit$var_names
+    fit <- fit$packagefit
+    save <- TRUE
   }
-
+  
   if(packageVersion("bgms") > "0.1.0"){
     defaults <- list(
       edge_prior = "Bernoulli"
     )
-
+    
     args <- set_defaults(defaults, ...)
     if (args$edge_prior == "Bernoulli") {
       extra_defaults <- list(
@@ -93,10 +93,10 @@ bgm_extract.package_bgms <- function(fit, type, save,
         beta_bernoulli_beta = 1
       )
     }
-
+    
     defaults <- append(defaults, extra_defaults)
     args <- set_defaults(defaults, ...)
-
+    
     if (args$edge_prior == "Bernoulli") {
       edge.prior <- args$inclusion_probability
     }
@@ -109,49 +109,13 @@ bgm_extract.package_bgms <- function(fit, type, save,
   bgms_res <- list()
   if(packageVersion("bgms") < "0.1.3"){
     
-  if(save){
-    p <- length(fit$colnames)
-    bgms_res$parameters <- vector2matrix(colMeans(fit$interactions), p = p)
-    bgms_res$thresholds <- as.matrix(colMeans(fit$thresholds))
-    colnames(bgms_res$parameters) <- varnames
-    
-    
-    bgms_res$inc_probs <- vector2matrix(colMeans(fit$gamma), p = p)
-    bgms_res$inc_BF <- (bgms_res$inc_probs/(1-bgms_res$inc_probs))/(edge.prior /(1-edge.prior))
-    bgms_res$structure <- 1*(bgms_res$inc_probs > 0.5)
-
-    #Obtain structure information
-    structures <- apply(fit$gamma, 1, paste0, collapse="")
-    table_structures <- as.data.frame(table(structures))
-    bgms_res$structure_probabilities <- table_structures[,2]/nrow(fit$gamma)
-    bgms_res$graph_weights <- table_structures[,2]
-    bgms_res$sample_graph <- as.character(table_structures[, 1])
-  } else {
-    bgms_res$parameters <- fit$interactions
-    bgms_res$thresholds <- fit$thresholds
-    bgms_res$inc_probs <- fit$gamma
-    bgms_res$inc_BF <- (bgms_res$inc_probs/(1-bgms_res$inc_probs))/(edge.prior /(1-edge.prior))
-    bgms_res$structure <- 1*(bgms_res$inc_probs > 0.5)
-  }
-  if(save){
-    bgms_res$samples_posterior <- fit$interactions
-    if(centrality){
-      #bgms_res$centrality_strength <- centrality_strength(bgms_res)
-      bgms_res$centrality <- centrality(bgms_res)
-    }
-  }
-  # Adapt column names of output
-  colnames(bgms_res$inc_probs) <- colnames(bgms_res$parameters)
-  colnames(bgms_res$inc_BF) <- colnames(bgms_res$parameters)
-  } 
-  if(packageVersion("bgms") > "0.1.2"){
     if(save){
       p <- length(fit$colnames)
       bgms_res$parameters <- vector2matrix(colMeans(fit$interactions), p = p)
       bgms_res$thresholds <- as.matrix(colMeans(fit$thresholds))
       colnames(bgms_res$parameters) <- varnames
       
-      if(fit$bgm_arguments$edge_selection){
+      
       bgms_res$inc_probs <- vector2matrix(colMeans(fit$gamma), p = p)
       bgms_res$inc_BF <- (bgms_res$inc_probs/(1-bgms_res$inc_probs))/(edge.prior /(1-edge.prior))
       bgms_res$structure <- 1*(bgms_res$inc_probs > 0.5)
@@ -162,14 +126,55 @@ bgm_extract.package_bgms <- function(fit, type, save,
       bgms_res$structure_probabilities <- table_structures[,2]/nrow(fit$gamma)
       bgms_res$graph_weights <- table_structures[,2]
       bgms_res$sample_graph <- as.character(table_structures[, 1])
+    } else {
+      bgms_res$parameters <- fit$interactions
+      bgms_res$thresholds <- fit$thresholds
+      bgms_res$inc_probs <- fit$gamma
+      bgms_res$inc_BF <- (bgms_res$inc_probs/(1-bgms_res$inc_probs))/(edge.prior /(1-edge.prior))
+      bgms_res$structure <- 1*(bgms_res$inc_probs > 0.5)
+    }
+    if(save){
+      bgms_res$samples_posterior <- fit$interactions
+      if(centrality){
+        #bgms_res$centrality_strength <- centrality_strength(bgms_res)
+        bgms_res$centrality <- centrality(bgms_res)
+      }
+    }
+    # Adapt column names of output
+    colnames(bgms_res$inc_probs) <- colnames(bgms_res$parameters)
+    colnames(bgms_res$inc_BF) <- colnames(bgms_res$parameters)
+  } 
+  if(packageVersion("bgms") > "0.1.2"){
+    if(save){
+      p <- length(fit$colnames)
+      bgms_res$parameters <- vector2matrix(colMeans(fit$interactions), p = p)
+      bgms_res$thresholds <- as.matrix(colMeans(fit$thresholds))
+      colnames(bgms_res$parameters) <- varnames
+      
+      if(fit$bgm_arguments$edge_selection){
+        bgms_res$inc_probs <- vector2matrix(colMeans(fit$gamma), p = p)
+        bgms_res$inc_BF <- (bgms_res$inc_probs/(1-bgms_res$inc_probs))/(edge.prior /(1-edge.prior))
+        bgms_res$structure <- 1*(bgms_res$inc_probs > 0.5)
+        
+        #Obtain structure information
+        structures <- apply(fit$gamma, 1, paste0, collapse="")
+        table_structures <- as.data.frame(table(structures))
+        bgms_res$structure_probabilities <- table_structures[,2]/nrow(fit$gamma)
+        bgms_res$graph_weights <- table_structures[,2]
+        bgms_res$sample_graph <- as.character(table_structures[, 1])
+      } else {
+        bgms_res$structure <- matrix(1, ncol = ncol(bgms_res$parameters), nrow = ncol(bgms_res$parameters))
       }
     } else {
       bgms_res$parameters <- fit$interactions
       bgms_res$thresholds <- fit$thresholds
+      
       if(fit$bgm_arguments$edge_selection){
-      bgms_res$inc_probs <- fit$gamma
-      bgms_res$inc_BF <- (bgms_res$inc_probs/(1-bgms_res$inc_probs))/(edge.prior /(1-edge.prior))
-      bgms_res$structure <- 1*(bgms_res$inc_probs > 0.5)
+        bgms_res$inc_probs <- fit$gamma
+        bgms_res$inc_BF <- (bgms_res$inc_probs/(1-bgms_res$inc_probs))/(edge.prior /(1-edge.prior))
+        bgms_res$structure <- 1*(bgms_res$inc_probs > 0.5)
+      } else {
+        bgms_res$structure <- matrix(1, ncol = ncol(bgms_res$parameters), nrow = ncol(bgms_res$parameters))
       }
     }
     if(save){
@@ -180,9 +185,9 @@ bgm_extract.package_bgms <- function(fit, type, save,
       }
     }
     if(fit$bgm_arguments$edge_selection){
-    # Adapt column names of output
-    colnames(bgms_res$inc_probs) <- colnames(bgms_res$parameters)
-    colnames(bgms_res$inc_BF) <- colnames(bgms_res$parameters) 
+      # Adapt column names of output
+      colnames(bgms_res$inc_probs) <- colnames(bgms_res$parameters)
+      colnames(bgms_res$inc_BF) <- colnames(bgms_res$parameters) 
     }
   }
   bgms_res$model <- type

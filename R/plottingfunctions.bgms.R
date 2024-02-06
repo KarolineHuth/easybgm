@@ -2,13 +2,34 @@
 
 plot_structure_probabilities.bgms <- function(output, as_BF = FALSE, ...) {
 
+  # Give error if save is false
+  if(packageVersion("bgms") < "0.1.3"){
+    if(output$save == FALSE){
+      stop("The plot cannot be obtained for this model fit as the posterior samples weren't stored. Rerun the model fit and set 'save = TRUE'.")
+    }
+  }
+  if(packageVersion("bgms") > "0.1.2"){
+    if(output$bgm_arguments$save == FALSE){
+      stop("The plot cannot be obtained for this model fit as the posterior samples weren't stored. Rerun the model fit and set 'save = TRUE'.")
+    }
+  }
   # Extract the results from bgms
-  res <- bgm_extract.package_bgms(fit = output, save = output$save, centrality = FALSE,
+  if(packageVersion("bgms") < "0.1.3"){
+    res <- bgm_extract.package_bgms(fit = output, save = output$save, centrality = FALSE,
+                                    type = NULL, not_cont = NULL, data = NULL,
+                                    edge_prior = output$edge_prior,
+                                    inclusion_probability  = output$inclusion_probability,
+                                    beta_bernoulli_alpha = output$beta_bernoulli_alpha,
+                                    beta_bernoulli_beta = output$beta_bernoulli_beta)
+  }
+  if(packageVersion("bgms") > "0.1.2"){
+  res <- bgm_extract.package_bgms(fit = output, save = output$bgm_arguments$save, centrality = FALSE,
                                   type = NULL, not_cont = NULL, data = NULL,
-                                  edge_prior = output$edge_prior,
-                                  inclusion_probability  = output$inclusion_probability,
-                                  beta_bernoulli_alpha = output$beta_bernoulli_alpha,
-                                  beta_bernoulli_beta = output$beta_bernoulli_beta)
+                                  edge_prior = output$bgm_arguments$edge_prior,
+                                  inclusion_probability  = output$bgm_arguments$inclusion_probability,
+                                  beta_bernoulli_alpha = output$bgm_arguments$beta_bernoulli_alpha,
+                                  beta_bernoulli_beta = output$bgm_arguments$beta_bernoulli_beta)
+  }
   output <- res
 
   # Specify default arguments for function
@@ -69,14 +90,33 @@ plot_structure_probabilities.bgms <- function(output, as_BF = FALSE, ...) {
 #'
 
 plot_complexity_probabilities.bgms <- function(output, ...) {
-
-  # Extract the results from bgms
-  res <- bgm_extract.package_bgms(fit = output, save = output$save, centrality = FALSE,
-                                  type = NULL, not_cont = NULL, data = NULL,
-                                  edge_prior = output$edge_prior,
-                                  inclusion_probability  = output$inclusion_probability,
-                                  beta_bernoulli_alpha = output$beta_bernoulli_alpha,
-                                  beta_bernoulli_beta = output$beta_bernoulli_beta)
+  # Give error if save is false
+  if(packageVersion("bgms") < "0.1.3"){
+    if(output$save == FALSE){
+      stop("The plot cannot be obtained for this model fit as the posterior samples weren't stored. Rerun the model fit and set 'save = TRUE'.")
+    }
+  }
+  if(packageVersion("bgms") > "0.1.2"){
+    if(output$bgm_arguments$save == FALSE){
+      stop("The plot cannot be obtained for this model fit as the posterior samples weren't stored. Rerun the model fit and set 'save = TRUE'.")
+    }
+  }
+  if(packageVersion("bgms") < "0.1.3"){
+    res <- bgm_extract.package_bgms(fit = output, save = output$save, centrality = FALSE,
+                                    type = NULL, not_cont = NULL, data = NULL,
+                                    edge_prior = output$edge_prior,
+                                    inclusion_probability  = output$inclusion_probability,
+                                    beta_bernoulli_alpha = output$beta_bernoulli_alpha,
+                                    beta_bernoulli_beta = output$beta_bernoulli_beta)
+  }
+  if(packageVersion("bgms") > "0.1.2"){
+    res <- bgm_extract.package_bgms(fit = output, save = output$bgm_arguments$save, centrality = FALSE,
+                                    type = NULL, not_cont = NULL, data = NULL,
+                                    edge_prior = output$bgm_arguments$edge_prior,
+                                    inclusion_probability  = output$bgm_arguments$inclusion_probability,
+                                    beta_bernoulli_alpha = output$bgm_arguments$beta_bernoulli_alpha,
+                                    beta_bernoulli_beta = output$bgm_arguments$beta_bernoulli_beta)
+  }
   output <- res
 
   # Specify default arguments for function
@@ -126,13 +166,22 @@ plot_complexity_probabilities.bgms <- function(output, ...) {
 #' @export
 
 plot_edgeevidence.bgms <- function(output, evidence_thresh = 10, split = FALSE, show = "all", ...) {
-  # Extract the results from bgms
-  res <- bgm_extract.package_bgms(fit = output, save = output$save, centrality = FALSE,
-                                  type = NULL, not_cont = NULL, data = NULL,
-                                  edge_prior = output$edge_prior,
-                                  inclusion_probability  = output$inclusion_probability,
-                                  beta_bernoulli_alpha = output$beta_bernoulli_alpha,
-                                  beta_bernoulli_beta = output$beta_bernoulli_beta)
+  if(packageVersion("bgms") < "0.1.3"){
+    res <- bgm_extract.package_bgms(fit = output, save = output$save, centrality = FALSE,
+                                    type = NULL, not_cont = NULL, data = NULL,
+                                    edge_prior = output$edge_prior,
+                                    inclusion_probability  = output$inclusion_probability,
+                                    beta_bernoulli_alpha = output$beta_bernoulli_alpha,
+                                    beta_bernoulli_beta = output$beta_bernoulli_beta)
+  }
+  if(packageVersion("bgms") > "0.1.2"){
+    res <- bgm_extract.package_bgms(fit = output, save = output$bgm_arguments$save, centrality = FALSE,
+                                    type = NULL, not_cont = NULL, data = NULL,
+                                    edge_prior = output$bgm_arguments$edge_prior,
+                                    inclusion_probability  = output$bgm_arguments$inclusion_probability,
+                                    beta_bernoulli_alpha = output$bgm_arguments$beta_bernoulli_alpha,
+                                    beta_bernoulli_beta = output$bgm_arguments$beta_bernoulli_beta)
+  }
   output <- res
 
   # Specify default arguments for function
@@ -254,13 +303,22 @@ plot_edgeevidence.bgms <- function(output, evidence_thresh = 10, split = FALSE, 
 #' @export
 
 plot_network.bgms <- function(output, exc_prob = .5, evidence_thresh = 10, dashed = TRUE, ...) {
-  # Extract the results from bgms
-  res <- bgm_extract.package_bgms(fit = output, save = output$save, centrality = FALSE,
-                                  type = NULL, not_cont = NULL, data = NULL,
-                                  edge_prior = output$edge_prior,
-                                  inclusion_probability  = output$inclusion_probability,
-                                  beta_bernoulli_alpha = output$beta_bernoulli_alpha,
-                                  beta_bernoulli_beta = output$beta_bernoulli_beta)
+  if(packageVersion("bgms") < "0.1.3"){
+    res <- bgm_extract.package_bgms(fit = output, save = output$save, centrality = FALSE,
+                                    type = NULL, not_cont = NULL, data = NULL,
+                                    edge_prior = output$edge_prior,
+                                    inclusion_probability  = output$inclusion_probability,
+                                    beta_bernoulli_alpha = output$beta_bernoulli_alpha,
+                                    beta_bernoulli_beta = output$beta_bernoulli_beta)
+  }
+  if(packageVersion("bgms") > "0.1.2"){
+    res <- bgm_extract.package_bgms(fit = output, save = output$bgm_arguments$save, centrality = FALSE,
+                                    type = NULL, not_cont = NULL, data = NULL,
+                                    edge_prior = output$bgm_arguments$edge_prior,
+                                    inclusion_probability  = output$bgm_arguments$inclusion_probability,
+                                    beta_bernoulli_alpha = output$bgm_arguments$beta_bernoulli_alpha,
+                                    beta_bernoulli_beta = output$bgm_arguments$beta_bernoulli_beta)
+  }
   output <- res
 
   # Specify default arguments for function
@@ -308,13 +366,22 @@ plot_network.bgms <- function(output, exc_prob = .5, evidence_thresh = 10, dashe
 #' @export
 
 plot_structure.bgms <- function(output, ...) {
-  # Extract the results from bgms
-  res <- bgm_extract.package_bgms(fit = output, save = output$save, centrality = FALSE,
-                                  type = NULL, not_cont = NULL, data = NULL,
-                                  edge_prior = output$edge_prior,
-                                  inclusion_probability  = output$inclusion_probability,
-                                  beta_bernoulli_alpha = output$beta_bernoulli_alpha,
-                                  beta_bernoulli_beta = output$beta_bernoulli_beta)
+  if(packageVersion("bgms") < "0.1.3"){
+    res <- bgm_extract.package_bgms(fit = output, save = output$save, centrality = FALSE,
+                                    type = NULL, not_cont = NULL, data = NULL,
+                                    edge_prior = output$edge_prior,
+                                    inclusion_probability  = output$inclusion_probability,
+                                    beta_bernoulli_alpha = output$beta_bernoulli_alpha,
+                                    beta_bernoulli_beta = output$beta_bernoulli_beta)
+  }
+  if(packageVersion("bgms") > "0.1.2"){
+    res <- bgm_extract.package_bgms(fit = output, save = output$bgm_arguments$save, centrality = FALSE,
+                                    type = NULL, not_cont = NULL, data = NULL,
+                                    edge_prior = output$bgm_arguments$edge_prior,
+                                    inclusion_probability  = output$bgm_arguments$inclusion_probability,
+                                    beta_bernoulli_alpha = output$bgm_arguments$beta_bernoulli_alpha,
+                                    beta_bernoulli_beta = output$bgm_arguments$beta_bernoulli_beta)
+  }
   output <- res
 
   # Specify default arguments for function
@@ -350,18 +417,31 @@ plot_structure.bgms <- function(output, ...) {
 plot_parameterHDI.bgms <- function(output, ...) {
 
 
-  if(!output$save){
-    stop("Samples of the posterior distribution required. When estimating the model with bgm, set \"save = TRUE\".")
+
+
+
+  if(packageVersion("bgms") < "0.1.3"){
+    if(!output$save){
+      stop("Samples of the posterior distribution required. When estimating the model with bgm, set \"save = TRUE\".")
+    }
+    res <- bgm_extract.package_bgms(fit = output, save = output$save, centrality = FALSE,
+                                    type = NULL, not_cont = NULL, data = NULL,
+                                    edge_prior = output$edge_prior,
+                                    inclusion_probability  = output$inclusion_probability,
+                                    beta_bernoulli_alpha = output$beta_bernoulli_alpha,
+                                    beta_bernoulli_beta = output$beta_bernoulli_beta)
   }
-
-
-  # Extract the results from bgms
-  res <- bgm_extract.package_bgms(fit = output, save = output$save, centrality = FALSE,
-                                  type = NULL, not_cont = NULL, data = NULL,
-                                  edge_prior = output$edge_prior,
-                                  inclusion_probability  = output$inclusion_probability,
-                                  beta_bernoulli_alpha = output$beta_bernoulli_alpha,
-                                  beta_bernoulli_beta = output$beta_bernoulli_beta)
+  if(packageVersion("bgms") > "0.1.2"){
+    if(!output$bgm_arguments$save){
+      stop("Samples of the posterior distribution required. When estimating the model with bgm, set \"save = TRUE\".")
+    }
+    res <- bgm_extract.package_bgms(fit = output, save = output$bgm_arguments$save, centrality = FALSE,
+                                    type = NULL, not_cont = NULL, data = NULL,
+                                    edge_prior = output$bgm_arguments$edge_prior,
+                                    inclusion_probability  = output$bgm_arguments$inclusion_probability,
+                                    beta_bernoulli_alpha = output$bgm_arguments$beta_bernoulli_alpha,
+                                    beta_bernoulli_beta = output$bgm_arguments$beta_bernoulli_beta)
+  }
   output <- res
 
   # Specify default arguments for function
@@ -423,13 +503,22 @@ plot_centrality.bgms <- function(output, ...){
     stop("Samples of the posterior distribution required. When estimating the model with bgm, set \"save = TRUE\".")
   }
 
-  # Extract the results from bgms
-  res <- bgm_extract.package_bgms(fit = output, save = output$save, centrality = TRUE,
-                                  type = NULL, not_cont = NULL, data = NULL,
-                                  edge_prior = output$edge_prior,
-                                  inclusion_probability  = output$inclusion_probability,
-                                  beta_bernoulli_alpha = output$beta_bernoulli_alpha,
-                                  beta_bernoulli_beta = output$beta_bernoulli_beta)
+  if(packageVersion("bgms") < "0.1.3"){
+    res <- bgm_extract.package_bgms(fit = output, save = output$save, centrality = TRUE,
+                                    type = NULL, not_cont = NULL, data = NULL,
+                                    edge_prior = output$edge_prior,
+                                    inclusion_probability  = output$inclusion_probability,
+                                    beta_bernoulli_alpha = output$beta_bernoulli_alpha,
+                                    beta_bernoulli_beta = output$beta_bernoulli_beta)
+  }
+  if(packageVersion("bgms") > "0.1.2"){
+    res <- bgm_extract.package_bgms(fit = output, save = output$bgm_arguments$save, centrality = TRUE,
+                                    type = NULL, not_cont = NULL, data = NULL,
+                                    edge_prior = output$bgm_arguments$edge_prior,
+                                    inclusion_probability  = output$bgm_arguments$inclusion_probability,
+                                    beta_bernoulli_alpha = output$bgm_arguments$beta_bernoulli_alpha,
+                                    beta_bernoulli_beta = output$bgm_arguments$beta_bernoulli_beta)
+  }
   output <- res
 
   # Specify default arguments for function
