@@ -258,7 +258,7 @@ plot_network.easybgm <- function(output, exc_prob = 0.5, evidence_thresh = 10,  
   )
   args <- set_defaults(default_args, ...)
 
-  # Exclude edges with a inclusion probability lower exc_prob
+  # Exclude edges with an inclusion probability lower than exc_prob
   inc_probs_m <- output$inc_probs
   graph[inc_probs_m < exc_prob] <- 0
   diag(graph) <- 1
