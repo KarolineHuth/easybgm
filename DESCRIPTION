@@ -23,7 +23,7 @@ RoxygenNote: 7.2.3
 Imports: 
     BDgraph,
     BGGM,
-    bgms (>= 0.1.2),
+    bgms (>= 0.1.3),
     dplyr,
     ggplot2,
     HDInterval,

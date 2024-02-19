@@ -7,8 +7,8 @@ plot_structure_probabilities.easybgm <- function(output, as_BF = FALSE, ...) {
     stop("The plot cannot be obtained for models estimated with BGGM. Suggestion: Change the package to BDgraph.",
          call. = FALSE)
   }
-  if(is.null(output$inc_probs)){
-    stop("The model was fitted without structure selection. Therefore, the plot cannot be obtained. Run the model with edge_selection set to TRUE.",
+  if(is.null(output$structure_probabilities)){
+    stop("The model was fitted without structure selection or saving the posterior samples. Therefore, the plot cannot be obtained. Make sure the model is fitted with edge_selection and save set to TRUE.",
          call. = FALSE)
   }
   
@@ -73,8 +73,8 @@ plot_complexity_probabilities.easybgm <- function(output, ...) {
     stop("The plot cannot be obtained for models estimated with BGGM. Suggestion: Change the package to BDgraph.",
          call. = FALSE)
   }
-  if(is.null(output$inc_probs)){
-    stop("The model was fitted without structure selection. Therefore, the plot cannot be obtained. Run the model with edge_selection set to TRUE.",
+  if(is.null(output$structure_probabilities)){
+    stop("The model was fitted without structure selection or saving the posterior samples. Therefore, the plot cannot be obtained. Make sure the model is fitted with edge_selection and save set to TRUE.",
          call. = FALSE)
   }
   

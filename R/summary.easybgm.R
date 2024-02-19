@@ -124,7 +124,7 @@ summary.easybgm <- function(object, evidence_thresh = 10, ...) {
     out$n_exclu_edges <- sum(BF < 1/evidence_thresh)
   }
   # structure information
-  if(all(class(object) != "package_bggm") & !is.null(object$inc_probs)){
+  if(!is.null(object$structure_probabilities)){
     out$possible_struc <- 2^(p*(p-1)/2)
     out$n_structures <- length(object$sample_graph)
     out$max_structure_prob <- max(object$structure_probabilities)
@@ -188,6 +188,24 @@ print.easybgm <- function(x, ...){
         "\n EDGE SPECIFIC OVERVIEW",
         "\n")
     print(x$parameters, quote = FALSE, right = TRUE, row.names=F)
+  } else if(is.null(x$n_structures)){
+    cat("\n BAYESIAN ANALYSIS OF NETWORKS",
+        "\n Model type:", x$model,
+        "\n Number of nodes:", x$n_nodes,
+        "\n Fitting Package:", x$package,
+        "\n---",
+        "\n EDGE SPECIFIC OVERVIEW",
+        "\n")
+    print(x$parameters, quote = FALSE, right = TRUE, row.names=F)
+    cat("\n Bayes Factors larger than", x$evidence_thresh, "were considered sufficient evidence for the classification",
+        "\n Bayes factors were obtained using Bayesian model-averaging.",
+        "\n ---",
+        "\n AGGREGATED EDGE OVERVIEW",
+        "\n Number of edges with sufficient evidence for inclusion:", x$n_inclu_edges,
+        "\n Number of edges with insufficient evidence:", x$n_incon_edges,
+        "\n Number of edges with sufficient evidence for exclusion:", x$n_exclu_edges,
+        "\n Number of possible edges:", x$n_possible_edges,
+        "\n")
   } else {
     cat("\n BAYESIAN ANALYSIS OF NETWORKS",
         "\n Model type:", x$model,
