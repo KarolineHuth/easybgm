@@ -293,13 +293,12 @@ plot_network.easybgm <- function(output, exc_prob = 0.5, evidence_thresh = 10,  
     edge.labels = TRUE
   )
   args <- set_defaults(default_args, ...)
-  
-  # Exclude edges with a inclusion probability lower exc_prob
-  if(!is.null(output$inc_probs)){
-    inc_probs_m <- output$inc_probs
-    graph[inc_probs_m < exc_prob] <- 0
-    diag(graph) <- 1
-  }
+
+  # Exclude edges with an inclusion probability lower than exc_prob
+  inc_probs_m <- output$inc_probs
+  graph[inc_probs_m < exc_prob] <- 0
+  diag(graph) <- 1
+
   # Plot
   if(dashed){
     graph_dashed <- ifelse(output$inc_BF < args$evidence_thresh, 2, 1)

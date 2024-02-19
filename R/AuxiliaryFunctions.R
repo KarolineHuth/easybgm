@@ -36,30 +36,44 @@ string2graph <- function(Gchar, p) {
 }
 
 # 4. BDgraph extract posterior distribution for estimates
-extract_posterior <- function(fit, data, method = c("ggm", "gcgm"), not_cont, no_samples = 10000){
+extract_posterior <- function(fit, data, method = c("ggm", "gcgm"), posterior_method = c("maximum-posterior", "model-averaged"), not_cont){
   m <- length(fit$all_graphs)
-  k <- no_samples
   n <- nrow(data)
   p <- ncol(data)
-  j <- 1
-  densities <- rep(0, k)
-  #Rs = array(0, dim=c(k, p, p))
-  Rs = matrix(0, nrow = k, ncol = (p*(p-1))/2)
+
+
   if(method == "gcgm") {
     S <- BDgraph::get_S_n_p(data, method = method, n = n, not.cont = not_cont)$S
   } else {
     S <- t(data) %*% data
   }
-  for (i in seq(1, m, length.out=k)) {
-    graph_ix <- fit$all_graphs[i]
-    G <- string2graph(fit$sample_graphs[graph_ix], p)
-    K <- BDgraph::rgwish(n=1, adj=G, b=3+n, D=diag(p) + S)
-
-    Rs[j,] <- as.vector(pr2pc(K)[upper.tri(pr2pc(K))])
-    densities[j] <- sum(sum(G)) / (p*(p-1))
-    j <- j + 1
+  
+  if(posterior_method == "maximum-posterior"){
+    Rs = matrix(0, nrow = 10000, ncol = (p*(p-1))/2)
+    index <- which.max(fit$graph_weights)
+    graph_ix <- fit$sample_graphs[index]
+    G <- string2graph(graph_ix, p)
+    K <- BDgraph::rgwish(n=10000, adj=G, b=3+n, D=diag(p) + S)
+    Rs <- list2matrix(K, p, convert = T)
   }
-  return(list(Rs, densities))
+  if(posterior_method == "model-averaged"){
+
+    n_structures <- length(fit$graph_weights)
+    sum_weights <- sum(fit$graph_weights)
+    structure_weights <- fit$graph_weights/sum_weights
+    Rs = matrix(0, nrow = 1, ncol = (p*(p-1))/2)
+    for (i in 1:n_structures) {
+      graph_ix <- fit$sample_graphs[i]
+      n_samples <- round(structure_weights[i]*100000)
+      G <- string2graph(graph_ix, p)
+      K <- BDgraph::rgwish(n=n_samples, adj=G, b=3+n, D=diag(p) + S)
+      samples_ix <- list2matrix(K, p, convert = T)
+      Rs <- rbind(Rs, samples_ix)
+
+    }
+  }
+
+  return(list(Rs))
 }
 
 # 5. Samples from the G-wishart distribution
@@ -126,13 +140,16 @@ centrality_all <- function(res){
 
 
 # 7. turn list into matrix
-list2matrix <- function(obj, p) {
+list2matrix <- function(obj, p, convert = FALSE) {
   nlist <- length(obj)/(p*p)
   m <- obj[, , 1]
   nest <- sum(lower.tri(m))
   res <- matrix(0, nrow = nlist, ncol = nest)
   for(i in 1:nlist){
     m <- obj[, , i]
+    if(convert == T){
+      m <- pr2pc(m)
+    }
     res[i, ] <- as.vector(m[lower.tri(m)])
   }
   return(res)
