@@ -430,3 +430,82 @@ plot_centrality.easybgm <- function(output, ...){
     args$theme
 }
 
+# -------------------------------------------------------------------------------
+#' @export
+plot_prior_sensitivity.list <- function(output,
+                                           evidence_thres = 10, ...) {
+
+  default_args <- list(
+    theme_ = theme_minimal(),
+    ylab = ylab("Relative no. edges"),
+    xlab = xlab("Prior edge probability"),
+    xlim = xlim(0,1),
+    ylim = ylim(0,1),
+    theme = theme(
+      axis.text = element_text(size=16),
+      panel.border = element_blank(),
+      axis.line = element_line(colour = "black", linewidth = 1.1),
+      axis.ticks.length = unit(.2, "cm"),
+      axis.ticks = element_line(linewidth = .8),
+      axis.title.x = element_text(size = 18, face = "bold"),
+      axis.title.y = element_text(size = 18, face = "bold"),
+      plot.title = element_text(size = 18, face = "bold"),
+      panel.grid.major = element_blank(),
+      legend.text = element_text(size = 12),
+
+    ),
+    colors = c("#36648b", "#990000", "#bfbfbf"),
+    size = 1
+  )
+  
+  args <- set_defaults(default_args, ...)
+  no_priors <- length(output)
+  edge_priors <- rep(NA, no_priors)
+  
+  for (i in 1:no_priors) {
+    if (!(any(class(output[[i]]) == "easybgm") | any(class(output[[i]]) == "package_bgms"))) {
+      stop(paste0("Wrong input provided on index ", i, ". The function requires
+                  as input a list of output values of the easybgm or the bgms function."))
+    }
+  }
+  
+  incl_edges = excl_edges = inconcl_edges <- rep(NA, no_priors)
+  
+  for (i in 1:no_priors) {
+    res <- output[[i]]
+    
+    if (is.null(res$edge.prior)) {
+      stop("Wrong input provided. At least one of the output of the easybgm
+           function does not include a specification of the edge prior. Please note that this 
+           plot cannot be obtained with the package BGGM.")
+    }
+    edge_priors[i] <- res$edge.prior
+    
+  
+    incl_bf <- res$inc_BF
+    incl_bf <- incl_bf[lower.tri(incl_bf)]
+    
+    k <- length(incl_bf)
+    
+    incl_edges[i] <- length(which(incl_bf > evidence_thres)) / k
+    excl_edges[i] <- length(which(incl_bf < (1 / evidence_thres))) / k
+    
+  }
+  
+  inconcl_edges <- 1 - incl_edges - excl_edges
+  
+  data <- data.frame(cbind(edge_priors, incl_edges, excl_edges, inconcl_edges))
+  
+  ggplot2::ggplot(data, aes(x = edge_priors, ...)) +
+    geom_line(aes(y = incl_edges, color = "included"), size = args$size) + 
+    geom_point(aes(y = incl_edges, color = "included"), size = args$size+ 0.5) +
+    geom_line(aes(y = excl_edges, color = "excluded"), size = args$size) +
+    geom_point(aes(y = excl_edges, color = "excluded"), size = args$size + 0.5) +
+    geom_line(aes(y = inconcl_edges, color = "inconclusive"), size = args$size) +
+    geom_point(aes(y = inconcl_edges, color = "inconclusive"), size = args$size + 0.5) +
+    args$theme + args$xlab + args$ylab + scale_color_manual(values = args$colors, name = "")  +
+    args$xlim + args$ylim
+  
+  
+}
+
