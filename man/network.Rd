@@ -5,7 +5,7 @@
 \alias{plot_network}
 \title{Network plot}
 \usage{
-plot_network(output, exc_prob = 0.5, evidence_thresh = 10, dashed = TRUE, ...)
+plot_network(output, exc_prob = 0.5, evidence_thresh = 10, dashed = FALSE, ...)
 }
 \arguments{
 \item{output}{Output object from the easybgm function. Supports also objects from the bgm function of the \code{bgms} package.}
@@ -14,7 +14,7 @@ plot_network(output, exc_prob = 0.5, evidence_thresh = 10, dashed = TRUE, ...)
 
 \item{evidence_thresh}{If dashed = TRUE, users can specify the threshold for sufficient evidence for inclusion. All edges with evidence lower than \code{evidence_tresh} are dashed.}
 
-\item{dashed}{A binary parameter indicating whether edges with inconclusive evidence should be dashed. Default is TRUE.}
+\item{dashed}{A binary parameter indicating whether edges with inconclusive evidence should be dashed. Default is FALSE}
 
 \item{...}{Additional arguments passed onto \code{qgraph}.}
 }
