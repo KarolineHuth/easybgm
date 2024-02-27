@@ -20,7 +20,7 @@
 #' library(bgms)
 #'
 #' data <- na.omit(Wenchuan)
-#' fit <- easybgm(data, type = "ordinal",
+#' fit <- easybgm(data, type = "ordinal", save = TRUE, edge_selection = TRUE,
 #'                 iter = 1000  # for demonstration only (> 5e4 recommended)
 #'                 )
 #'
@@ -63,7 +63,7 @@ plot_structure_probabilities <- function(output, as_BF = FALSE, ...) {
 #' library(bgms)
 #'
 #' data <- na.omit(Wenchuan)
-#' fit <- easybgm(data, type = "ordinal",
+#' fit <- easybgm(data, type = "ordinal", save = TRUE, edge_selection = TRUE,
 #'                 iter = 1000  # for demonstration only (> 5e4 recommended)
 #'                 )
 #'

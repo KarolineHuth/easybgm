@@ -290,7 +290,7 @@ plot_network.easybgm <- function(output, exc_prob = 0.5, evidence_thresh = 10,  
     legend = T,
     label.cex = 1.2,
     legend.cex = .6, 
-    edge.labels = TRUE
+    edge.labels = FALSE
   )
   args <- set_defaults(default_args, ...)
 

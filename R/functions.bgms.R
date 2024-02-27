@@ -36,6 +36,11 @@ bgm_extract.package_bgms <- function(fit, type, save,
   if(any(class(fit) != "bgms")){
     varnames <- fit$var_names
     fit <- fit$packagefit
+  } else if (any(class(fit) == "bgms")){
+    varnames <- fit$arguments$data_columnnames
+    if(is.null(varnames)){
+      varnames <- paste0("V", 1:fit$arguments$no_variables)
+    }
   }
   
   args <- bgms:::extract_arguments(fit)
@@ -55,6 +60,8 @@ bgm_extract.package_bgms <- function(fit, type, save,
     bgms_res$parameters <- vector2matrix(colMeans(pars), p = p)
     bgms_res$thresholds <- bgms:::extract_pairwise_thresholds(fit)
     colnames(bgms_res$parameters) <- varnames
+    bgms_res$structure <- matrix(1, ncol = ncol(bgms_res$parameters), 
+                                 nrow = nrow(bgms_res$parameters))
     
     if(args$edge_selection){
       bgms_res$inc_probs <- bgms:::extract_posterior_inclusion_probabilities(fit)

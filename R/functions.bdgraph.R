@@ -106,11 +106,7 @@ bgm_extract.package_bdgraph <- function(fit, type, save,
     if(save == TRUE){
       if(posterior_method == "MAP"){
         
-        warning("Posterior samples of the BDgraph package are obtained after the fit. 
-                Due to computational reasons, we extract the samples of the structure with the 
-                highest posterior probability, while BDgraph itself outputs model-averaged results. 
-                To obtain model-averaged posterior samples set 'posterior_method = model-averaged'. 
-                Note that the computation time will be considerable increased.")
+        warning("Posterior samples of the BDgraph package are obtained after the fit and might show small deviations from the model fit.")
       }
           # Extract posterior samples
       data<-as.matrix(data)
@@ -150,7 +146,7 @@ bgm_extract.package_bdgraph <- function(fit, type, save,
       if(posterior_method == "MAP"){
         
         warning("Posterior samples of the BDgraph package are obtained after the fit. 
-                Due to computational reasons, we extract the samples of the structure with the 
+                The samples were obtained from the structure with the 
                 highest posterior probability, while BDgraph itself outputs model-averaged results. 
                 To obtain model-averaged posterior samples set 'posterior_method = model-averaged'. 
                 Note that the computation time will be considerable increased.")

@@ -48,7 +48,7 @@ extract_posterior <- function(fit, data, method = c("ggm", "gcgm"), posterior_me
     S <- t(data) %*% data
   }
   
-  if(posterior_method == "maximum-posterior"){
+  if(posterior_method == "MAP"){
     Rs = matrix(0, nrow = 10000, ncol = (p*(p-1))/2)
     index <- which.max(fit$graph_weights)
     graph_ix <- fit$sample_graphs[index]

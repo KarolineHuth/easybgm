@@ -1,23 +1,23 @@
-suppressPackageStartupMessages({
-  library(bgms)
-})
-data <- na.omit(Wenchuan)
-
-##--------------------------------
-## Fitting with bgms
-##--------------------------------
-set.seed(123)
-res_bgms <- easybgm(data[1:100, 1:5], type = "ordinal",
-                    package = "bgms", save = T, centrality = T, iter = 1000)
+# suppressPackageStartupMessages({
+#   library(bgms)
+# })
+# data <- na.omit(Wenchuan)
+# 
+# ##--------------------------------
+# ## Fitting with bgms
+# ##--------------------------------
+# set.seed(123)
+# res_bgms <- easybgm(data[1:100, 1:5], type = "ordinal",
+#                     package = "bgms", save = T, centrality = T, iter = 1000)
 # test_that("easybgm works for bgms", {
 #   testthat::expect_snapshot(summary(res_bgms))
 # })
-
-##--------------------------------
-## Plotting with bgms
-##--------------------------------
-
-# 1. Network plot
+# 
+# ##--------------------------------
+# ## Plotting with bgms
+# ##--------------------------------
+# 
+# # 1. Network plot
 # network_bgms <- plot_network(res_bgms)
 # vdiffr::expect_doppelganger("network plot bgms", network_bgms)
 # 
@@ -44,22 +44,22 @@ res_bgms <- easybgm(data[1:100, 1:5], type = "ordinal",
 # # 7. centrality plot
 # centrality_bgms <-plot_centrality(res_bgms)
 # vdiffr::expect_doppelganger("centrality plot bgms", centrality_bgms)
-
-##--------------------------------
-## Fitting with BDgraph
-##--------------------------------
-set.seed(123)
-res_bdgraph <- suppressWarnings(easybgm(data[1:100, 1:5], type = "continuous",
-                    package = "BDgraph", save = T, centrality = T, iter = 1000))
+# 
+# ##--------------------------------
+# ## Fitting with BDgraph
+# ##--------------------------------
+# set.seed(123)
+# res_bdgraph <- suppressWarnings(easybgm(data[1:100, 1:5], type = "continuous",
+#                     package = "BDgraph", save = T, centrality = T, iter = 1000))
 # test_that("easybgm works for bdgraph", {
 #   testthat::expect_snapshot(summary(res_bdgraph))
 # })
-
-##--------------------------------
-## Plotting with BDgraph
-##--------------------------------
-
-# 1. Network plot
+# 
+# ##--------------------------------
+# ## Plotting with BDgraph
+# ##--------------------------------
+# 
+# #1. Network plot
 # network_bdgraph <- plot_network(res_bdgraph)
 # vdiffr::expect_doppelganger("network plot Bdgraph", network_bdgraph)
 # 
@@ -86,27 +86,27 @@ res_bdgraph <- suppressWarnings(easybgm(data[1:100, 1:5], type = "continuous",
 # # 7. centrality plot
 # centrality_bdgraph <-plot_centrality(res_bdgraph)
 # vdiffr::expect_doppelganger("centrality plot Bdgraph", centrality_bdgraph)
-
-##--------------------------------
-## Fitting with BGGM
-##--------------------------------
-# DOES NOT WORK, output keeps changing slightly despite set.seed
+# 
+# ##--------------------------------
+# ## Fitting with BGGM
+# ##--------------------------------
+# # DOES NOT WORK, output keeps changing slightly despite set.seed
+# # set.seed(123)
+# # res_bggm <- easybgm(data[1:300, 1:5], type = "continuous",
+# #                        package = "BGGM")
+# # test_that("easybgm works for bggm", {
+# #   vdiffr::expect_snapshot(summary(res_bggm))
+# # })
+# 
+# 
+# ##--------------------------------
+# ## Fitting with bgms
+# ##--------------------------------
+# 
+# 
 # set.seed(123)
-# res_bggm <- easybgm(data[1:300, 1:5], type = "continuous",
-#                        package = "BGGM")
-# test_that("easybgm works for bggm", {
-#   vdiffr::expect_snapshot(summary(res_bggm))
-# })
-
-
-##--------------------------------
-## Fitting with bgms
-##--------------------------------
-
-
-set.seed(123)
-data <- na.omit(Wenchuan)
-fit_bgms <- bgm(data[1:100, 1:5], iter = 1000)
+# data <- na.omit(Wenchuan)
+# fit_bgms <- bgm(data[1:100, 1:5], iter = 1000)
 # network_bgmfit <- plot_network(fit_bgms)
 # vdiffr::expect_doppelganger("network plot using bgm to fit", network_bgmfit)
-
+# 
