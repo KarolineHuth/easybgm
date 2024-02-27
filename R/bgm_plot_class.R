@@ -322,3 +322,52 @@ plot_centrality <- function(output, ...){
 }
 
 
+#' Prior sensitivity plot
+#' @title Plot sensitivity to edge inclusion prior setting
+#' @description For a given list of easybgm outputs with different prior edge inclusion probabilities, the function
+#'  plots the percentage of edges that are included, excluded, and inconclusive.
+#' @name prior_sensitivity 
+#' @param output A list of easybgm outputs with different prior edge inclusion probabilities
+#' @param ... Additional arguments passed onto ggplot2.
+#'
+#' @return Returns a plot
+#' 
+#' @export 
+#'
+#' @examples
+#' \donttest{
+#'
+#' library(easybgm)
+#' library(bgms)
+#'
+#' #data <- na.omit(Wenchuan)
+#' #fit1 <- easybgm(data, type = "ordinal",
+#' #               iter = 1000  # for demonstration only (> 5e4 recommended),
+#' #                inclusion_probability = .1
+#' #               )
+#' #fit2 <- easybgm(data, type = "ordinal",
+#' #                  iter = 1000,
+#' #                  inclusion_probability = .5
+#' #             )
+#' #fit3 <- easybgm(data, type = "ordinal",
+#' #                iter = 1000, inclusion_probability = .9)              
+#' 
+#' #plot_prior_sensitivity(list(fit1, fit2, fit3))
+#' }
+
+plot_prior_sensitivity <- function(output, ...) {
+  if (!is.list(output))
+    stop("Wrong input provided. Please provide a list of outputs of the easybgm function.")
+  if(any(any(class(output[[1]]) == "easybgm"), any(class(output[[1]]) == "bgms")) == FALSE){
+    stop("Wrong input provided. The function requires as input the output of the easybgm or bgm function.")
+  }
+  
+  if(any(class(output)=="bgms") & (packageVersion("bgms") < "0.1.1")){
+    stop("The fit of this version of bgms is not compatible with the plot. Please install the latest package version and refit the data.")
+  }
+  
+  UseMethod("plot_prior_sensitivity", output)
+}
+
+
+

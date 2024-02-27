@@ -98,7 +98,7 @@ bgm_extract.package_bdgraph <- function(fit, type, save,
     bdgraph_res$sample_graphs <- fit$sample_graphs
     # bdgraph_res$package <- "bdgraph"
     bdgraph_res$model <- "ggm"
-    
+
     if(centrality == TRUE){
       save <- TRUE
     }
@@ -137,7 +137,7 @@ bgm_extract.package_bdgraph <- function(fit, type, save,
     bdgraph_res$sample_graphs <- fit$sample_graphs
     # bdgraph_res$package <- "bdgraph"
     bdgraph_res$model <- "gcgm"
-    
+
     if(centrality){
       save <- TRUE
     }
@@ -183,7 +183,7 @@ bgm_extract.package_bdgraph <- function(fit, type, save,
     bdgraph_res$graph_weights <- fit$graph_weights
     bdgraph_res$sample_graphs <- fit$sample_graphs
     bdgraph_res$model <- "dgm-binary"
-    
+
     if(save == TRUE){
       warning("Posterior samples cannot be obtained for \"dgm-binary\". Solely the aggregated results are extracted.",
               call. = FALSE)

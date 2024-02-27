@@ -86,6 +86,7 @@ bgm_extract.package_bgms <- function(fit, type, save,
       bgms_res$inc_BF <- (bgms_res$inc_probs/(1-bgms_res$inc_probs))/(edge.prior /(1-edge.prior))
       bgms_res$structure <- 1*(bgms_res$inc_probs > 0.5)
     }
+
   }
   if(args$save){
     bgms_res$samples_posterior <- bgms:::extract_pairwise_interactions(fit)
