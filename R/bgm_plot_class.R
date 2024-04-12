@@ -14,19 +14,18 @@
 #' @importFrom dplyr group_by summarise mutate group_modify filter
 #'
 #' @examples
-#' 
+#' \donttest{
 #'
 #' library(easybgm)
 #' library(bgms)
 #'
 #' data <- na.omit(Wenchuan)
-#' subdata <- data[1:50, 1:3] #for demonstration choosing a subset to increase computation speed
-#' fit <- easybgm(subdata, type = "ordinal", save = TRUE, edge_selection = TRUE,
+#' fit <- easybgm(data, type = "ordinal", save = TRUE, edge_selection = TRUE,
 #'                 iter = 1000  # for demonstration only (> 5e4 recommended)
 #'                 )
 #'
 #' plot_structure_probabilities(fit)
-#' 
+#' }
 
 plot_structure_probabilities <- function(output, as_BF = FALSE, ...) {
   if(any(any(class(output) == "easybgm"), any(class(output) == "bgms")) == FALSE){
@@ -58,19 +57,18 @@ plot_structure_probabilities <- function(output, as_BF = FALSE, ...) {
 #' @import ggplot2
 #'
 #' @examples
-#' 
+#' \donttest{
 #'
 #' library(easybgm)
 #' library(bgms)
 #'
 #' data <- na.omit(Wenchuan)
-#' subdata <- data[1:50, 1:3] #for demonstration choosing a subset to increase computation speed
-#' fit <- easybgm(subdata, type = "ordinal", save = TRUE, edge_selection = TRUE,
+#' fit <- easybgm(data, type = "ordinal", save = TRUE, edge_selection = TRUE,
 #'                 iter = 1000  # for demonstration only (> 5e4 recommended)
 #'                 )
 #'
 #' plot_complexity_probabilities(fit)
-#' 
+#' }
 
 plot_complexity_probabilities <- function(output, ...) {
   if(any(any(class(output) == "easybgm"), any(class(output) == "bgms")) == FALSE){
@@ -103,7 +101,7 @@ plot_complexity_probabilities <- function(output, ...) {
 #' @export
 #'
 #' @examples
-#' 
+#' \donttest{
 #' library(easybgm)
 #' library(bgms)
 #'
@@ -125,7 +123,7 @@ plot_complexity_probabilities <- function(output, ...) {
 #' plot_edgeevidence(fit, show = "excluded")
 #' 
 #' par(oldpar)
-#' 
+#' }
 
 
 plot_edgeevidence <- function(output, evidence_thresh = 10, split = FALSE, show = "all",...) {
@@ -211,18 +209,18 @@ plot_network <- function(output, exc_prob = .5, evidence_thresh = 10, dashed = F
 #' @import qgraph
 #'
 #' @examples
-#' 
+#' \donttest{
 #'
 #' library(easybgm)
 #' library(bgms)
 #'
 #' data <- na.omit(Wenchuan)
-#' fit <- easybgm(data, type = "continuous",
+#' fit <- easybgm(data, type = "ordinal",
 #'                 iter = 1000  # for demonstration only (> 5e4 recommended)
 #'                )
 #'
 #' plot_structure(fit)
-#' 
+#' }
 
 plot_structure <- function(output, ...) {
   if(any(any(class(output) == "easybgm"), any(class(output) == "bgms")) == FALSE){
@@ -256,19 +254,18 @@ plot_structure <- function(output, ...) {
 #' @importFrom stats median
 #'
 #' @examples
-#'
+#' \donttest{
 #'
 #' library(easybgm)
 #' library(bgms)
 #'
 #'
 #' data <- na.omit(Wenchuan)
-#' subdata <- data[1:50, 1:3] #for demonstration choosing a subset to increase computation speed
-#' fit <- easybgm(subdata, type = "ordinal",
+#' fit <- easybgm(data, type = "ordinal",
 #'               iter = 1000,  # for demonstration only (> 5e4 recommended)
 #'               save = TRUE)
 #' plot_parameterHDI(fit)
-#' 
+#' }
 
 plot_parameterHDI <- function(output, ...) {
   if(any(any(class(output) == "easybgm"), any(class(output) == "bgms")) == FALSE){
@@ -301,19 +298,18 @@ plot_parameterHDI <- function(output, ...) {
 #' @export
 #'
 #' @examples
-#' 
+#' \donttest{
 #'
 #' library(easybgm)
 #' library(bgms)
 #'
 #' data <- na.omit(Wenchuan)
-#' subdata <- data[1:50, 1:3] #for demonstration choosing a subset to increase computation speed
-#' fit <- easybgm(subdata, type = "ordinal",
+#' fit <- easybgm(data, type = "ordinal",
 #'                 iter = 1000,  # for demonstration only (> 5e4 recommended)
 #'                 save = TRUE, centrality = TRUE)
 #'
 #' plot_centrality(fit)
-#' 
+#' }
 
 plot_centrality <- function(output, ...){
   if(any(any(class(output) == "easybgm"), any(class(output) == "bgms")) == FALSE){
@@ -342,7 +338,6 @@ plot_centrality <- function(output, ...){
 #'
 #' @examples
 #' \donttest{
-#' #not run due to computation speed
 #'
 #' library(easybgm)
 #' library(bgms)

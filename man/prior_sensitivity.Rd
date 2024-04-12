@@ -24,7 +24,6 @@ Prior sensitivity plot
 }
 \examples{
 \donttest{
-#not run due to computation speed
 
 library(easybgm)
 library(bgms)

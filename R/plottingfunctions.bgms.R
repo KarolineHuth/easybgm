@@ -160,7 +160,7 @@ plot_edgeevidence.bgms <- function(output, evidence_thresh = 10, split = FALSE, 
   default_args <- list(
     colors = c("#36648b", "#990000", "#bfbfbf"),
     colnames = colnames(output$parameters),
-    layout_avg = qgraph::averageLayout(output$parameters*output$structure),
+    layout_avg = qgraph::averageLayout(as.matrix(output$parameters*output$structure)),
     theme = "TeamFortress",
     legend = TRUE,
     vsize = 10,
@@ -295,7 +295,7 @@ plot_network.bgms <- function(output, exc_prob = .5, evidence_thresh = 10, dashe
   # Specify default arguments for function
   graph <- output$parameters
   default_args <- list(
-    layout_avg = qgraph::averageLayout(output$parameters*output$structure),
+    layout_avg = qgraph::averageLayout(as.matrix(output$parameters*output$structure)),
     evidence_thres = 10,
     theme = "TeamFortress",
     vsize = 10,
@@ -350,7 +350,7 @@ plot_structure.bgms <- function(output, ...) {
   
   # Specify default arguments for function
   default_args <- list(
-    layout_avg = qgraph::averageLayout(output$parameters*output$structure),
+    layout_avg = qgraph::averageLayout(as.matrix(output$parameters*output$structure)),
     theme = "TeamFortress",
     vsize = 10,
     nodeNames = colnames(output$parameters),

@@ -145,7 +145,7 @@ plot_edgeevidence.easybgm <- function(output, evidence_thresh = 10, split = FALS
     default_args <- list(
       colors = c("#36648b", "#990000", "#bfbfbf"),
       colnames = colnames(output$parameters),
-      layout = qgraph::averageLayout(output$parameters*output$structure),
+      layout = qgraph::averageLayout(as.matrix(output$parameters*output$structure)),
       theme = "TeamFortress",
       legend = TRUE,
       vsize = 10,
@@ -281,7 +281,7 @@ plot_network.easybgm <- function(output, exc_prob = 0.5, evidence_thresh = 10,  
   
   graph <- output$parameters
   default_args <- list(
-    layout = qgraph::averageLayout(output$parameters*output$structure),
+    layout = qgraph::averageLayout(as.matrix(output$parameters*output$structure)),
     evidence_thresh = 10,
     theme = "TeamFortress",
     vsize = 10,
@@ -328,7 +328,7 @@ plot_network.easybgm <- function(output, exc_prob = 0.5, evidence_thresh = 10,  
 #' @export
 plot_structure.easybgm <- function(output, ...) {
   default_args <- list(
-    layout = qgraph::averageLayout(output$parameters*output$structure),
+    layout = qgraph::averageLayout(as.matrix(output$parameters*output$structure)),
     theme = "TeamFortress",
     vsize = 10,
     nodeNames = colnames(output$parameters),
