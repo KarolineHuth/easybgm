@@ -108,7 +108,7 @@ sparse.or.dense <- function(x, type, ...) {
   
   return(list(log.BF = BF, BF = exp(BF), 
               relative.complexity.sparse = mean_complexity_sparse / k, 
-              relative.complxity.dense = mean_complexity_dense / k,
+              relative.complexity.dense = mean_complexity_dense / k,
               relative.complexity.uniform = mean_complexity_uniform / k,
               no.hypotheses = length(gamma_list)))
 }
