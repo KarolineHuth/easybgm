@@ -19,16 +19,17 @@ Returns a plot
 Visualize the strength centralities and their uncertainties. The centrality estimate can be obtained for each sample of the posterior distribution of the association parameters to obtain an estimate of the uncertainty of the strength centrality estimate.
 }
 \examples{
-\donttest{
+
 
 library(easybgm)
 library(bgms)
 
 data <- na.omit(Wenchuan)
-fit <- easybgm(data, type = "ordinal",
+subdata <- data[1:50, 1:3] #for demonstration choosing a subset to increase computation speed
+fit <- easybgm(subdata, type = "ordinal",
                 iter = 1000,  # for demonstration only (> 5e4 recommended)
                 save = TRUE, centrality = TRUE)
 
 plot_centrality(fit)
-}
+
 }

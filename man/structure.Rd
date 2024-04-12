@@ -19,16 +19,16 @@ Returns a plot
 The plot shows the resulting graph structure, i.e. all edges with some evidence of inclusion (i.e., inclusion Bayes factor greater than 1).
 }
 \examples{
-\donttest{
+
 
 library(easybgm)
 library(bgms)
 
 data <- na.omit(Wenchuan)
-fit <- easybgm(data, type = "ordinal",
+fit <- easybgm(data, type = "continuous",
                 iter = 1000  # for demonstration only (> 5e4 recommended)
                )
 
 plot_structure(fit)
-}
+
 }

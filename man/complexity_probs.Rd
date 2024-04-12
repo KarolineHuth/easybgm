@@ -19,16 +19,17 @@ Returns a plot
 Plots the posterior complexity probabilities of all visited structures, where complexity comprises the network density.
 }
 \examples{
-\donttest{
+
 
 library(easybgm)
 library(bgms)
 
 data <- na.omit(Wenchuan)
-fit <- easybgm(data, type = "ordinal",
+subdata <- data[1:50, 1:3] #for demonstration choosing a subset to increase computation speed
+fit <- easybgm(subdata, type = "ordinal", save = TRUE, edge_selection = TRUE,
                 iter = 1000  # for demonstration only (> 5e4 recommended)
                 )
 
 plot_complexity_probabilities(fit)
-}
+
 }

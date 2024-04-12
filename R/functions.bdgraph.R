@@ -55,7 +55,8 @@ bgm_fit.package_bdgraph <- function(fit, type, data, iter, save,
   if(is.null(colnames(data))){
     fit$var_names <- paste0("V", 1:ncol(data))
   } else {
-    fit$var_names <-colnames(data)
+
+    fit$var_names <- colnames(data)
   }
   class(fit) <- c("package_bdgraph", "easybgm")
   return(fit)
@@ -67,7 +68,8 @@ bgm_fit.package_bdgraph <- function(fit, type, data, iter, save,
 # --------------------------------------------------------------------------------------------------
 
 bgm_extract.package_bdgraph <- function(fit, type, save,
-                                        not_cont, data, centrality, ...){
+                                        not_cont, data, centrality, 
+                                        posterior_method, ...){
   model <- fit$model
   if(is.null(model)){
     stop("Please specify the type of model estimated with BDgraph (e.g., ggm, gcgm, dgm-binary).",
@@ -85,7 +87,7 @@ bgm_extract.package_bdgraph <- function(fit, type, save,
   bdgraph_res <- list()
   if(model %in% "ggm"){
     #Bayesian model-averaged estimates
-    bdgraph_res$parameters <- pr2pc(fit$K_hat)
+    bdgraph_res$parameters <- qgraph::wi2net(fit$K_hat)
     diag(bdgraph_res$parameters) <- 0
     colnames(bdgraph_res$parameters) <- varnames
     bdgraph_res$inc_probs <- as.matrix(BDgraph::plinks(fit))
@@ -97,16 +99,20 @@ bgm_extract.package_bdgraph <- function(fit, type, save,
     bdgraph_res$sample_graphs <- fit$sample_graphs
     # bdgraph_res$package <- "bdgraph"
     bdgraph_res$model <- "ggm"
-    bdgraph_res$edge.prior <- edge.prior
+
     if(centrality == TRUE){
       save <- TRUE
     }
     
     if(save == TRUE){
-      warning("Posterior samples of the interaction parameters are obtained after the estimation. Especially for ordinal and skewed data, these estimates might be sub-optimal. Please interpret with caution.")
-      # Extract posterior samples
+      if(posterior_method == "MAP"){
+        
+        warning("Posterior samples of the BDgraph package are obtained after the fit and might show small deviations from the model fit.")
+      }
+          # Extract posterior samples
       data<-as.matrix(data)
-      bdgraph_res$samples_posterior <- extract_posterior(fit, data=data, method = model, not_cont)[[1]]
+
+      bdgraph_res$samples_posterior <- extract_posterior(fit, data=data, method = model, not_cont, posterior_method = posterior_method)[[1]]
       
       if(centrality == TRUE){
         # Centrality indices
@@ -121,7 +127,7 @@ bgm_extract.package_bdgraph <- function(fit, type, save,
   
   if(model %in% c("gcgm")){
     #Bayesian model-averaged estimates
-    bdgraph_res$parameters <- pr2pc(fit$K_hat)
+    bdgraph_res$parameters <- qgraph::wi2net(fit$K_hat)
     diag(bdgraph_res$parameters) <- 0
     colnames(bdgraph_res$parameters) <- varnames
     bdgraph_res$inc_probs <- as.matrix(BDgraph::plinks(fit))
@@ -133,23 +139,30 @@ bgm_extract.package_bdgraph <- function(fit, type, save,
     bdgraph_res$sample_graphs <- fit$sample_graphs
     # bdgraph_res$package <- "bdgraph"
     bdgraph_res$model <- "gcgm"
-    bdgraph_res$edge.prior <- edge.prior
-    
+
     if(centrality){
       save <- TRUE
     }
     if(save){
-      warning("Posterior samples of the interaction parameters are obtained after the estimation. Especially for ordinal and skewed data, these estimates might be sub-optimal. Please interpret with caution.")
+      if(posterior_method == "MAP"){
+        
+        warning("Posterior samples of the BDgraph package are obtained after the fit. 
+                The samples were obtained from the structure with the 
+                highest posterior probability, while BDgraph itself outputs model-averaged results. 
+                To obtain model-averaged posterior samples set 'posterior_method = model-averaged'. 
+                Note that the computation time will be considerable increased.")
+      }
       
       if(is.null(not_cont)){
-        stop("Specify a vector indicating variables are continuos with the not_cont argument (1 indicates not continuous)",
+        stop("Specify a vector indicating variables that are continuous with the not_cont argument (1 indicates not continuous)",
              call. = FALSE)
       }
       
       data <- as.matrix(data)
       
       # Extract posterior samples
-      bdgraph_res$samples_posterior <- extract_posterior(fit, data, method = model, not_cont = not_cont)[[1]]
+
+      bdgraph_res$samples_posterior <- extract_posterior(fit, data, method = model, not_cont = not_cont, posterior_method = posterior_method)[[1]]
       
       if(centrality){
         # Centrality indices
@@ -172,7 +185,6 @@ bgm_extract.package_bdgraph <- function(fit, type, save,
     bdgraph_res$graph_weights <- fit$graph_weights
     bdgraph_res$sample_graphs <- fit$sample_graphs
     bdgraph_res$model <- "dgm-binary"
-    bdgraph_res$edge.prior <- edge.prior
 
     if(save == TRUE){
       warning("Posterior samples cannot be obtained for \"dgm-binary\". Solely the aggregated results are extracted.",
