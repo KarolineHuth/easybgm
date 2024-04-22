@@ -254,3 +254,71 @@ extract_pairwise_thresholds <- function(bgms_object) {
   
   return(bgms_object$thresholds)
 }
+
+is_overlap <- function(ordered_list) {
+  
+  for (i in 1: (length(ordered_list) - 1)) {
+    #check all pairs of hypotheses
+    this_el <- ordered_list[[i]]
+    next_el <- ordered_list[[i + 1]]
+    
+    overlap <- which(this_el$tab != 0 & next_el$tab != 0)
+    
+    if (length(overlap) == 0) {
+      before_position <- i
+      if (this_el$alpha == next_el$alpha) {
+        alpha <- this_el$alpha
+        beta <- this_el$beta / 2
+      }
+      else if (this_el$beta == next_el$beta) {
+        alpha <- next_el$alpha / 2
+        beta <- this_el$beta
+      }
+      else {
+        alpha <- this_el$alpha
+        beta <- this_el$beta / 2
+      }
+      return(list(before_pos = before_position,
+                  alpha = alpha, beta = beta))
+    }
+  }
+  return(1)
+}
+
+compute_bayes_factor <- function(ordered_list, k) {
+  bf <- 0
+  c <- 0: k
+  for (i in 1: (length(ordered_list) - 1)) {
+    el1 <- ordered_list[[i]]
+    el2 <- ordered_list[[i + 1]]
+    
+    alpha1 <- el1$alpha
+    alpha2 <- el2$alpha
+    beta1 <- el1$beta
+    beta2 <- el2$beta
+    tab1 <- el1$tab
+    tab2 <- el2$tab
+    
+    log_prior1 <- lchoose(k, c) - lbeta(alpha1, beta1) + lfactorial(alpha1 + c - 1) +
+      lfactorial(beta1 + k - c - 1) - lfactorial(alpha1 + beta1 + k - 1)
+    log_prior2 <- lchoose(k, c) - lbeta(alpha2, beta2) + lfactorial(alpha2 + c - 1) +
+      lfactorial(beta2 + k - c - 1) - lfactorial(alpha2 + beta2 + k - 1)
+    
+    prob1 <- tab1 / sum(tab1)
+    prob2 <- tab2 / sum(tab2)
+    
+    log_prob1 <- log(prob1)
+    log_prob2 <- log(prob2)
+    
+    odds1 <- log_prior1 - log_prob1
+    odds2 <- log_prob2 - log_prior2
+    
+    log_bf <- odds1 + odds2
+    log_bf[is.infinite(log_bf)] <- NA
+    log_bf <- mean(log_bf, na.rm = TRUE)
+    
+    bf <- bf + log_bf
+    
+  }
+  return(bf)
+}

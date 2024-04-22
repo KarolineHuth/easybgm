@@ -1,16 +1,25 @@
 #' @name sparse.or.dense
 #' @title Test for sparse against dense topologies
 #'
-#' @description Used to test for a given data set if the corresponding network is sparse or dense.
+#' @description The function tests if a network is sparse or dense. It estimates
+#'  the network model of a given data set under the hypothesis
+#' that it is sparse and that it is dense, and computes th Bayes factor.
 #'
 #' @param x data set 
 #' @param type variable type, currently only binary and ordinal are supported
 #' @param ... additional arguments of the bgms function
 #'
-#' @return List containing results of the analysis, the (log) Bayes Factor of sparse against dense, the 
-#'  mean relative number of edges under both hypotheses and the uniform hypotheses, and the number of hypotheses.
+#' @return List containing results of the analysis:
+#' 1. the (log) Bayes factor, the result of the test of sparse against dense
+#' 2 - 4.The relative complexity under the sparse, dense and uniform hypothesis, which is the 
+#' proportion of estimated included edges relative to the total possible edges
+#' under the different hypotheses.
+#' 5. The number of hypotheses that are computed in the analysis. At least the sparse,
+#' dense and uniform are used, but sometimes additional bridge hypotheses have to be 
+#' computed.
+#' 
 #' @export
-sparse.or.dense <- function(x, type, ...) {
+sparse_or_dense <- function(x, type, ...) {
 
   if ((type != "binary") & (type != "ordinal")) {
     stop("Wrong input provided. This function is only compatible with the package bgms yet,
