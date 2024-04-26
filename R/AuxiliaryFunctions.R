@@ -255,6 +255,9 @@ extract_pairwise_thresholds <- function(bgms_object) {
   return(bgms_object$thresholds)
 }
 
+# Sparse vs Dense Test
+# The function tests if we have overlap in the posterior distributions,
+# and with that if we need a(nother) bridge hypothesis.
 is_overlap <- function(ordered_list) {
   
   for (i in 1: (length(ordered_list) - 1)) {
@@ -285,6 +288,10 @@ is_overlap <- function(ordered_list) {
   return(1)
 }
 
+# Given a list of the results for all needed hypotheses, the function
+# computes the log BF of sparse against dense.
+# @args ordered list of the results, with the outer two the hypotheses of 
+# interest, and in between the bridge hypotheses. k the number of potential edges.
 compute_bayes_factor <- function(ordered_list, k) {
   bf <- 0
   c <- 0: k

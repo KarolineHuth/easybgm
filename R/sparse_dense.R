@@ -1,23 +1,50 @@
-#' @name sparse.or.dense
+#' @name sparse_or_dense
 #' @title Test for sparse against dense topologies
 #'
-#' @description The function tests if a network is sparse or dense. It estimates
-#'  the network model of a given data set under the hypothesis
+#' @description The function tests if a network is sparse (i.e., few edges in between nodes) or 
+#' dense (i.e., a lot of edges between nodes). It estimates
+#' the network model of a given data set under the hypothesis
 #' that it is sparse and that it is dense, and computes th Bayes factor.
 #'
-#' @param x data set 
-#' @param type variable type, currently only binary and ordinal are supported
+#' @param x An n x p matrix or dataframe containing the variables for n independent observations on p variables.
+#' @param type What is the data type? Options: currently only binary and ordinal are supported
 #' @param ... additional arguments of the bgms function
 #'
 #' @return List containing results of the analysis:
-#' 1. the (log) Bayes factor, the result of the test of sparse against dense
-#' 2 - 4.The relative complexity under the sparse, dense and uniform hypothesis, which is the 
+#' 
+#' \itemize{
+#'
+#' \item \code{log.BF} The log of the Bayes factor of the test of a sparse against a dense network structure. A value larger 0 indicates evidence for a sparse structure. Contrarily, a value smaller 0 indicates evidence for a dense structure. 
+#'
+#' \item \code{BF} The Bayes factor of the test of a sparse against a dense network structure. A value larger 1 indicates evidence for a sparse structure. Contrarily, a value between 0 and 1 indicates evidence for a dense structure. 
+#'
+#' \item \code{relative.complexity.sparse} The relative complexity under a sparse prior hypothesis, which is the 
 #' proportion of estimated included edges relative to the total possible edges
 #' under the different hypotheses.
-#' 5. The number of hypotheses that are computed in the analysis. At least the sparse,
-#' dense and uniform are used, but sometimes additional bridge hypotheses have to be 
-#' computed.
 #' 
+#' \item \code{relative.complexity.dense} The relative complexity under a dense prior hypothesis.
+#' 
+#' \item \code{relative.complexity.uniform} The relative complexity under a uniform prior hypothesis.
+#' 
+#'  \item \code{no.hypotheses} The number of hypotheses that are computed in the analysis. At least the sparse,
+#' dense and uniform are used, but sometimes additional bridge hypotheses have to be 
+#' computed to be able to determine the Bayes factor. 
+#' }
+#'
+#' @examples
+#' \donttest{
+#' library(easybgm)
+#' library(bgms)
+#'
+#' data <- na.omit(Wenchuan)
+#'
+#' # Fitting the Wenchuan PTSD data
+#'
+#' fit <- sparse_or_dense(data, type = "ordinal",
+#'                 iter = 1000 # for demonstration only (> 5e4 recommended)
+#'                 )
+#' }  
+#'              
 #' @export
 sparse_or_dense <- function(x, type, ...) {
 
@@ -120,78 +147,4 @@ sparse_or_dense <- function(x, type, ...) {
               relative.complexity.dense = mean_complexity_dense / k,
               relative.complexity.uniform = mean_complexity_uniform / k,
               no.hypotheses = length(gamma_list)))
-}
-
-# The function tests if we have overlap in the posterior distributions,
-# and with that if we need a(nother) bridge hypothesis.
-is_overlap <- function(ordered_list) {
-  
-  for (i in 1: (length(ordered_list) - 1)) {
-    #check all pairs of hypotheses
-    this_el <- ordered_list[[i]]
-    next_el <- ordered_list[[i + 1]]
-    
-    overlap <- which(this_el$tab != 0 & next_el$tab != 0)
-    
-    if (length(overlap) == 0) {
-      before_position <- i
-      if (this_el$alpha == next_el$alpha) {
-        alpha <- this_el$alpha
-        beta <- this_el$beta / 2
-      }
-      else if (this_el$beta == next_el$beta) {
-        alpha <- next_el$alpha / 2
-        beta <- this_el$beta
-      }
-      else {
-        alpha <- this_el$alpha
-        beta <- this_el$beta / 2
-      }
-      return(list(before_pos = before_position,
-                  alpha = alpha, beta = beta))
-    }
-  }
-  return(1)
-}
-
-# Given a list of the results for all needed hypotheses, the function
-# computes the log BF of sparse against dense.
-# @args ordered list of the results, with the outer two the hypotheses of 
-# interest, and in between the bridge hypotheses. k the number of potential edges.
-compute_bayes_factor <- function(ordered_list, k) {
-  bf <- 0
-  c <- 0: k
-  for (i in 1: (length(ordered_list) - 1)) {
-    el1 <- ordered_list[[i]]
-    el2 <- ordered_list[[i + 1]]
-    
-    alpha1 <- el1$alpha
-    alpha2 <- el2$alpha
-    beta1 <- el1$beta
-    beta2 <- el2$beta
-    tab1 <- el1$tab
-    tab2 <- el2$tab
-    
-    log_prior1 <- lchoose(k, c) - lbeta(alpha1, beta1) + lfactorial(alpha1 + c - 1) +
-      lfactorial(beta1 + k - c - 1) - lfactorial(alpha1 + beta1 + k - 1)
-    log_prior2 <- lchoose(k, c) - lbeta(alpha2, beta2) + lfactorial(alpha2 + c - 1) +
-      lfactorial(beta2 + k - c - 1) - lfactorial(alpha2 + beta2 + k - 1)
-    
-    prob1 <- tab1 / sum(tab1)
-    prob2 <- tab2 / sum(tab2)
-    
-    log_prob1 <- log(prob1)
-    log_prob2 <- log(prob2)
-    
-    odds1 <- log_prior1 - log_prob1
-    odds2 <- log_prob2 - log_prior2
-
-    log_bf <- odds1 + odds2
-    log_bf[is.infinite(log_bf)] <- NA
-    log_bf <- mean(log_bf, na.rm = TRUE)
-    
-    bf <- bf + log_bf
-        
-  }
-  return(bf)
 }

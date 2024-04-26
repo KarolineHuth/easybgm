@@ -78,3 +78,27 @@
        Posterior probability of most likely structure: 0.592 
       ---
 
+# easybgm works for sparse vs dense
+
+    Code
+      sparse_dense
+    Output
+      $log.BF
+      [1] -1.443074
+      
+      $BF
+      [1] 0.2362006
+      
+      $relative.complexity.sparse
+      [1] 0.6344
+      
+      $relative.complexity.dense
+      [1] 0.7019
+      
+      $relative.complexity.uniform
+      [1] 0.633
+      
+      $no.hypotheses
+      [1] 3
+      
+
