@@ -48,7 +48,14 @@ bgm_extract.package_bgms <- function(fit, type, save,
   if (args$edge_prior[1] == "Bernoulli") {
     edge.prior <- args$inclusion_probability
   } else {
-    edge.prior <- beta(args$beta_bernoulli_alpha, args$beta_bernoulli_beta)
+    if (args$beta_bernoulli_alpha == 1 & args$beta_bernoulli_beta == 1) {
+      edge.prior <- .5
+    }
+    else {
+      edge.prior <- NA
+      warning("Beta-Bernoulli parameters alpha and/or beta are different from 1,
+               the inclusion BF per edge can not be computed.")
+    }
   }
   
   
