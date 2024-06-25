@@ -87,7 +87,7 @@ arguments. We give an overview of the prior arguments per package below.
 
 \itemize{
 
-\item \code{interaction_prior} prior distribution of the interaction parameters, can be either "UnitInfo" for the Unit Information prior, or "Cauchy" for the Cauchy distribution. The default is set to "UnitInfo".
+\item \code{interaction_scale} scale of the Cauchy prior distribution on the interaction parameters, which is centered around 0. The default is 2.5.
 
 \item \code{edge_prior} prior on the graph structure, which can be either "Bernoulli" or "Beta-Bernoulli". The default is "Bernoulli".
 
@@ -115,7 +115,7 @@ arguments. We give an overview of the prior arguments per package below.
 \item \code{prior_sd} the standard deviation of the prior distribution of the interaction parameters, approximately the scale of a beta distribution. The default is 0.25.
 }
 
-We would always encourage researcher to conduct prior robustness checks.
+We would always encourage researchers to conduct prior robustness checks.
 }
 \examples{
 

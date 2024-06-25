@@ -63,7 +63,7 @@
 #'
 #' \itemize{
 #'
-#' \item \code{interaction_prior} prior distribution of the interaction parameters, can be either "UnitInfo" for the Unit Information prior, or "Cauchy" for the Cauchy distribution. The default is set to "UnitInfo".
+#' \item \code{interaction_scale} The scale of the Cauchy prior distribution on the interaction parameters, centered around 0. The default is 2.5
 #'
 #' \item \code{edge_prior} prior on the graph structure, which can be either "Bernoulli" or "Beta-Bernoulli". The default is "Bernoulli".
 #'
@@ -92,7 +92,7 @@
 
 #' }
 #'
-#' We would always encourage researcher to conduct prior robustness checks.
+#' We would always encourage researchers to conduct prior robustness checks.
 #'
 #' @export
 #'
