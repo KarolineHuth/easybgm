@@ -139,7 +139,7 @@ plot_complexity_probabilities.bgms <- function(output, ...) {
 
 #' @export
 
-plot_edgeevidence.bgms <- function(output, evidence_thresh = 10, split = FALSE, show = "all", ...) {
+plot_edgeevidence.bgms <- function(output, evidence_thres = 10, split = FALSE, show = "all", ...) {
   
   fit_args <- extract_arguments(output)
   
@@ -176,18 +176,19 @@ plot_edgeevidence.bgms <- function(output, evidence_thresh = 10, split = FALSE, 
   
   # assign a color to each edge (inclusion - blue, exclusion - red, no conclusion - grey)
   graph_color <- graph
-  graph_color <-  ifelse(graph < evidence_thresh & graph > 1/evidence_thresh,
+  graph_color <-  ifelse(graph < evidence_thres & graph > 1/evidence_thres,
                          graph_color <- args$colors[3], graph_color <- args$colors[1])
-  graph_color[graph < (1/evidence_thresh)] <- args$colors[2]
+  graph_color[graph < (1/evidence_thres)] <- args$colors[2]
   
-  if (show == "all") {
+  # if show is all 
+  if ((length(show) == 1) & ("all" %in% show)) {
     if (!split) {
       graph[output$inc_probs <= 1] <- 1
       diag(graph) <- 1
       colnames(graph) <- args$colnames
       qgraph_plot <- qgraph::qgraph(graph,
                                     edge.color = graph_color,
-                                    layout = args$layout_avg,# specifies the color of the edges
+                                    layout = args$layout,# specifies the color of the edges
                                     theme = args$theme,
                                     vsize = args$vsize,
                                     nodeNames = args$nodeNames,
@@ -195,86 +196,158 @@ plot_edgeevidence.bgms <- function(output, evidence_thresh = 10, split = FALSE, 
                                     edge.width = args$edge.width,
                                     label.cex = args$label.cex,
                                     legend.cex = args$legend.cex,
-                                    ...
-      )
+                                    ...)
     }
-    
-    if (split) {
-      
-      graph_inc <- graph_exc <- graph
-      # plot included graph
-      graph_inc[output$inc_probs >= .5] <- 1
-      graph_inc[output$inc_probs < .5] <- 0
+    # if split
+    else {
+      graph_inc <- ifelse(graph > 1, 1, 0)
       diag(graph_inc) <- 1
-      colnames(graph_inc) <- colnames(output$parameters)
-      qgraph_plot1 <- qgraph::qgraph(graph_inc,
-                                     edge.color = graph_color,
-                                     layout = args$layout_avg,# specifies the color of the edges
-                                     theme = args$theme,
-                                     vsize = args$vsize,
-                                     nodeNames = args$nodeNames,
-                                     legend = args$legend,
-                                     edge.width = args$edge.width,
-                                     label.cex = args$label.cex,
-                                     legend.cex = args$legend.cex, # specifies the color of the edges
-                                     ...
-      )
-      # Plot excluded graph
-      graph_exc[output$inc_probs >= .5] <- 0
-      graph_exc[output$inc_probs < .5] <- 1
+      colnames(graph_inc) <- args$colnames
+      qgraph_plot_inc <- qgraph::qgraph(graph_inc,
+                                        edge.color = graph_color,
+                                        layout = args$layout,# specifies the color of the edges
+                                        theme = args$theme,
+                                        vsize = args$vsize,
+                                        nodeNames = args$nodeNames,
+                                        legend = args$legend,
+                                        edge.width = args$edge.width,
+                                        label.cex = args$label.cex,
+                                        legend.cex = args$legend.cex,
+                                        ...)
+      
+      graph_exc <- ifelse(graph < 1, 1, 0)
       diag(graph_exc) <- 1
-      colnames(graph_exc) <- colnames(output$parameters)
-      qgraph_plot2 <- qgraph::qgraph(graph_exc,
-                                     edge.color = graph_color,
-                                     # specifies the color of the edges
-                                     layout = args$layout_avg,# specifies the color of the edges
-                                     theme = args$theme,
-                                     vsize = args$vsize,
-                                     nodeNames = args$nodeNames,
-                                     legend = args$legend,
-                                     edge.width = args$edge.width,
-                                     label.cex = args$label.cex,
-                                     legend.cex = args$legend.cex,
-                                     ...
-      )
+      colnames(graph_exc) <- args$colnames
+      qgraph_plot_exc <- qgraph::qgraph(graph_exc,
+                                        edge.color = graph_color,
+                                        layout = args$layout,# specifies the color of the edges
+                                        theme = args$theme,
+                                        vsize = args$vsize,
+                                        nodeNames = args$nodeNames,
+                                        legend = args$legend,
+                                        edge.width = args$edge.width,
+                                        label.cex = args$label.cex,
+                                        legend.cex = args$legend.cex,
+                                        ...)
+      
+      # graph_inconc <- ifelse((graph < evidence_thres) & (graph > (1 / evidence_thres)),
+      #                        1, 0)
+      # diag(graph_inconc) <- 1
+      # colnames(graph_inconc) <- args$colnames
+      # qgraph_plot_inconc <- qgraph::qgraph(graph_inconc,
+      #                                   edge.color = graph_color,
+      #                                   layout = args$layout,# specifies the color of the edges
+      #                                   theme = args$theme,
+      #                                   vsize = args$vsize,
+      #                                   nodeNames = args$nodeNames,
+      #                                   legend = args$legend,
+      #                                   edge.width = args$edge.width,
+      #                                   label.cex = args$label.cex,
+      #                                   legend.cex = args$legend.cex,
+      #                                   ...)
+      
+      qgraph_plot <- list(qgraph_plot_inc,
+                          qgraph_plot_exc)
+      
+      
     }
   }
-  if(show != "all"){
-    graph_show <- matrix(0, ncol = ncol(graph), nrow = nrow(graph))
-    if("included" %in% show){
-      graph_show[output$inc_BF > evidence_thresh] <- 1
+  # if show is not all
+  else {
+    if (!split) {
+      if (!("included" %in% show)) {
+        graph[graph > evidence_thres] <- 0
+      }
+      if (!("excluded" %in% show)) {
+        graph[graph < (1 / evidence_thres)] <- 0
+      }
+      if (!("inconclusive" %in% show)) {
+        graph[(graph < evidence_thres) & (graph > (1 / evidence_thres))] <- 0
+      }
+      
+      graph[graph > 0] <- 1
+      diag(graph) <- 1
+      colnames(graph) <- args$colnames
+      qgraph_plot <- qgraph::qgraph(graph,
+                                    edge.color = graph_color,
+                                    layout = args$layout,# specifies the color of the edges
+                                    theme = args$theme,
+                                    vsize = args$vsize,
+                                    nodeNames = args$nodeNames,
+                                    legend = args$legend,
+                                    edge.width = args$edge.width,
+                                    label.cex = args$label.cex,
+                                    legend.cex = args$legend.cex,
+                                    ...)
     }
-    if("excluded" %in% show){
-      graph_show[output$inc_BF < (1/evidence_thresh)] <- 1
+    # if split is true
+    else {
+      index <- 1
+      qgraph_plot <- list()
+      if ("included" %in% show) {
+        graph_inc <- ifelse(graph > evidence_thres, 1, 0)
+        diag(graph_inc) <- 1
+        colnames(graph_inc) <- args$colnames
+        qgraph_plot_inc <- qgraph::qgraph(graph_inc,
+                                          edge.color = graph_color,
+                                          layout = args$layout,# specifies the color of the edges
+                                          theme = args$theme,
+                                          vsize = args$vsize,
+                                          nodeNames = args$nodeNames,
+                                          legend = args$legend,
+                                          edge.width = args$edge.width,
+                                          label.cex = args$label.cex,
+                                          legend.cex = args$legend.cex,
+                                          ...)
+        qgraph_plot[[index]] <- qgraph_plot_inc
+        index <- index + 1
+      }
+      if ("excluded" %in% show) {
+        graph_exc <- ifelse(graph < (1 / evidence_thres), 1, 0)
+        diag(graph_exc) <- 1
+        colnames(graph_exc) <- args$colnames
+        qgraph_plot_exc <- qgraph::qgraph(graph_exc,
+                                          edge.color = graph_color,
+                                          layout = args$layout,# specifies the color of the edges
+                                          theme = args$theme,
+                                          vsize = args$vsize,
+                                          nodeNames = args$nodeNames,
+                                          legend = args$legend,
+                                          edge.width = args$edge.width,
+                                          label.cex = args$label.cex,
+                                          legend.cex = args$legend.cex,
+                                          ...)
+        
+        qgraph_plot[[index]] <- qgraph_plot_exc 
+        index <- index + 1
+      }
+      
+      if ("inconclusive" %in% show) {
+        graph_inconc <- ifelse((graph < evidence_thres) & (graph > (1 / evidence_thres)),
+                               1, 0)
+        qgraph_plot_inconc <- qgraph::qgraph(graph_inconc,
+                                             edge.color = graph_color,
+                                             layout = args$layout,# specifies the color of the edges
+                                             theme = args$theme,
+                                             vsize = args$vsize,
+                                             nodeNames = args$nodeNames,
+                                             legend = args$legend,
+                                             edge.width = args$edge.width,
+                                             label.cex = args$label.cex,
+                                             legend.cex = args$legend.cex,
+                                             ...)
+        qgraph_plot[[index]] <- qgraph_plot_inconc
+      }
     }
-    if("inconclusive" %in% show){
-      graph_show[(output$inc_BF > (1/evidence_thresh)) & (output$inc_BF < evidence_thresh)] <- 1
-    }
-    diag(graph_show) <- 1
-    colnames(graph_show) <- colnames(output$parameters)
-    qgraph_plot <- qgraph::qgraph(graph_show,
-                                  edge.color = graph_color,
-                                  layout = args$layout_avg,# specifies the color of the edges
-                                  theme = args$theme,
-                                  vsize = args$vsize,
-                                  nodeNames = args$nodeNames,
-                                  legend = args$legend,
-                                  label.cex = args$label.cex,
-                                  legend.cex = args$legend.cex,# specifies the color of the edges
-                                  ...
-    )
   }
-  if (split == TRUE) {
-    return(invisible(list(qgraph_plot1, qgraph_plot2)))
-  } else {
-    return(invisible(qgraph_plot))
-  }
+  
+  return(invisible(qgraph_plot))
 }
 
 # ---------------------------------------------------------------------------------------------------------------
 #' @export
 
-plot_network.bgms <- function(output, exc_prob = .5, evidence_thresh = 10, dashed = TRUE, ...) {
+plot_network.bgms <- function(output, exc_prob = .5, evidence_thres = 10, dashed = TRUE, ...) {
   
   fit_args <- extract_arguments(output)
   
