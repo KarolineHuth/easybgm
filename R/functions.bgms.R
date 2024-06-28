@@ -33,7 +33,6 @@ bgm_fit.package_bgms <- function(fit, type, data, iter, save,
 # --------------------------------------------------------------------------------------------------
 bgm_extract.package_bgms <- function(fit, type, save,
                                      not_cont, data, centrality, ...){
-  print(ncol(data))
   if(any(class(fit) != "bgms")){
     varnames <- fit$var_names
     fit <- fit$packagefit
