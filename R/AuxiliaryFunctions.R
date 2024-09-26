@@ -330,19 +330,23 @@ compute_bayes_factor <- function(ordered_list, k) {
   return(bf)
 }
 
-# Given alpha and beta parameters computes the probability of the beta bernoulli distribution
+# Given alpha and beta parameters computes the (log)probability of the beta Bernoulli distribution
 # for the bgms package returns probability for a specific complexity
 # @args alpha, beta parameters, c the complexity for which the probability has to b computed
 # p the number of nodes
 beta_bernoulli_prob <- function(c, alpha, beta, p) {
   
   k <- p * (p - 1) / 2
-  nom <- beta(alpha + c, beta + k - c)
-  denom <- beta(alpha, beta)
+
+  log_nom <- lbeta(alpha + c, beta + k - c)
+  log_denom <- lbeta(alpha, beta)
+
+  log_choose <- lchoose(k, c)
   
-  prob <- choose(k, c) * nom / denom
+
+  log_prob <- log_choose + log_nom - log_denom
   
-  return(prob)
+  return(log_prob)
 }
 
 # Calculates the probability of an edge being present in the beta-bernoulli prior of the bgms package
@@ -351,12 +355,23 @@ beta_bernoulli_prob <- function(c, alpha, beta, p) {
 calculate_edge_prior <- function(alpha, beta, p) {
   
   k <- p * (p - 1) / 2
-  prob <- 0
+  log_prob <- -Inf  # Initialize log-sum
   
   for (c in 0:k) {
-    pr <- beta_bernoulli_prob(c, alpha, beta, p)
-    prob <- prob + pr * c / k
+    log_pr <- beta_bernoulli_prob(c, alpha, beta, p)
+    log_weighted_pr <- log_pr + log(c / k)
+    
+    log_prob <- log_sum_exp(log_prob, log_weighted_pr)
   }
   
-  return(prob)
+  return(exp(log_prob))  # Convert back from log to probability
 }
+
+
+# Helper function for log-sum-exp to avoid precision issues
+log_sum_exp <- function(log_a, log_b) {
+  if (log_a == -Inf) return(log_b)  # Handle cases where one term is -Inf
+  if (log_b == -Inf) return(log_a)
+  return(log_a + log(1 + exp(log_b - log_a)))  # Log-sum-exp trick
+}
+

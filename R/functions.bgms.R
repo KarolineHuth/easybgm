@@ -51,6 +51,9 @@ bgm_extract.package_bgms <- function(fit, type, save,
     edge.prior <- calculate_edge_prior(alpha = args$beta_bernoulli_alpha,
                                        beta = args$beta_bernoulli_beta,
                                        p = ncol(data))
+    
+    # otherwise it saves the wrong values (could be done more elegantly)
+    args$inclusion_probability <- edge.prior
   }
   
   bgms_res <- list()
