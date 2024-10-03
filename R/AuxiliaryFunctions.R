@@ -349,29 +349,15 @@ beta_bernoulli_prob <- function(c, alpha, beta, p) {
   return(log_prob)
 }
 
-# Calculates the probability of an edge being present in the beta-bernoulli prior of the bgms package
-# Returns the probability for an (every) individual edge to be present
-# @args alpha, beta arguments of beta bernoulli prior, p number of nodes
-calculate_edge_prior <- function(alpha, beta, p) {
-  
-  k <- p * (p - 1) / 2
-  log_prob <- -Inf  # Initialize log-sum
-  
-  for (c in 0:k) {
-    log_pr <- beta_bernoulli_prob(c, alpha, beta, p)
-    log_weighted_pr <- log_pr + log(c / k)
-    
-    log_prob <- log_sum_exp(log_prob, log_weighted_pr)
-  }
-  
-  return(exp(log_prob))  # Convert back from log to probability
-}
+# Calculates the probability of an edge being present in the beta-bernoulli (BB) 
+# or the stochastic block prior on the network structure of the bgms package
+# Returns the prior inclusion probability for individual edges
+# which simply calculates the expected value of the BB distribution 
+# @args alpha, beta arguments of beta bernoulli prior, 
 
 
-# Helper function for log-sum-exp to avoid precision issues
-log_sum_exp <- function(log_a, log_b) {
-  if (log_a == -Inf) return(log_b)  # Handle cases where one term is -Inf
-  if (log_b == -Inf) return(log_a)
-  return(log_a + log(1 + exp(log_b - log_a)))  # Log-sum-exp trick
+calculate_edge_prior <- function(alpha, beta) {
+   alpha / (alpha + beta)
 }
+
 

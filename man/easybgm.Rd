@@ -87,15 +87,36 @@ arguments. We give an overview of the prior arguments per package below.
 
 \itemize{
 
-\item \code{interaction_prior} prior distribution of the interaction parameters, can be either "UnitInfo" for the Unit Information prior, or "Cauchy" for the Cauchy distribution. The default is set to "UnitInfo".
+\item \code{interaction_scale} the scale of the Cauchy distribution that is used as a
+prior for the pairwise interaction parameters. The default is 2.5.
 
-\item \code{edge_prior} prior on the graph structure, which can be either "Bernoulli" or "Beta-Bernoulli". The default is "Bernoulli".
+\item \code{edge_prior} prior on the graph structure, which can be either "Bernoulli", "Beta-Bernoulli" or "Stochastic Block". The default is "Bernoulli".
 
 \item \code{inclusion_prior} prior edge inclusion probability for the "Bernoulli" distribution. The default is 0.5.
 
-\item \code{beta_bernoulli_alpha} and \code{beta_bernoulli_alpha} the parameters of the "Beta-Bernoulli" distribution. The default is 1 for both.
+\item \code{beta_bernoulli_alpha} and \code{beta_bernoulli_alpha} the parameters of the "Beta-Bernoulli" or "Stochastic Block" priors. The default is 1 for both.
+
+\item \code{dirichlet_alpha} The shape of the Dirichlet prior on the node-to-block
+allocation parameters for the Stochastic Block prior on the graph structure.
 
 \item \code{threshold_alpha} and \code{threshold_beta} the parameters of the beta-prime distribution for the threshold parameters. The defaults are both set to 1.
+
+\item \code{variable_type} What kind of variables are there in \code{x}? Can be a
+single character string specifying the variable type of all \code{p}
+variables at once or a vector of character strings of length \code{p}
+specifying the type for each variable in \code{x} separately. Currently, bgm
+supports \verb{ordinal'' and }blume-capel''. Binary variables are automatically
+treated as ``ordinal’’. Defaults to \code{variable_type = "ordinal"}.
+
+\item \code{reference_category} he reference category in the Blume-Capel model.
+Should be an integer within the range of integer scores observed for the
+'blume-capel' variable. Can be a single number specifying the reference
+category for all Blume-Capel variables at once, or a vector of length
+\code{p} where the \code{i}-th element contains the reference category for
+variable \code{i} if it is Blume-Capel, and bgm ignores its elements for
+other variable types. The value of the reference category is also recoded
+when bgm recodes the corresponding observations. Only required if there is at
+least one variable of type ``blume-capel''.
 
 }
 
