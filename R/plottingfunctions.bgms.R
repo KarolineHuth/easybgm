@@ -160,7 +160,7 @@ plot_edgeevidence.bgms <- function(output, evidence_thresh = 10, split = FALSE, 
   default_args <- list(
     colors = c("#36648b", "#990000", "#bfbfbf"),
     colnames = colnames(output$parameters),
-    layout_avg = qgraph::averageLayout(as.matrix(output$parameters*output$structure)),
+    layout = qgraph::averageLayout(as.matrix(output$parameters*output$structure)),
     theme = "TeamFortress",
     legend = TRUE,
     vsize = 10,
@@ -187,7 +187,7 @@ plot_edgeevidence.bgms <- function(output, evidence_thresh = 10, split = FALSE, 
       colnames(graph) <- args$colnames
       qgraph_plot <- qgraph::qgraph(graph,
                                     edge.color = graph_color,
-                                    layout = args$layout_avg,# specifies the color of the edges
+                                    layout = args$layout,# specifies the color of the edges
                                     theme = args$theme,
                                     vsize = args$vsize,
                                     nodeNames = args$nodeNames,
@@ -209,7 +209,7 @@ plot_edgeevidence.bgms <- function(output, evidence_thresh = 10, split = FALSE, 
       colnames(graph_inc) <- colnames(output$parameters)
       qgraph_plot1 <- qgraph::qgraph(graph_inc,
                                      edge.color = graph_color,
-                                     layout = args$layout_avg,# specifies the color of the edges
+                                     layout = args$layout,# specifies the color of the edges
                                      theme = args$theme,
                                      vsize = args$vsize,
                                      nodeNames = args$nodeNames,
@@ -227,7 +227,7 @@ plot_edgeevidence.bgms <- function(output, evidence_thresh = 10, split = FALSE, 
       qgraph_plot2 <- qgraph::qgraph(graph_exc,
                                      edge.color = graph_color,
                                      # specifies the color of the edges
-                                     layout = args$layout_avg,# specifies the color of the edges
+                                     layout = args$layout,# specifies the color of the edges
                                      theme = args$theme,
                                      vsize = args$vsize,
                                      nodeNames = args$nodeNames,
@@ -254,7 +254,7 @@ plot_edgeevidence.bgms <- function(output, evidence_thresh = 10, split = FALSE, 
     colnames(graph_show) <- colnames(output$parameters)
     qgraph_plot <- qgraph::qgraph(graph_show,
                                   edge.color = graph_color,
-                                  layout = args$layout_avg,# specifies the color of the edges
+                                  layout = args$layout,# specifies the color of the edges
                                   theme = args$theme,
                                   vsize = args$vsize,
                                   nodeNames = args$nodeNames,
@@ -295,7 +295,7 @@ plot_network.bgms <- function(output, exc_prob = .5, evidence_thresh = 10, dashe
   # Specify default arguments for function
   graph <- output$parameters
   default_args <- list(
-    layout_avg = qgraph::averageLayout(as.matrix(output$parameters*output$structure)),
+    layout = qgraph::averageLayout(as.matrix(output$parameters*output$structure)),
     evidence_thres = 10,
     theme = "TeamFortress",
     vsize = 10,
@@ -314,7 +314,7 @@ plot_network.bgms <- function(output, exc_prob = .5, evidence_thresh = 10, dashe
   # Plot
   if(dashed){
     graph_dashed <- ifelse(output$inc_BF < args$evidence_thres, "dashed", "solid")
-    qgraph_plot <- qgraph::qgraph(graph, layout = args$layout_avg, lty = graph_dashed,
+    qgraph_plot <- qgraph::qgraph(graph, layout = args$layout, lty = graph_dashed,
                                   theme = args$theme, vsize = args$vsize,
                                   nodeNames = args$nodeNames,
                                   legend = args$legend,
@@ -322,7 +322,7 @@ plot_network.bgms <- function(output, exc_prob = .5, evidence_thresh = 10, dashe
                                   legend.cex = args$legend.cex, ...)
   } else {
     qgraph_plot <- qgraph::qgraph(graph, theme = args$theme,
-                                  layout = args$layout_avg, vsize = args$vsize,
+                                  layout = args$layout, vsize = args$vsize,
                                   nodeNames = args$nodeNames,
                                   legend = args$legend,
                                   label.cex = args$label.cex,
@@ -350,7 +350,7 @@ plot_structure.bgms <- function(output, ...) {
   
   # Specify default arguments for function
   default_args <- list(
-    layout_avg = qgraph::averageLayout(as.matrix(output$parameters*output$structure)),
+    layout = qgraph::averageLayout(as.matrix(output$parameters*output$structure)),
     theme = "TeamFortress",
     vsize = 10,
     nodeNames = colnames(output$parameters),
@@ -365,7 +365,7 @@ plot_structure.bgms <- function(output, ...) {
   graph <- output$structure
   colnames(graph) <- colnames(output$parameters)
   # Plot
-  qgraph_plot <- qgraph::qgraph(graph, layout = args$layout_avg,
+  qgraph_plot <- qgraph::qgraph(graph, layout = args$layout,
                                 theme = args$theme, vsize = args$vsize,
                                 nodeNames = args$nodeNames,
                                 legend = args$legend,
