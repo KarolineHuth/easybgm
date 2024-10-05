@@ -6,7 +6,7 @@ data <- na.omit(Wenchuan)
 ##--------------------------------
 set.seed(123)
 res_bgms <- easybgm(data[1:100, 1:5], type = "ordinal",
-                    package = "bgms", save = T, centrality = T, iter = 1000)
+                    package = "bgms", save = T, centrality = T, iter = 1000, edge_selection = T)
 test_that("easybgm works for bgms", {
   testthat::expect_snapshot(summary(res_bgms))
 })
@@ -36,8 +36,8 @@ struc_bgms <- plot_structure(res_bgms)
 vdiffr::expect_doppelganger("structure plot bgms", struc_bgms)
 
 # 6. HDI plot
-#HDI_bgms <-plot_parameterHDI(res_bgms)
-#vdiffr::expect_doppelganger("HDI plot bgms", HDI_bgms)
+HDI_bgms <-plot_parameterHDI(res_bgms)
+vdiffr::expect_doppelganger("HDI plot bgms", HDI_bgms)
 
 # 7. centrality plot
 centrality_bgms <-plot_centrality(res_bgms)

@@ -27,7 +27,8 @@ library(bgms)
 data <- na.omit(Wenchuan)
 fit <- easybgm(data, type = "ordinal",
                 iter = 1000,  # for demonstration only (> 5e4 recommended)
-                save = TRUE, centrality = TRUE)
+                save = TRUE, edge_selection = TRUE,
+                centrality = TRUE)
 
 plot_centrality(fit)
 }

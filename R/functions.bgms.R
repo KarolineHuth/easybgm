@@ -65,7 +65,7 @@ bgm_extract.package_bgms <- function(fit, type, save,
                                  nrow = nrow(bgms_res$parameters))
     
     if(args$edge_selection){
-      bgms_res$inc_probs <- easybgm:::extract_posterior_inclusion_probabilities(fit)
+      bgms_res$inc_probs <- extract_posterior_inclusion_probabilities(fit)
       bgms_res$inc_BF <- (bgms_res$inc_probs/(1-bgms_res$inc_probs))/(edge.prior /(1 - edge.prior))
       bgms_res$structure <- 1*(bgms_res$inc_probs > 0.5)
       #Obtain structure information
@@ -83,7 +83,7 @@ bgm_extract.package_bgms <- function(fit, type, save,
     bgms_res$structure <- matrix(1, ncol = ncol(bgms_res$parameters), 
                                  nrow = nrow(bgms_res$parameters))
     if(args$edge_selection){
-      bgms_res$inc_probs <- easybgm:::extract_posterior_inclusion_probabilities(fit)
+      bgms_res$inc_probs <- extract_posterior_inclusion_probabilities(fit)
       bgms_res$inc_BF <- (bgms_res$inc_probs/(1-bgms_res$inc_probs))/(edge.prior /(1-edge.prior))
       bgms_res$structure <- 1*(bgms_res$inc_probs > 0.5)
     }
