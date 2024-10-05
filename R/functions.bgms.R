@@ -9,8 +9,11 @@ bgm_fit.package_bgms <- function(fit, type, data, iter, save,
     save <- TRUE
   }
   
+  
   bgms_fit <- do.call(
-    bgm, c(list(x = data, iter = iter, save = save, display_progress = progress, ...))
+    bgm, c(list(x = data, iter = iter, save = save, 
+                display_progress = progress, 
+                ...))
   )
   
   
