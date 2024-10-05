@@ -43,7 +43,6 @@ that it is sparse and that it is dense, and computes th Bayes factor.
 }
 \examples{
 \donttest{
-
 library(easybgm)
 library(bgms)
 
@@ -51,7 +50,7 @@ data <- na.omit(Wenchuan)
 
 # Fitting the Wenchuan PTSD data
 
-fit <- sparse_or_dense(data, type = "binary",
+fit <- sparse_or_dense(data, type = "ordinal",
                 iter = 1000 # for demonstration only (> 5e4 recommended)
                 )
 }  
