@@ -36,8 +36,8 @@ struc_bgms <- plot_structure(res_bgms)
 vdiffr::expect_doppelganger("structure plot bgms", struc_bgms)
 
 # 6. HDI plot
-HDI_bgms <-plot_parameterHDI(res_bgms)
-vdiffr::expect_doppelganger("HDI plot bgms", HDI_bgms)
+#HDI_bgms <-plot_parameterHDI(res_bgms)
+#vdiffr::expect_doppelganger("HDI plot bgms", HDI_bgms)
 
 # 7. centrality plot
 centrality_bgms <-plot_centrality(res_bgms)

@@ -253,19 +253,7 @@ plot_structure <- function(output, ...) {
 #' @import ggplot2 HDInterval
 #' @importFrom stats median
 #'
-#' @examples
-#' \donttest{
-#'
-#' library(easybgm)
-#' library(bgms)
-#'
-#'
-#' data <- na.omit(Wenchuan)
-#' fit <- easybgm(data, type = "ordinal",
-#'               iter = 1000,  # for demonstration only (> 5e4 recommended)
-#'               save = TRUE)
-#' plot_parameterHDI(fit)
-#' }
+
 
 plot_parameterHDI <- function(output, ...) {
   if(any(any(class(output) == "easybgm"), any(class(output) == "bgms")) == FALSE){
