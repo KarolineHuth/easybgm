@@ -1,7 +1,7 @@
 # --------------------------------------------------------------------------------------------------
 # 1. Fitting function
 # --------------------------------------------------------------------------------------------------
-
+#' @export
 bgm_fit.package_bgms <- function(fit, type, data, iter, save,
                                  not_cont, centrality, progress, ...){
   
@@ -34,6 +34,7 @@ bgm_fit.package_bgms <- function(fit, type, data, iter, save,
 # --------------------------------------------------------------------------------------------------
 # 2. Extracting results function
 # --------------------------------------------------------------------------------------------------
+#' @export
 bgm_extract.package_bgms <- function(fit, type, save,
                                      not_cont, data, centrality, ...){
   if(any(class(fit) != "bgms")){

@@ -1,7 +1,7 @@
 # --------------------------------------------------------------------------------------------------
 # 1. Fitting function
 # --------------------------------------------------------------------------------------------------
-
+#' @export
 bgm_fit.package_bdgraph <- function(fit, type, data, iter, save,
                                     not_cont, centrality, progress, ...){
   
@@ -66,7 +66,7 @@ bgm_fit.package_bdgraph <- function(fit, type, data, iter, save,
 # --------------------------------------------------------------------------------------------------
 # 2. Extracting results function
 # --------------------------------------------------------------------------------------------------
-
+#' @export
 bgm_extract.package_bdgraph <- function(fit, type, save,
                                         not_cont, data, centrality, 
                                         posterior_method, ...){
