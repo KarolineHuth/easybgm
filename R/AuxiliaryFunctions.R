@@ -330,33 +330,34 @@ compute_bayes_factor <- function(ordered_list, k) {
   return(bf)
 }
 
-# Given alpha and beta parameters computes the probability of the beta bernoulli distribution
+# Given alpha and beta parameters computes the (log)probability of the beta Bernoulli distribution
 # for the bgms package returns probability for a specific complexity
 # @args alpha, beta parameters, c the complexity for which the probability has to b computed
 # p the number of nodes
 beta_bernoulli_prob <- function(c, alpha, beta, p) {
   
   k <- p * (p - 1) / 2
-  nom <- beta(alpha + c, beta + k - c)
-  denom <- beta(alpha, beta)
+
+  log_nom <- lbeta(alpha + c, beta + k - c)
+  log_denom <- lbeta(alpha, beta)
+
+  log_choose <- lchoose(k, c)
   
-  prob <- choose(k, c) * nom / denom
+
+  log_prob <- log_choose + log_nom - log_denom
   
-  return(prob)
+  return(log_prob)
 }
 
-# Calculates the probability of an edge being present in the beta-bernoulli prior of the bgms package
-# Returns the probability for an (every) individual edge to be present
-# @args alpha, beta arguments of beta bernoulli prior, p number of nodes
-calculate_edge_prior <- function(alpha, beta, p) {
-  
-  k <- p * (p - 1) / 2
-  prob <- 0
-  
-  for (c in 0:k) {
-    pr <- beta_bernoulli_prob(c, alpha, beta, p)
-    prob <- prob + pr * c / k
-  }
-  
-  return(prob)
+# Calculates the probability of an edge being present in the beta-bernoulli (BB) 
+# or the stochastic block prior on the network structure of the bgms package
+# Returns the prior inclusion probability for individual edges
+# which simply calculates the expected value of the BB distribution 
+# @args alpha, beta arguments of beta bernoulli prior, 
+
+
+calculate_edge_prior <- function(alpha, beta) {
+   alpha / (alpha + beta)
 }
+
+
