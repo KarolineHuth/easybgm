@@ -92,7 +92,7 @@ prior for the pairwise interaction parameters. The default is 2.5.
 
 \item \code{edge_prior} prior on the graph structure, which can be either "Bernoulli", "Beta-Bernoulli" or "Stochastic Block". The default is "Bernoulli".
 
-\item \code{inclusion_prior} prior edge inclusion probability for the "Bernoulli" distribution. The default is 0.5.
+\item \code{inclusion_probability} prior edge inclusion probability for the "Bernoulli" distribution. The default is 0.5.
 
 \item \code{beta_bernoulli_alpha} and \code{beta_bernoulli_alpha} the parameters of the "Beta-Bernoulli" or "Stochastic Block" priors. The default is 1 for both.
 
