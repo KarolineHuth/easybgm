@@ -1,7 +1,7 @@
 Package: easybgm
 Type: Package
 Title: Extracting and Visualizing Bayesian Graphical Models
-Version: 0.1.2
+Version: 0.2.1
 Authors@R: c(
   person("Karoline", "Huth", , "k.huth@uva.nl", role = c("aut", "cre"), 
         comment = c(ORCID = "0000-0002-0662-1591")), 

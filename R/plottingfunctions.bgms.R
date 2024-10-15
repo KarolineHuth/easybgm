@@ -1,8 +1,11 @@
 #' @export
 
 plot_structure_probabilities.bgms <- function(output, as_BF = FALSE, ...) {
+  if(packageVersion("bgms") < "0.1.3"){
+    stop("Your version of the package bgms is not supported anymore. Please update.")
+  }
   
-  fit_args <- extract_arguments(output)
+  fit_args <- bgms::extract_arguments(output)
   
   # Give error if save is false
   if(fit_args$save == FALSE){
@@ -77,7 +80,11 @@ plot_structure_probabilities.bgms <- function(output, as_BF = FALSE, ...) {
 
 plot_complexity_probabilities.bgms <- function(output, ...) {
   
-  fit_args <- extract_arguments(output)
+  if(packageVersion("bgms") < "0.1.3"){
+    stop("Your version of the package bgms is not supported anymore. Please update.")
+  }
+  
+  fit_args <- bgms::extract_arguments(output)
   
   # Give error if save is false
   if(fit_args$save == FALSE){
@@ -141,7 +148,11 @@ plot_complexity_probabilities.bgms <- function(output, ...) {
 
 plot_edgeevidence.bgms <- function(output, evidence_thresh = 10, split = FALSE, show = "all", ...) {
   
-  fit_args <- extract_arguments(output)
+  if(packageVersion("bgms") < "0.1.3"){
+    stop("Your version of the package bgms is not supported anymore. Please update.")
+  }
+  
+  fit_args <- bgms::extract_arguments(output)
   
   if(!fit_args$edge_selection){
     stop("The plot cannot be obtained for this model fit as no posterior edge inclusion probabilities were obtained. Rerun the model fit and set 'edge_selection = TRUE'.")
@@ -276,7 +287,11 @@ plot_edgeevidence.bgms <- function(output, evidence_thresh = 10, split = FALSE, 
 
 plot_network.bgms <- function(output, exc_prob = .5, evidence_thresh = 10, dashed = TRUE, ...) {
   
-  fit_args <- extract_arguments(output)
+  if(packageVersion("bgms") < "0.1.3"){
+    stop("Your version of the package bgms is not supported anymore. Please update.")
+  }
+  
+  fit_args <- bgms::extract_arguments(output)
   
   res <- bgm_extract.package_bgms(fit = output, save = fit_args$save, centrality = FALSE,
                                   type = NULL, not_cont = NULL, data = NULL,
@@ -337,7 +352,11 @@ plot_network.bgms <- function(output, exc_prob = .5, evidence_thresh = 10, dashe
 
 plot_structure.bgms <- function(output, ...) {
   
-  fit_args <- extract_arguments(output)
+  if(packageVersion("bgms") < "0.1.3"){
+    stop("Your version of the package bgms is not supported anymore. Please update.")
+  }
+  
+  fit_args <- bgms::extract_arguments(output)
   
   res <- bgm_extract.package_bgms(fit = output, save = fit_args$save, centrality = FALSE,
                                   type = NULL, not_cont = NULL, data = NULL,
@@ -380,7 +399,11 @@ plot_structure.bgms <- function(output, ...) {
 
 plot_parameterHDI.bgms <- function(output, ...) {
   
-  fit_args <- extract_arguments(output)
+  if(packageVersion("bgms") < "0.1.3"){
+    stop("Your version of the package bgms is not supported anymore. Please update.")
+  }
+  
+  fit_args <- bgms::extract_arguments(output)
   
   if(!fit_args$save){
     stop("Samples of the posterior distribution required. When estimating the model with bgm, set \"save = TRUE\".")
@@ -449,7 +472,11 @@ plot_parameterHDI.bgms <- function(output, ...) {
 
 plot_centrality.bgms <- function(output, ...){
   
-  fit_args <- extract_arguments(output)
+  if(packageVersion("bgms") < "0.1.3"){
+    stop("Your version of the package bgms is not supported anymore. Please update.")
+  }
+  
+  fit_args <- bgms::extract_arguments(output)
   
   if(!fit_args$save){
     stop("Samples of the posterior distribution required. When estimating the model with bgm, set \"save = TRUE\".")

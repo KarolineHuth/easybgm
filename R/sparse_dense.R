@@ -94,9 +94,9 @@ sparse_or_dense <- function(x, type, ...) {
   print("Running the model under the uniform hypothesis")
   res_uniform <- do.call(bgm, args_uniform)
   
-  gamma_sums_sparse <- rowSums(res_sparse$gamma)
-  gamma_sums_dense <- rowSums(res_dense$gamma)
-  gamma_sums_uniform <- rowSums(res_uniform$gamma)
+  gamma_sums_sparse <- rowSums(bgms::extract_indicators(res_sparse))
+  gamma_sums_dense <- rowSums(bgms::extract_indicators(res_dense))
+  gamma_sums_uniform <- rowSums(bgms::extract_indicators(res_uniform))
   
   tab_gamma_sparse <- tabulate(gamma_sums_sparse + 1, k + 1)
   tab_gamma_dense <- tabulate(gamma_sums_dense + 1, k + 1)

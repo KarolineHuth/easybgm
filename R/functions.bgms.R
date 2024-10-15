@@ -40,6 +40,7 @@ bgm_extract.package_bgms <- function(fit, type, save,
   if(any(class(fit) != "bgms")){
     varnames <- fit$var_names
     fit <- fit$packagefit
+    class(fit) <- "bgms"
   } else if (any(class(fit) == "bgms")){
     varnames <- fit$arguments$data_columnnames
     if(is.null(varnames)){
@@ -47,7 +48,7 @@ bgm_extract.package_bgms <- function(fit, type, save,
     }
   }
   
-  args <- extract_arguments(fit)
+  args <- bgms::extract_arguments(fit)
   
   if (args$edge_prior[1] == "Bernoulli") {
     edge.prior <- args$inclusion_probability
@@ -63,19 +64,19 @@ bgm_extract.package_bgms <- function(fit, type, save,
   
   if(args$save){
     p <- args$no_variables
-    pars <- extract_pairwise_interactions(fit)
+    pars <- bgms::extract_pairwise_interactions(fit)
     bgms_res$parameters <- vector2matrix(colMeans(pars), p = p)
-    bgms_res$thresholds <- extract_pairwise_thresholds(fit)
+    bgms_res$thresholds <- bgms::extract_category_thresholds(fit)
     colnames(bgms_res$parameters) <- varnames
     bgms_res$structure <- matrix(1, ncol = ncol(bgms_res$parameters), 
                                  nrow = nrow(bgms_res$parameters))
     
     if(args$edge_selection){
-      bgms_res$inc_probs <- extract_posterior_inclusion_probabilities(fit)
+      bgms_res$inc_probs <- bgms::extract_posterior_inclusion_probabilities(fit)
       bgms_res$inc_BF <- (bgms_res$inc_probs/(1-bgms_res$inc_probs))/(edge.prior /(1 - edge.prior))
       bgms_res$structure <- 1*(bgms_res$inc_probs > 0.5)
       #Obtain structure information
-      gammas <- extract_edge_indicators(fit)
+      gammas <- bgms::extract_indicators(fit)
       structures <- apply(gammas, 1, paste0, collapse="")
       table_structures <- as.data.frame(table(structures))
       bgms_res$structure_probabilities <- table_structures[,2]/nrow(gammas)
@@ -83,20 +84,20 @@ bgm_extract.package_bgms <- function(fit, type, save,
       bgms_res$sample_graph <- as.character(table_structures[, 1])
     }
   } else {
-    bgms_res$parameters <- extract_pairwise_interactions(fit)
-    bgms_res$thresholds <- extract_pairwise_thresholds(fit)
+    bgms_res$parameters <- bgms::extract_pairwise_interactions(fit)
+    bgms_res$thresholds <- bgms::extract_category_thresholds(fit)
     colnames(bgms_res$parameters) <- varnames
     bgms_res$structure <- matrix(1, ncol = ncol(bgms_res$parameters), 
                                  nrow = nrow(bgms_res$parameters))
     if(args$edge_selection){
-      bgms_res$inc_probs <- extract_posterior_inclusion_probabilities(fit)
+      bgms_res$inc_probs <- bgms::extract_posterior_inclusion_probabilities(fit)
       bgms_res$inc_BF <- (bgms_res$inc_probs/(1-bgms_res$inc_probs))/(edge.prior /(1-edge.prior))
       bgms_res$structure <- 1*(bgms_res$inc_probs > 0.5)
     }
 
   }
   if(args$save){
-    bgms_res$samples_posterior <- extract_pairwise_interactions(fit)
+    bgms_res$samples_posterior <- bgms::extract_pairwise_interactions(fit)
     if(centrality){
       bgms_res$centrality <- centrality(bgms_res)
     }
