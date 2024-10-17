@@ -94,9 +94,19 @@ sparse_or_dense <- function(x, type, ...) {
   print("Running the model under the uniform hypothesis")
   res_uniform <- do.call(bgm, args_uniform)
   
-  gamma_sums_sparse <- rowSums(bgms::extract_indicators(res_sparse))
-  gamma_sums_dense <- rowSums(bgms::extract_indicators(res_dense))
-  gamma_sums_uniform <- rowSums(bgms::extract_indicators(res_uniform))
+  if(packageVersion("bgms") < "0.1.4"){
+    gammas_sparse <- bgms::extract_edge_indicators(res_sparse)
+    gammas_dense <- bgms::extract_edge_indicators(res_dense)
+    gammas_uniform <- bgms::extract_edge_indicators(res_uniform)
+  } else {
+    gammas_sparse <- extract_indicators(res_sparse)
+    gammas_dense <- extract_indicators(res_dense)
+    gammas_uniform <- extract_indicators(res_uniform)
+    }
+  
+  gamma_sums_sparse <- rowSums(gammas_sparse)
+  gamma_sums_dense <- rowSums(gammas_dense)
+  gamma_sums_uniform <- rowSums(gammas_uniform)
   
   tab_gamma_sparse <- tabulate(gamma_sums_sparse + 1, k + 1)
   tab_gamma_dense <- tabulate(gamma_sums_dense + 1, k + 1)
