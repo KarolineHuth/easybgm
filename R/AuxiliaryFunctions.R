@@ -300,8 +300,23 @@ extract_pairwise_interactions <- function(bgms_object) {
   return(bgms_object$interactions)
 }
 
-extract_pairwise_thresholds <- function(bgms_object) {
+extract_category_thresholds <- function(bgms_object) {
   arguments = extract_arguments(bgms_object)
   
   return(bgms_object$thresholds)
+}
+
+extract_indicators <- function(bgms_object) {
+  arguments = extract_arguments(bgms_object)
+  if(arguments$edge_selection & arguments$save) {
+    if(arguments$version < "0.1.4") {
+      edge_indicators = bgms_object$gamma
+    } else {
+      edge_indicators = bgms_object$indicator
+    }
+    return(edge_indicators)
+  } else {
+    stop(paste0("To access the sampled edge indicators the bgms package needs to be run using \n",
+                "edge_selection = TRUE and save = TRUE."))
+  }
 }
