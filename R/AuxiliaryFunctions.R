@@ -279,3 +279,29 @@ calculate_edge_prior <- function(alpha, beta) {
 }
 
 
+# include extractor functions to support bgms 0.1.3 version
+
+extract_arguments <- function(bgms_object) {
+  if(!inherits(bgms_object, what = "bgms"))
+    stop(paste0("Expected an object with class bgms and not one with class ",
+                class(bgms_object)))
+  
+  if(is.null(bgms_object$arguments)) {
+    stop(paste0("Extractor functions have been defined for bgms versions 0.1.3 and up but not \n",
+                "for older versions. The current fit object predates version 0.1.3."))
+  } else {
+    return(bgms_object$arguments)
+  }
+}
+
+extract_pairwise_interactions <- function(bgms_object) {
+  arguments = extract_arguments(bgms_object)
+  
+  return(bgms_object$interactions)
+}
+
+extract_pairwise_thresholds <- function(bgms_object) {
+  arguments = extract_arguments(bgms_object)
+  
+  return(bgms_object$thresholds)
+}

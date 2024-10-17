@@ -64,9 +64,15 @@ bgm_extract.package_bgms <- function(fit, type, save,
   
   if(args$save){
     p <- args$no_variables
-    pars <- bgms::extract_pairwise_interactions(fit)
+    if(packageVersion("bgms") < "0.1.4"){
+      pars <- extract_pairwise_interactions(fit)
+    } else {
+      pars <- bgms::extract_pairwise_interactions(fit)}
     bgms_res$parameters <- vector2matrix(colMeans(pars), p = p)
-    bgms_res$thresholds <- bgms::extract_category_thresholds(fit)
+    if(packageVersion("bgms") < "0.1.4"){
+      bgms_res$thresholds <- extract_pairwise_thresholds(fit)
+    } else {
+      bgms_res$thresholds <- bgms::extract_category_thresholds(fit)}
     colnames(bgms_res$parameters) <- varnames
     bgms_res$structure <- matrix(1, ncol = ncol(bgms_res$parameters), 
                                  nrow = nrow(bgms_res$parameters))
@@ -84,8 +90,14 @@ bgm_extract.package_bgms <- function(fit, type, save,
       bgms_res$sample_graph <- as.character(table_structures[, 1])
     }
   } else {
-    bgms_res$parameters <- bgms::extract_pairwise_interactions(fit)
-    bgms_res$thresholds <- bgms::extract_category_thresholds(fit)
+    if(packageVersion("bgms") < "0.1.4"){
+      bgms_res$parameters <- extract_pairwise_interactions(fit)
+    } else {
+      bgms_res$parameters <- bgms::extract_pairwise_interactions(fit)}
+    if(packageVersion("bgms") < "0.1.4"){
+      bgms_res$thresholds <- extract_pairwise_thresholds(fit)
+    } else {
+      bgms_res$thresholds <- bgms::extract_category_thresholds(fit)}
     colnames(bgms_res$parameters) <- varnames
     bgms_res$structure <- matrix(1, ncol = ncol(bgms_res$parameters), 
                                  nrow = nrow(bgms_res$parameters))
@@ -94,10 +106,14 @@ bgm_extract.package_bgms <- function(fit, type, save,
       bgms_res$inc_BF <- (bgms_res$inc_probs/(1-bgms_res$inc_probs))/(edge.prior /(1-edge.prior))
       bgms_res$structure <- 1*(bgms_res$inc_probs > 0.5)
     }
-
+    
   }
   if(args$save){
-    bgms_res$samples_posterior <- bgms::extract_pairwise_interactions(fit)
+    if(packageVersion("bgms") < "0.1.4"){
+      bgms_res$samples_posterior <- extract_pairwise_interactions(fit)
+    } else {
+      bgms_res$samples_posterior <- bgms::extract_pairwise_interactions(fit)}
+    
     if(centrality){
       bgms_res$centrality <- centrality(bgms_res)
     }
@@ -113,4 +129,5 @@ bgm_extract.package_bgms <- function(fit, type, save,
   output <- bgms_res
   class(output) <- c("package_bgms", "easybgm")
   return(output)
+  
 }
