@@ -14,7 +14,7 @@
 #' @param save Logical. Should the posterior samples be obtained (default = FALSE)?
 #' @param centrality Logical. Should the centrality measures be extracted (default = FALSE)? Note, that it will significantly increase the computation time.
 #' @param progress Logical. Should a progress bar be shown (default = TRUE)?
-#' @param posterior_method Determines how the posterior samples of the edge weight parameters are obtained for models fit with BDgraph. The argument can be either MAP for the maximum-a-posteriori or model-averaged. If MAP, samples are obtained for the edge weights only for the most likely structure. If model-averaged, samples are obtained for all plausible structures weighted by their posterior probability. Default is model-averaged. 
+#' @param posterior_method Determines how the posterior samples of the edge weight parameters are obtained for models fit with BDgraph. The argument can be either MAP for the maximum-a-posteriori or model-averaged. If MAP, samples are obtained for the edge weights only for the most likely structure. If model-averaged, samples are obtained for all plausible structures weighted by their posterior probability. Default is model-averaged.
 #' @param ... Additional arguments that are handed to the fitting functions of the packages, e.g., informed prior specifications.
 #'
 #'
@@ -66,12 +66,12 @@
 #' \item \code{interaction_scale} the scale of the Cauchy distribution that is used as a
 #' prior for the pairwise interaction parameters. The default is 2.5.
 #'
-#' \item \code{edge_prior} prior on the graph structure, which can be either "Bernoulli", "Beta-Bernoulli" or "Stochastic Block". The default is "Bernoulli".
+#' \item \code{edge_prior} prior on the graph structure, which can be either "Bernoulli", "Beta-Bernoulli" or "Stochastic-Block". The default is "Bernoulli".
 #'
 #' \item \code{inclusion_probability} prior edge inclusion probability for the "Bernoulli" distribution. The default is 0.5.
 #'
 #' \item \code{beta_bernoulli_alpha} and \code{beta_bernoulli_alpha} the parameters of the "Beta-Bernoulli" or "Stochastic Block" priors. The default is 1 for both.
-#' 
+#'
 #' \item \code{dirichlet_alpha} The shape of the Dirichlet prior on the node-to-block
 #' allocation parameters for the Stochastic Block prior on the graph structure.
 #'
@@ -123,7 +123,7 @@
 #' @importFrom utils packageVersion
 #'
 #' @examples
-#' 
+#'
 #'
 #' library(easybgm)
 #' library(bgms)
@@ -137,7 +137,7 @@
 #'                 )
 #'
 #' summary(fit)
-#' 
+#'
 #' \donttest{
 #' # To extract the posterior parameter distribution
 #' # and centrality measures
@@ -151,7 +151,7 @@
 
 
 easybgm <- function(data, type, package = NULL, not_cont = NULL, iter = 1e4,
-                    save = FALSE, centrality = FALSE, progress = TRUE, posterior_method = "model-averaged", 
+                    save = FALSE, centrality = FALSE, progress = TRUE, posterior_method = "model-averaged",
                     ...){
 
 
@@ -206,7 +206,7 @@ easybgm <- function(data, type, package = NULL, not_cont = NULL, iter = 1e4,
   res <- bgm_extract(fit, type = type,
                      save = save, not_cont = not_cont,
                      data = data, centrality = centrality,
-                     posterior_method = posterior_method, 
+                     posterior_method = posterior_method,
                      ...)
 
   # Output results
