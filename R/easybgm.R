@@ -41,6 +41,18 @@
 #' \item \code{graph_weights} A vector containing the number of times a particular structure was visited.
 #'
 #' \item \code{sample_graphs} A vector containing the indexes of a particular structure.
+#'
+#' For the \code{bgms} package, when \code{edge_prior = "Stochastic-Block"},
+#' the function will also return return:
+#'   \itemize{
+#'
+#'    \item \code{cluster_probabilities} A matrix with the estimated posterior
+#'    probability of the number of components (clusters) in the network.
+#'
+#'    \item \code{cluster_allocations} A vector with the estimated cluster assignments of the variables.
+#'
+#'   }
+#'
 #' }
 #'
 #' @return For all packages, when setting `save = TRUE` and `centrality = TRUE`, the function will return the following objects respectively:
@@ -70,10 +82,10 @@
 #'
 #' \item \code{inclusion_probability} prior edge inclusion probability for the "Bernoulli" distribution. The default is 0.5.
 #'
-#' \item \code{beta_bernoulli_alpha} and \code{beta_bernoulli_alpha} the parameters of the "Beta-Bernoulli" or "Stochastic Block" priors. The default is 1 for both.
+#' \item \code{beta_bernoulli_alpha} and \code{beta_bernoulli_alpha} the parameters of the "Beta-Bernoulli" or "Stochastic-Block" priors. The default is 1 for both.
 #'
 #' \item \code{dirichlet_alpha} The shape of the Dirichlet prior on the node-to-block
-#' allocation parameters for the Stochastic Block prior on the graph structure.
+#' allocation parameters for the "Stochastic-Block" prior on the graph structure.
 #'
 #' \item \code{threshold_alpha} and \code{threshold_beta} the parameters of the beta-prime distribution for the threshold parameters. The defaults are both set to 1.
 #'
