@@ -167,7 +167,7 @@ bgm_extract.package_bgms <- function(fit, type, save,
 #' @return A numeric value representing the Bayes factor.
 #'
 #' @export
-calusterBayesfactor <- function(fit,
+clusterBayesfactor <- function(fit,
                                 type = "complement",
                                 b1 = NULL,
                                 b2 = NULL) {

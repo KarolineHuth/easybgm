@@ -136,7 +136,7 @@ summary.easybgm <- function(object, evidence_thresh = 10, ...) {
         "No. of Clusters",
         "Posterior Prob.")
       colnames(out$node_allocations) <- c("Node", "Allocation")
-      out$BF <- calusterBayesfactor(object, type = "complement")
+      out$BF <- clusterBayesfactor(object, type = "complement")
     }
  }
   # Save command calls
@@ -263,7 +263,7 @@ print.easybgm <- function(x, ...){
          print(x$node_allocations, quote = FALSE, right = TRUE, row.names=F)
     cat("\n Bayes factor in favor of clustering:", x$BF,
         "\n If you wish to test hypotheses about specific number of clusters,",
-        "\n please use the calusterBayesfactor function ",
+        "\n please use the clusterBayesfactor function ",
         "\n ---",
         "\n STRUCTURE OVERVIEW",
         "\n Number of visited structures:", x$n_structures,
