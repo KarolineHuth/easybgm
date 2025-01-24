@@ -178,7 +178,7 @@ clusterBayesfactor <- function(fit,
   }
 
   # Check the class of fit (if it is a bgms object, rename components)
-  if (!inherits(fit, "bgms")) {
+  if (inherits(fit, "bgms")) {
     names(fit)[names(fit) == "components"] <- "cluster_probabilities"
     names(fit)[names(fit) == "allocations"] <- "cluster_allocations"
     names(fit)[names(fit) == "arguments"] <- "fit_arguments"
