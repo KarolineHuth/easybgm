@@ -200,7 +200,7 @@ clusterBayesfactor <- function(fit,
 
   } else if (type == "complement") {
     # In favor of the complement
-    prO <- (1 - 2 * exp(-lambda)) / (lambda * exp(-lambda))
+    prO <- (exp(lambda) - 2) / lambda
     poO <- sum(fit$cluster_probabilities[-1, 2]) / unname(fit$cluster_probabilities[1, 2])
     bayesFactor <- poO / prO
   }

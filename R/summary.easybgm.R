@@ -130,7 +130,7 @@ summary.easybgm <- function(object, evidence_thresh = 10, ...) {
   #clustering information
   if(!is.null(object$fit_arguments)) {
     if(!is.null(object$fit_arguments$edge_prior) && object$fit_arguments$edge_prior == "Stochastic-Block") {
-      out$cluster_probabilities <- as.data.frame(object$cluster_probabilities)
+      out$cluster_probabilities <- as.data.frame(round(object$cluster_probabilities, 3))
       out$node_allocations <- data.frame(colnames(object$parameters), object$cluster_allocations)
       colnames(out$cluster_probabilities) <- c(
         "No. of Clusters",
@@ -260,8 +260,10 @@ print.easybgm <- function(x, ...){
         "\n CLUSTERING OVERVIEW",
         "\n")
          print(x$cluster_probabilities, quote = FALSE, right = TRUE, row.names=F)
+    cat("\n Estimated cluster assignments of the nodes:",
+        "\n")
          print(x$node_allocations, quote = FALSE, right = TRUE, row.names=F)
-    cat("\n Bayes factor in favor of clustering:", x$BF,
+    cat("\n Bayes factor in favor of more than one cluster:", x$BF,
         "\n If you wish to test hypotheses about specific number of clusters,",
         "\n please use the clusterBayesfactor function ",
         "\n ---",
