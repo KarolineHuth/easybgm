@@ -197,25 +197,7 @@ print.easybgm <- function(x, ...){
         "\n EDGE SPECIFIC OVERVIEW",
         "\n")
     print(x$parameters, quote = FALSE, right = TRUE, row.names=F)
-  } else if(is.null(x$n_structures)){
-    cat("\n BAYESIAN ANALYSIS OF NETWORKS",
-        "\n Model type:", x$model,
-        "\n Number of nodes:", x$n_nodes,
-        "\n Fitting Package:", x$package,
-        "\n---",
-        "\n EDGE SPECIFIC OVERVIEW",
-        "\n")
-    print(x$parameters, quote = FALSE, right = TRUE, row.names=F)
-    cat("\n Bayes Factors larger than", x$evidence_thresh, "were considered sufficient evidence for the classification",
-        "\n Bayes factors were obtained using Bayesian model-averaging.",
-        "\n ---",
-        "\n AGGREGATED EDGE OVERVIEW",
-        "\n Number of edges with sufficient evidence for inclusion:", x$n_inclu_edges,
-        "\n Number of edges with insufficient evidence:", x$n_incon_edges,
-        "\n Number of edges with sufficient evidence for exclusion:", x$n_exclu_edges,
-        "\n Number of possible edges:", x$n_possible_edges,
-        "\n")
-  } else if(is.null(x$n_structures) && !is.null(x$node_allocations)){
+  } else if(is.null(x$n_structures) & !is.null(x$node_allocations)){
     cat("\n BAYESIAN ANALYSIS OF NETWORKS",
         "\n Model type:", x$model,
         "\n Number of nodes:", x$n_nodes,
@@ -235,9 +217,14 @@ print.easybgm <- function(x, ...){
         "\n",
         "\n ---",
         "\n CLUSTERING OVERVIEW",
-        "\n Posterior probability of the number of components:", x$cluster_probabilities,
-        "\n Estimated cluster assignments of the nodes:", x$node_allocations,
-        "\n ---")
+        "\n")
+    print(x$cluster_probabilities, quote = FALSE, right = TRUE, row.names=F)
+    cat("\n Estimated cluster assignments of the nodes:",
+        "\n")
+    print(x$node_allocations, quote = FALSE, right = TRUE, row.names=F)
+    cat("\n Bayes factor in favor of more than one cluster:", x$BF,
+        "\n If you wish to test hypotheses about specific number of clusters,",
+        "\n please use the clusterBayesfactor function.")
   } else if(!is.null(x$node_allocations)){
     cat("\n BAYESIAN ANALYSIS OF NETWORKS",
         "\n Model type:", x$model,
@@ -265,7 +252,7 @@ print.easybgm <- function(x, ...){
          print(x$node_allocations, quote = FALSE, right = TRUE, row.names=F)
     cat("\n Bayes factor in favor of more than one cluster:", x$BF,
         "\n If you wish to test hypotheses about specific number of clusters,",
-        "\n please use the clusterBayesfactor function ",
+        "\n please use the clusterBayesfactor function.",
         "\n ---",
         "\n STRUCTURE OVERVIEW",
         "\n Number of visited structures:", x$n_structures,
