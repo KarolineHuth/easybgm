@@ -88,9 +88,7 @@ bgm_extract.package_bgms <- function(fit, type, save,
       bgms_res$sample_graph <- as.character(table_structures[, 1])
       #EDGE SELECTION + SAVE
       if (args$edge_prior[1] == "Stochastic-Block") {
-        extract_sbm <- summary_SBM(fit$allocations,
-                                   args$dirichlet_alpha,
-                                   args$lambda)
+        extract_sbm <- summarySBM(fit)
         bgms_res$cluster_probabilities <- extract_sbm$components
         bgms_res$cluster_allocations <- extract_sbm$allocations
       }
@@ -200,7 +198,7 @@ clusterBayesfactor <- function(fit,
 
   } else if (type == "complement") {
     # In favor of the complement
-    prO <- (exp(lambda) - 2) / lambda
+    prO <- (exp(lambda) - 1 - lambda) / lambda
     poO <- sum(fit$cluster_probabilities[-1, 2]) / unname(fit$cluster_probabilities[1, 2])
     bayesFactor <- poO / prO
   }
