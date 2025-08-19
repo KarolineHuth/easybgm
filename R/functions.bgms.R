@@ -3,16 +3,21 @@
 # --------------------------------------------------------------------------------------------------
 #' @export
 bgm_fit.package_bgms <- function(fit, type, data, iter, save,
-                                 not_cont, centrality, progress, ...){
+                                 not_cont, centrality, progress, reference_category, ...){
   
   if(!save && centrality){
     save <- TRUE
   }
   
+  if(type == "binary") {
+    type <- "ordinal"
+  }
   
   bgms_fit <- do.call(
     bgm, c(list(x = data, iter = iter, save = save, 
+                variable_type = type, 
                 display_progress = progress, 
+                reference_category = reference_category,
                 ...))
   )
   

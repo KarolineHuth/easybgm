@@ -3,7 +3,7 @@
 # --------------------------------------------------------------------------------------------------
 #' @export
 bgm_fit.package_bdgraph <- function(fit, type, data, iter, save,
-                                    not_cont, centrality, progress, ...){
+                                    not_cont, centrality, progress, reference_category, ...){
   
   if(type == "binary"){
     prior_defaults <- list(

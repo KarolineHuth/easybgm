@@ -5,7 +5,7 @@
 #' @name easybgm
 #'
 #' @param data An n x p matrix or dataframe containing the variables for n independent observations on p variables.
-#' @param type What is the data type? Options: continuous, mixed, ordinal, binary
+#' @param type What is the data type? Options: continuous, mixed, ordinal, binary, or blume-capel.
 #' @param package The R-package that should be used for fitting the network model; supports BGGM, BDgraph, and bgms. Optional argument;
 #'     default values are specified depending on the datatype.
 #' @param not_cont If data-type is mixed, a vector of length p, specifying the not-continuous
@@ -15,6 +15,15 @@
 #' @param centrality Logical. Should the centrality measures be extracted (default = FALSE)? Note, that it will significantly increase the computation time.
 #' @param progress Logical. Should a progress bar be shown (default = TRUE)?
 #' @param posterior_method Determines how the posterior samples of the edge weight parameters are obtained for models fit with BDgraph. The argument can be either MAP for the maximum-a-posteriori or model-averaged. If MAP, samples are obtained for the edge weights only for the most likely structure. If model-averaged, samples are obtained for all plausible structures weighted by their posterior probability. Default is model-averaged. 
+#' @param reference_category if type is "blume-capel" it specifies the reference category in the Blume-Capel model.
+#' Should be an integer within the range of integer scores observed for the
+#' 'blume-capel' variable. Can be a single number specifying the reference
+#' category for all Blume-Capel variables at once, or a vector of length
+#' \code{p} where the \code{i}-th element contains the reference category for
+#' variable \code{i} if it is Blume-Capel, and bgm ignores its elements for
+#' other variable types. The value of the reference category is also recoded
+#' when bgm recodes the corresponding observations. Only required if there is at
+#' least one variable of type ``blume-capel''.
 #' @param ... Additional arguments that are handed to the fitting functions of the packages, e.g., informed prior specifications.
 #'
 #'
@@ -77,30 +86,13 @@
 #'
 #' \item \code{threshold_alpha} and \code{threshold_beta} the parameters of the beta-prime distribution for the threshold parameters. The defaults are both set to 1.
 #'
-#' \item \code{variable_type} What kind of variables are there in \code{x}? Can be a
-#' single character string specifying the variable type of all \code{p}
-#' variables at once or a vector of character strings of length \code{p}
-#' specifying the type for each variable in \code{x} separately. Currently, bgm
-#' supports ``ordinal'' and ``blume-capel''. Binary variables are automatically
-#' treated as ``ordinal’’. Defaults to \code{variable_type = "ordinal"}.
-#'
-#'  \item \code{reference_category} he reference category in the Blume-Capel model.
-#' Should be an integer within the range of integer scores observed for the
-#' 'blume-capel' variable. Can be a single number specifying the reference
-#' category for all Blume-Capel variables at once, or a vector of length
-#' \code{p} where the \code{i}-th element contains the reference category for
-#' variable \code{i} if it is Blume-Capel, and bgm ignores its elements for
-#' other variable types. The value of the reference category is also recoded
-#' when bgm recodes the corresponding observations. Only required if there is at
-#' least one variable of type ``blume-capel''.
-#'
 #' }
 #'
 #' \strong{BDgraph}:
 #'
 #' \itemize{
 #'
-#' \item \code{df.prior} prior on the parameters (i.e., inverse covariance matrix), degrees of freedom of the prior G-Wishart distribution. The default is set to 2.5.
+#' \item \code{df.prior} prior on the parameters (i.e., inverse covariance matrix), degrees of freedom of the prior G-Wishart distribution. The default is set to 3.
 #'
 #' \item \code{g.prior} prior probability of edge inclusion. This can be either a scalar, if it is the same for all edges, or a matrix, if it should be different among the edges. The default is set to 0.5.
 #'
@@ -152,6 +144,7 @@
 
 easybgm <- function(data, type, package = NULL, not_cont = NULL, iter = 1e4,
                     save = FALSE, centrality = FALSE, progress = TRUE, posterior_method = "model-averaged", 
+                    reference_category = NULL, 
                     ...){
 
 
@@ -161,16 +154,25 @@ easybgm <- function(data, type, package = NULL, not_cont = NULL, iter = 1e4,
          call. = FALSE)
   }
 
+  if(type == "blume-capel" & is.null(reference_category)){
+    stop("For the Blume-Capel model, the argument reference_category needs to be specified either as a 
+single integer or a vector of integers of length p.",
+         call. = FALSE)
+  }
+  
+  
   # Set default values for fitting if package is unspecified
   if(is.null(package)){
     if(type == "continuous") package <- "package_bggm"
     if(type == "mixed") package <- "package_bggm"
     if(type == "ordinal") package <- "package_bgms"
     if(type == "binary") package <- "package_bgms"
+    if(type == "blume-capel") package <- "package_bgms"
   } else {
     if(package == "BDgraph") package <- "package_bdgraph"
     if(package == "BGGM") package <- "package_bggm"
     if(package == "bgms") package <- "package_bgms"
+    if(type == "binary") package <- "package_bgms"
   }
 
   if(type =="continuous" & package == "package_bdgraph" & any(is.na(data))){
@@ -195,7 +197,7 @@ easybgm <- function(data, type, package = NULL, not_cont = NULL, iter = 1e4,
   # Fit the model
   tryCatch(
     {fit <- bgm_fit(fit, data = data, type = type, not_cont = not_cont, iter = iter,
-                    save = save, centrality = centrality, progress = progress, ...)
+                    save = save, centrality = centrality, progress = progress, reference_category = reference_category, ...)
     },
     error = function(e){
       # If an error occurs, stop running the code
@@ -207,6 +209,7 @@ easybgm <- function(data, type, package = NULL, not_cont = NULL, iter = 1e4,
                      save = save, not_cont = not_cont,
                      data = data, centrality = centrality,
                      posterior_method = posterior_method, 
+                     reference_category = reference_category,
                      ...)
 
   # Output results

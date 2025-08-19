@@ -14,13 +14,14 @@ easybgm(
   centrality = FALSE,
   progress = TRUE,
   posterior_method = "model-averaged",
+  reference_category = NULL,
   ...
 )
 }
 \arguments{
 \item{data}{An n x p matrix or dataframe containing the variables for n independent observations on p variables.}
 
-\item{type}{What is the data type? Options: continuous, mixed, ordinal, binary}
+\item{type}{What is the data type? Options: continuous, mixed, ordinal, binary, or blume-capel.}
 
 \item{package}{The R-package that should be used for fitting the network model; supports BGGM, BDgraph, and bgms. Optional argument;
 default values are specified depending on the datatype.}
@@ -37,6 +38,16 @@ variables (1 = not continuous, 0 = continuous).}
 \item{progress}{Logical. Should a progress bar be shown (default = TRUE)?}
 
 \item{posterior_method}{Determines how the posterior samples of the edge weight parameters are obtained for models fit with BDgraph. The argument can be either MAP for the maximum-a-posteriori or model-averaged. If MAP, samples are obtained for the edge weights only for the most likely structure. If model-averaged, samples are obtained for all plausible structures weighted by their posterior probability. Default is model-averaged.}
+
+\item{reference_category}{if type is "blume-capel" it specifies the reference category in the Blume-Capel model.
+Should be an integer within the range of integer scores observed for the
+'blume-capel' variable. Can be a single number specifying the reference
+category for all Blume-Capel variables at once, or a vector of length
+\code{p} where the \code{i}-th element contains the reference category for
+variable \code{i} if it is Blume-Capel, and bgm ignores its elements for
+other variable types. The value of the reference category is also recoded
+when bgm recodes the corresponding observations. Only required if there is at
+least one variable of type ``blume-capel''.}
 
 \item{...}{Additional arguments that are handed to the fitting functions of the packages, e.g., informed prior specifications.}
 }
@@ -101,30 +112,13 @@ allocation parameters for the Stochastic Block prior on the graph structure.
 
 \item \code{threshold_alpha} and \code{threshold_beta} the parameters of the beta-prime distribution for the threshold parameters. The defaults are both set to 1.
 
-\item \code{variable_type} What kind of variables are there in \code{x}? Can be a
-single character string specifying the variable type of all \code{p}
-variables at once or a vector of character strings of length \code{p}
-specifying the type for each variable in \code{x} separately. Currently, bgm
-supports \verb{ordinal'' and }blume-capel''. Binary variables are automatically
-treated as ``ordinal’’. Defaults to \code{variable_type = "ordinal"}.
-
-\item \code{reference_category} he reference category in the Blume-Capel model.
-Should be an integer within the range of integer scores observed for the
-'blume-capel' variable. Can be a single number specifying the reference
-category for all Blume-Capel variables at once, or a vector of length
-\code{p} where the \code{i}-th element contains the reference category for
-variable \code{i} if it is Blume-Capel, and bgm ignores its elements for
-other variable types. The value of the reference category is also recoded
-when bgm recodes the corresponding observations. Only required if there is at
-least one variable of type ``blume-capel''.
-
 }
 
 \strong{BDgraph}:
 
 \itemize{
 
-\item \code{df.prior} prior on the parameters (i.e., inverse covariance matrix), degrees of freedom of the prior G-Wishart distribution. The default is set to 2.5.
+\item \code{df.prior} prior on the parameters (i.e., inverse covariance matrix), degrees of freedom of the prior G-Wishart distribution. The default is set to 3.
 
 \item \code{g.prior} prior probability of edge inclusion. This can be either a scalar, if it is the same for all edges, or a matrix, if it should be different among the edges. The default is set to 0.5.
 

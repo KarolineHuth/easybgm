@@ -3,7 +3,7 @@
 # --------------------------------------------------------------------------------------------------
 #' @export
 bgm_fit.package_bggm <- function(fit, type, data, iter, save,
-                                 not_cont, centrality, progress, ...){
+                                 not_cont, centrality, progress, reference_category, ...){
 
   prior_defaults <- list(
     prior_sd = .25

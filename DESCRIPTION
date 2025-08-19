@@ -1,11 +1,12 @@
 Package: easybgm
 Type: Package
 Title: Extracting and Visualizing Bayesian Graphical Models
-Version: 0.2.1
+Version: 0.2.2
 Authors@R: c(
   person("Karoline", "Huth", , "k.huth@uva.nl", role = c("aut", "cre"), 
         comment = c(ORCID = "0000-0002-0662-1591")), 
-  person("Sara", "Keetelaar", role = c("ctb"))
+  person("Sara", "Keetelaar", role = c("ctb")), 
+  person("Nikola", "Sekulovski", role = c("ctb"))
   )
 Maintainer: Karoline Huth <k.huth@uva.nl>
 Description: Fit and visualize the results of a Bayesian analysis of networks commonly found in psychology. 
