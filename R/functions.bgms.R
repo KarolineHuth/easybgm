@@ -134,6 +134,7 @@ bgm_extract.package_bgms <- function(fit, type, save,
   }
   bgms_res$model <- type
   bgms_res$fit_arguments <- args
+  bgms_res$edge.prior <- edge.prior[1, 1] # otherwise it stores a whole matrix 
   output <- bgms_res
   class(output) <- c("package_bgms", "easybgm")
   return(output)

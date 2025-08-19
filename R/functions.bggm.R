@@ -17,6 +17,7 @@ bgm_fit.package_bggm <- function(fit, type, data, iter, save,
   )
   fit$model <- type
   fit$packagefit <- bggm_fit
+  fit$fit_arguments  <- args
   if(is.null(colnames(data))){
     fit$var_names <- paste0("V", 1:ncol(data))
   } else {
@@ -34,11 +35,12 @@ bgm_fit.package_bggm <- function(fit, type, data, iter, save,
 #' @export
 bgm_extract.package_bggm <- function(fit, type, save,
                                      not_cont, data, centrality, ...){
+  bggm_res <- list()
   varnames <- fit$var_names
   fit <- fit$packagefit
-
+  bggm_res$fit_arguments  <- fit$args
+  
   out_select <- BGGM::select(fit)
-  bggm_res <- list()
   bggm_res$parameters <- out_select$pcor_mat
   colnames(bggm_res$parameters) <- varnames
   bggm_res$inc_BF <- out_select$BF_10
@@ -71,7 +73,6 @@ bgm_extract.package_bggm <- function(fit, type, save,
   } else {
     bggm_res$model <- "gcgm"
   }
-
   output <- bggm_res
   return(output)
 }
