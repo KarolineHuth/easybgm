@@ -5,10 +5,12 @@
 \alias{plot_centrality}
 \title{Plot strength centralities and 95\% highest density interval}
 \usage{
-plot_centrality(output, ...)
+plot_centrality(output, group_names = NULL, ...)
 }
 \arguments{
-\item{output}{Output object from the easybgm function. Supports also objects from the bgm function of the \code{bgms} package.}
+\item{output}{One output object or a list of several output objects from the easybgm function. Supports also objects from the bgm function of the \code{bgms} package.}
+
+\item{group_names}{Specifying the group names, when providing a list of output objects. Needs to be a vector in the same length as the provided number of objects.}
 
 \item{...}{Additional arguments passed onto \code{ggplot2}}
 }

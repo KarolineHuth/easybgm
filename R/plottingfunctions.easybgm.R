@@ -415,7 +415,7 @@ plot_parameterHDI.easybgm <- function(output, ...) {
 
 # ---------------------------------------------------------------------------------------------------------------
 #' @export
-plot_centrality.easybgm <- function(output, ...){
+plot_centrality.easybgm <- function(output, group_names = group_names, ...){
   
   if(!any(class(output) == "easybgm")){
     stop("Wrong input provided. The function requires as input the output of the easybgm function.")
@@ -470,10 +470,120 @@ plot_centrality.easybgm <- function(output, ...){
     args$theme
 }
 
+# ---------------------------------------------------------------------------------------------------------------
+# Centrality plot for two or more groups
+#' @export
+plot_centrality.list <- function(output, group_names = NULL, ...){
+  
+  
+  # Convert to easybgm output if provided objects are bgms
+  
+  # Check for bgms package version 
+  if(any(class(output[[1]]) == "bgms")) {
+    if(packageVersion("bgms") < "0.1.3"){
+      stop("Your version of the package bgms is not supported anymore. Please update.")
+    }
+    
+    res <- list()
+    for(i in 1:length(output)) {
+      fit_args <- bgms::extract_arguments(output[[i]])
+      
+      if(!fit_args$save){
+        stop("Samples of the posterior distribution required but not required for at least one fit. When estimating the model with bgm, set \"save = TRUE\".")
+      }
+      
+      fit_args <- bgms::extract_arguments(output[[i]])
+      
+      res[[i]] <- bgm_extract.package_bgms(fit = output[[i]], save = fit_args$save, centrality = TRUE,
+                                           type = NULL, not_cont = NULL, data = NULL,
+                                           edge_prior = fit_args$edge_prior,
+                                           inclusion_probability  = fit_args$inclusion_probability,
+                                           beta_bernoulli_alpha = fit_args$beta_bernoulli_alpha,
+                                           beta_bernoulli_beta = fit_args$beta_bernoulli_beta)
+      
+    }
+    output <- res
+  }
+  
+  
+  default_args <- list(
+    theme_ = theme_minimal(),
+    ylab = "Strength Centrality",
+    xlab = "Nodes",
+    geom_errorbar = geom_errorbar(aes(y=.data$mean, ymin = .data$lower, ymax = .data$upper)
+                                  , linewidth =.5, width=.4, position = position_dodge(width = 0.6)),
+    theme = theme(
+      axis.text = element_text(size=16),
+      panel.border = element_blank(),
+      axis.line = element_line(colour = "black", linewidth = 1.1),
+      axis.ticks.length = unit(.2, "cm"),
+      axis.ticks = element_line(linewidth = .8),
+      axis.title.x = element_text(size = 18, face = "bold"),
+      axis.title.y = element_text(size = 18, face = "bold"),
+      plot.title = element_text(size = 18, face = "bold"),
+      panel.grid.major = element_blank(), 
+      text = element_text(size = 14)
+    )
+  )
+  
+  args <- set_defaults(default_args, ...)
+  
+  
+  for(i in 1:length(output)){
+    
+    if(is.null(output[[i]]$centrality)){
+      stop("At least one provided fit does not have the centrality values provided. When estimating the model, set \"centrality = TRUE\".")
+    }
+    
+    cent_samples <- output[[i]]$centrality
+    p <- ncol(output[[i]]$parameters)
+    rownames(cent_samples) <- NULL
+
+    if(is.null(group_names)){
+      group_i <- paste0("Group ", i)
+    } else {
+      group_i <- group_names[i]
+    }
+    
+    # Creating summary statistics
+    centrality_means <- colMeans(cent_samples)
+    centrality_hdi <- apply(cent_samples, MARGIN = 2, FUN = hdi, allowSplit = F)
+    centrality_summary_i <- data.frame(node = colnames(output[[i]]$parameters),
+                                       group = rep(group_i, nrow(output[[i]]$parameters)),
+                                       mean = centrality_means,
+                                       lower = centrality_hdi[1, ],
+                                       upper = centrality_hdi[2, ])
+    if(i == 1){
+    centrality_summary <- centrality_summary_i
+    } else {
+      centrality_summary <- rbind(centrality_summary, centrality_summary_i)
+    }
+  }
+  
+  ordering <- centrality_summary %>%
+    filter(group == group_i) %>%
+    arrange(mean) %>%
+    pull(node)
+  
+  centrality_summary |>
+    mutate(node = factor(.data$node, levels = ordering)) |>
+    ggplot2::ggplot(aes(x = .data$node, y=.data$mean, color =.data$group, ...))+
+    args$theme_ +
+    geom_point(position = position_dodge(width = 0.6))+
+    args$geom_errorbar +
+    coord_flip() +
+    ylab(args$ylab) +
+    xlab(args$xlab) +
+    labs(color = "Group")+
+    args$theme
+}
+
 # -------------------------------------------------------------------------------
 #' @export
 plot_prior_sensitivity.list <- function(output,
                                         evidence_thres = 10, ...) {
+  
+  # Convert to easybgm output if provided objects are bgms
   
   # Check for bgms package version 
   if(any(class(output[[1]]) == "bgms")) {
@@ -486,11 +596,11 @@ plot_prior_sensitivity.list <- function(output,
       fit_args <- bgms::extract_arguments(output[[i]])
       
       res[[i]] <- bgm_extract.package_bgms(fit = output[[i]], save = fit_args$save, centrality = TRUE,
-                                      type = NULL, not_cont = NULL, data = NULL,
-                                      edge_prior = fit_args$edge_prior,
-                                      inclusion_probability  = fit_args$inclusion_probability,
-                                      beta_bernoulli_alpha = fit_args$beta_bernoulli_alpha,
-                                      beta_bernoulli_beta = fit_args$beta_bernoulli_beta)
+                                           type = NULL, not_cont = NULL, data = NULL,
+                                           edge_prior = fit_args$edge_prior,
+                                           inclusion_probability  = fit_args$inclusion_probability,
+                                           beta_bernoulli_alpha = fit_args$beta_bernoulli_alpha,
+                                           beta_bernoulli_beta = fit_args$beta_bernoulli_beta)
       
     }
     output <- res

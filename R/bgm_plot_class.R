@@ -289,7 +289,8 @@ plot_parameterHDI <- function(output, ...) {
 #'
 #' @name centrality
 #'
-#' @param output Output object from the easybgm function. Supports also objects from the bgm function of the `bgms` package.
+#' @param output One output object or a list of several output objects from the easybgm function. Supports also objects from the bgm function of the `bgms` package.
+#' @param group_names Specifying the group names, when providing a list of output objects. Needs to be a vector in the same length as the provided number of objects.
 #' @param ... Additional arguments passed onto `ggplot2`
 #'
 #' @return Returns a plot
@@ -313,8 +314,8 @@ plot_parameterHDI <- function(output, ...) {
 #' plot_centrality(fit)
 #' }
 
-plot_centrality <- function(output, ...){
-  if(any(any(class(output) == "easybgm"), any(class(output) == "bgms")) == FALSE){
+plot_centrality <- function(output, group_names = NULL, ...){
+  if(any(any(class(output) == "easybgm"), any(class(output) == "list"), any(class(output) == "bgms")) == FALSE){
     stop("Wrong input provided. The function requires as input the output of the easybgm or bgm function.")
   }
 

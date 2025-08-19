@@ -470,7 +470,7 @@ plot_parameterHDI.bgms <- function(output, ...) {
 
 #' @export
 
-plot_centrality.bgms <- function(output, ...){
+plot_centrality.bgms <- function(output, group_names = NULL, ...){
   
   if(packageVersion("bgms") < "0.1.3"){
     stop("Your version of the package bgms is not supported anymore. Please update.")
