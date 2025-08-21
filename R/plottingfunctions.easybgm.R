@@ -131,7 +131,7 @@ plot_edgeevidence.easybgm <- function(output, evidence_thresh = 10, split = FALS
   }
   if(output$model == "dgm-binary"){
     default_args <- list(
-      colors = c("#36648b", "#990000", "#bfbfbf"),
+      edge.color = c("#36648b", "#eeb004", "#bfbfbf"),
       colnames = colnames(output$inc_probs),
       theme = "TeamFortress",
       legend = TRUE,
@@ -143,7 +143,7 @@ plot_edgeevidence.easybgm <- function(output, evidence_thresh = 10, split = FALS
     )
   } else {
     default_args <- list(
-      colors = c("#36648b", "#990000", "#bfbfbf"),
+      edge.color = c("#36648b", "#eeb004", "#bfbfbf"),
       colnames = colnames(output$parameters),
       layout = qgraph::averageLayout(as.matrix(output$parameters*output$structure)),
       theme = "TeamFortress",
@@ -163,8 +163,8 @@ plot_edgeevidence.easybgm <- function(output, evidence_thresh = 10, split = FALS
   # assign a color to each edge (inclusion - blue, exclusion - red, no conclusion - grey)
   graph_color <- graph
   graph_color <-  ifelse(graph < evidence_thresh & graph > 1/evidence_thresh,
-                         graph_color <- args$colors[3], graph_color <- args$colors[1])
-  graph_color[graph < (1/evidence_thresh)] <- args$colors[2]
+                         graph_color <- args$edge.color[3], graph_color <- args$edge.color[1])
+  graph_color[graph < (1/evidence_thresh)] <- args$edge.color[2]
   
   if (show == "all") {
     if (!split) {
@@ -625,7 +625,7 @@ plot_prior_sensitivity.list <- function(output,
       legend.text = element_text(size = 12),
       
     ),
-    colors = c("#36648b", "#990000", "#bfbfbf"),
+    colors = c("#36648b", "#eeb004", "#bfbfbf"),
     size = 1
   )
   
