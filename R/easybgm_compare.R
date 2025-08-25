@@ -140,11 +140,11 @@ single integer or a vector of integers of length p.",
   }
 
 
-  if((package == "package_bgms") & (type %in% c("continuous", "mixed"))){
+  if((package == "package_bgms_compare") & (type %in% c("continuous", "mixed"))){
     warning("bgms can only fit ordinal or binary datatypes. For continuous or mixed data,
            choose the BGGM package. By default we have changed the package to BGGM",
             call. = FALSE)
-    package <- "package_bggm"
+    package <- "package_bggm_compare"
 
   }
 
