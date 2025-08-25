@@ -12,6 +12,15 @@ plot_structure_probabilities.bgms <- function(output, as_BF = FALSE, ...) {
     stop("The plot cannot be obtained for this model fit as the posterior samples weren't stored. Rerun the model fit and set 'save = TRUE'.")
   }
   
+  if(class(output)[1] == "bgmCompare"){
+    res <- bgm_extract.package_bgms_compare(fit = output, save = fit_args$save,
+                                    type = NULL, not_cont = NULL, data = NULL,
+                                    edge_prior = fit_args$pairwise_difference_prior,
+                                    inclusion_probability  = fit_args$inclusion_probability_difference,
+                                    beta_bernoulli_alpha = fit_args$pairwise_beta_bernoulli_alpha,
+                                    beta_bernoulli_beta = fit_args$pairwise_beta_bernoulli_beta)
+    output <- res
+  } else {
   # Extract the results from bgms
   res <- bgm_extract.package_bgms(fit = output, save = fit_args$save, centrality = FALSE,
                                   type = NULL, not_cont = NULL, data = NULL,
@@ -20,6 +29,7 @@ plot_structure_probabilities.bgms <- function(output, as_BF = FALSE, ...) {
                                   beta_bernoulli_alpha = fit_args$beta_bernoulli_alpha,
                                   beta_bernoulli_beta = fit_args$beta_bernoulli_beta)
   output <- res
+  }
   
   # Specify default arguments for function
   default_args <- list(
@@ -91,6 +101,16 @@ plot_complexity_probabilities.bgms <- function(output, ...) {
     stop("The plot cannot be obtained for this model fit as the posterior samples weren't stored. Rerun the model fit and set 'save = TRUE'.")
   }
   
+  
+  if(class(output)[1] == "bgmCompare"){
+    res <- bgm_extract.package_bgms_compare(fit = output, save = fit_args$save,
+                                            type = NULL, not_cont = NULL, data = NULL,
+                                            edge_prior = fit_args$pairwise_difference_prior,
+                                            inclusion_probability  = fit_args$inclusion_probability_difference,
+                                            beta_bernoulli_alpha = fit_args$pairwise_beta_bernoulli_alpha,
+                                            beta_bernoulli_beta = fit_args$pairwise_beta_bernoulli_beta)
+    output <- res
+  } else {
   # Extract the results from bgms
   res <- bgm_extract.package_bgms(fit = output, save = fit_args$save, centrality = FALSE,
                                   type = NULL, not_cont = NULL, data = NULL,
@@ -99,7 +119,7 @@ plot_complexity_probabilities.bgms <- function(output, ...) {
                                   beta_bernoulli_alpha = fit_args$beta_bernoulli_alpha,
                                   beta_bernoulli_beta = fit_args$beta_bernoulli_beta)
   output <- res
-  
+  }
   # Specify default arguments for function
   default_args <- list(
     xlab = "Complexity",
@@ -154,10 +174,16 @@ plot_edgeevidence.bgms <- function(output, evidence_thresh = 10, split = FALSE, 
   
   fit_args <- bgms::extract_arguments(output)
   
-  if(!fit_args$edge_selection){
-    stop("The plot cannot be obtained for this model fit as no posterior edge inclusion probabilities were obtained. Rerun the model fit and set 'edge_selection = TRUE'.")
-  }
   
+  if(class(output)[1] == "bgmCompare"){
+    res <- bgm_extract.package_bgms_compare(fit = output, save = fit_args$save,
+                                            type = NULL, not_cont = NULL, data = NULL,
+                                            edge_prior = fit_args$pairwise_difference_prior,
+                                            inclusion_probability  = fit_args$inclusion_probability_difference,
+                                            beta_bernoulli_alpha = fit_args$pairwise_beta_bernoulli_alpha,
+                                            beta_bernoulli_beta = fit_args$pairwise_beta_bernoulli_beta)
+    output <- res
+  } else {
   res <- bgm_extract.package_bgms(fit = output, save = fit_args$save, centrality = FALSE,
                                   type = NULL, not_cont = NULL, data = NULL,
                                   edge_prior = fit_args$edge_prior,
@@ -166,6 +192,7 @@ plot_edgeevidence.bgms <- function(output, evidence_thresh = 10, split = FALSE, 
                                   beta_bernoulli_beta = fit_args$beta_bernoulli_beta)
   
   output <- res
+  }
   
   # Specify default arguments for function
   default_args <- list(
@@ -293,6 +320,16 @@ plot_network.bgms <- function(output, exc_prob = .5, evidence_thresh = 10, dashe
   
   fit_args <- bgms::extract_arguments(output)
   
+  
+  if(class(output)[1] == "bgmCompare"){
+    res <- bgm_extract.package_bgms_compare(fit = output, save = fit_args$save,
+                                            type = NULL, not_cont = NULL, data = NULL,
+                                            edge_prior = fit_args$pairwise_difference_prior,
+                                            inclusion_probability  = fit_args$inclusion_probability_difference,
+                                            beta_bernoulli_alpha = fit_args$pairwise_beta_bernoulli_alpha,
+                                            beta_bernoulli_beta = fit_args$pairwise_beta_bernoulli_beta)
+    output <- res
+  } else {
   res <- bgm_extract.package_bgms(fit = output, save = fit_args$save, centrality = FALSE,
                                   type = NULL, not_cont = NULL, data = NULL,
                                   edge_prior = fit_args$edge_prior,
@@ -301,6 +338,7 @@ plot_network.bgms <- function(output, exc_prob = .5, evidence_thresh = 10, dashe
                                   beta_bernoulli_beta = fit_args$beta_bernoulli_beta)
   
   output <- res
+  }
   
   if(is.null(output$inc_probs)){
     dashed <- FALSE
@@ -358,6 +396,16 @@ plot_structure.bgms <- function(output, ...) {
   
   fit_args <- bgms::extract_arguments(output)
   
+  
+  if(class(output)[1] == "bgmCompare"){
+    res <- bgm_extract.package_bgms_compare(fit = output, save = fit_args$save,
+                                            type = NULL, not_cont = NULL, data = NULL,
+                                            edge_prior = fit_args$pairwise_difference_prior,
+                                            inclusion_probability  = fit_args$inclusion_probability_difference,
+                                            beta_bernoulli_alpha = fit_args$pairwise_beta_bernoulli_alpha,
+                                            beta_bernoulli_beta = fit_args$pairwise_beta_bernoulli_beta)
+    output <- res
+  } else {
   res <- bgm_extract.package_bgms(fit = output, save = fit_args$save, centrality = FALSE,
                                   type = NULL, not_cont = NULL, data = NULL,
                                   edge_prior = fit_args$edge_prior,
@@ -366,6 +414,7 @@ plot_structure.bgms <- function(output, ...) {
                                   beta_bernoulli_beta = fit_args$beta_bernoulli_beta)
   
   output <- res
+  }
   
   # Specify default arguments for function
   default_args <- list(
@@ -408,6 +457,17 @@ plot_parameterHDI.bgms <- function(output, ...) {
   if(!fit_args$save){
     stop("Samples of the posterior distribution required. When estimating the model with bgm, set \"save = TRUE\".")
   }
+  
+  
+  if(class(output)[1] == "bgmCompare"){
+    res <- bgm_extract.package_bgms_compare(fit = output, save = fit_args$save,
+                                            type = NULL, not_cont = NULL, data = NULL,
+                                            edge_prior = fit_args$pairwise_difference_prior,
+                                            inclusion_probability  = fit_args$inclusion_probability_difference,
+                                            beta_bernoulli_alpha = fit_args$pairwise_beta_bernoulli_alpha,
+                                            beta_bernoulli_beta = fit_args$pairwise_beta_bernoulli_beta)
+    output <- res
+  } else {
   res <- bgm_extract.package_bgms(fit = output, save = fit_args$save, centrality = FALSE,
                                   type = NULL, not_cont = NULL, data = NULL,
                                   edge_prior = fit_args$edge_prior,
@@ -416,7 +476,7 @@ plot_parameterHDI.bgms <- function(output, ...) {
                                   beta_bernoulli_beta = fit_args$beta_bernoulli_beta)
   
   output <- res
-  
+  }
   # Specify default arguments for function
   def_args <- list(
     theme_ = theme_bw(),
@@ -482,6 +542,9 @@ plot_centrality.bgms <- function(output, group_names = NULL, ...){
     stop("Samples of the posterior distribution required. When estimating the model with bgm, set \"save = TRUE\".")
   }
   
+  if(class(output)[1] == "bgmCompare"){
+    stop("Plot not supported for bgmCompare objects.")
+  } else {
   res <- bgm_extract.package_bgms(fit = output, save = fit_args$save, centrality = TRUE,
                                   type = NULL, not_cont = NULL, data = NULL,
                                   edge_prior = fit_args$edge_prior,
@@ -490,7 +553,7 @@ plot_centrality.bgms <- function(output, group_names = NULL, ...){
                                   beta_bernoulli_beta = fit_args$beta_bernoulli_beta)
   
   output <- res
-  
+  }
   # Specify default arguments for function
   default_args <- list(
     theme_ = theme_minimal(),

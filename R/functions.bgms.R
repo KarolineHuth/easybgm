@@ -91,6 +91,7 @@ bgm_extract.package_bgms <- function(fit, type, save,
         gammas <- bgms::extract_edge_indicators(fit)
       } else {
         gammas <- extract_indicators(fit)}
+      
       structures <- apply(gammas, 1, paste0, collapse="")
       table_structures <- as.data.frame(table(structures))
       bgms_res$structure_probabilities <- table_structures[,2]/nrow(gammas)
