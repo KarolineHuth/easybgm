@@ -109,7 +109,7 @@
 #'
 #' @export
 #'
-#' @importFrom bgms bgm
+#' @import bgms
 #' @importFrom BDgraph bdgraph bdgraph.mpl plinks
 #' @importFrom BGGM explore select
 #' @importFrom utils packageVersion
