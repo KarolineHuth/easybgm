@@ -14,7 +14,6 @@ easybgm(
   centrality = FALSE,
   progress = TRUE,
   posterior_method = "model-averaged",
-  reference_category = NULL,
   ...
 )
 }
@@ -38,16 +37,6 @@ variables (1 = not continuous, 0 = continuous).}
 \item{progress}{Logical. Should a progress bar be shown (default = TRUE)?}
 
 \item{posterior_method}{Determines how the posterior samples of the edge weight parameters are obtained for models fit with BDgraph. The argument can be either MAP for the maximum-a-posteriori or model-averaged. If MAP, samples are obtained for the edge weights only for the most likely structure. If model-averaged, samples are obtained for all plausible structures weighted by their posterior probability. Default is model-averaged.}
-
-\item{reference_category}{if type is "blume-capel" it specifies the reference category in the Blume-Capel model.
-Should be an integer within the range of integer scores observed for the
-'blume-capel' variable. Can be a single number specifying the reference
-category for all Blume-Capel variables at once, or a vector of length
-\code{p} where the \code{i}-th element contains the reference category for
-variable \code{i} if it is Blume-Capel, and bgm ignores its elements for
-other variable types. The value of the reference category is also recoded
-when bgm recodes the corresponding observations. Only required if there is at
-least one variable of type ``blume-capel''.}
 
 \item{...}{Additional arguments that are handed to the fitting functions of the packages, e.g., informed prior specifications.}
 }

@@ -3,7 +3,11 @@
 # --------------------------------------------------------------------------------------------------
 #' @export
 bgm_fit.package_bgms <- function(fit, type, data, iter, save,
-                                 not_cont, centrality, progress, reference_category, ...){
+                                 not_cont, centrality, progress, ...){
+  
+  if (packageVersion("bgms") < "0.1.4") {
+    stop("easybgm now requires bgms version 0.1.4 or higher.")
+  }
   
   if(!save && centrality){
     save <- TRUE
@@ -13,13 +17,20 @@ bgm_fit.package_bgms <- function(fit, type, data, iter, save,
     type <- "ordinal"
   }
   
+  if(packageVersion("bgms") > "0.1.4.2"){
   bgms_fit <- do.call(
-    bgm, c(list(x = data, iter = iter, save = save, 
+    bgm, c(list(x = data, iter = iter, 
                 variable_type = type, 
                 display_progress = progress, 
-                reference_category = reference_category,
                 ...))
-  )
+  )}
+  if(packageVersion("bgms") < "0.1.6"){
+    bgms_fit <- do.call(
+      bgm, c(list(x = data, iter = iter, save = T, 
+                  variable_type = type, 
+                  display_progress = progress, 
+                  ...))
+    )}
   
   
   fit$model <- type
@@ -59,8 +70,13 @@ bgm_extract.package_bgms <- function(fit, type, save,
     }
   }
   
+  if(packageVersion("bgms") > "0.1.4.2"){
+    class(fit) <- "bgms"
+  }
+  
   # --- Extract model arguments and edge priors ---
   args <- bgms::extract_arguments(fit)
+  args$save <- save
   
   if (args$edge_prior[1] == "Bernoulli") {
     edge.prior <- args$inclusion_probability

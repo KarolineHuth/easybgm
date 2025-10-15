@@ -15,15 +15,6 @@
 #' @param centrality Logical. Should the centrality measures be extracted (default = FALSE)? Note, that it will significantly increase the computation time.
 #' @param progress Logical. Should a progress bar be shown (default = TRUE)?
 #' @param posterior_method Determines how the posterior samples of the edge weight parameters are obtained for models fit with BDgraph. The argument can be either MAP for the maximum-a-posteriori or model-averaged. If MAP, samples are obtained for the edge weights only for the most likely structure. If model-averaged, samples are obtained for all plausible structures weighted by their posterior probability. Default is model-averaged. 
-#' @param reference_category if type is "blume-capel" it specifies the reference category in the Blume-Capel model.
-#' Should be an integer within the range of integer scores observed for the
-#' 'blume-capel' variable. Can be a single number specifying the reference
-#' category for all Blume-Capel variables at once, or a vector of length
-#' \code{p} where the \code{i}-th element contains the reference category for
-#' variable \code{i} if it is Blume-Capel, and bgm ignores its elements for
-#' other variable types. The value of the reference category is also recoded
-#' when bgm recodes the corresponding observations. Only required if there is at
-#' least one variable of type ``blume-capel''.
 #' @param ... Additional arguments that are handed to the fitting functions of the packages, e.g., informed prior specifications.
 #'
 #'
@@ -144,7 +135,6 @@
 
 easybgm <- function(data, type, package = NULL, not_cont = NULL, iter = 1e4,
                     save = FALSE, centrality = FALSE, progress = TRUE, posterior_method = "model-averaged", 
-                    reference_category = NULL, 
                     ...){
 
 
@@ -154,9 +144,15 @@ easybgm <- function(data, type, package = NULL, not_cont = NULL, iter = 1e4,
          call. = FALSE)
   }
 
-  if(type == "blume-capel" & is.null(reference_category)){
-    stop("For the Blume-Capel model, the argument reference_category needs to be specified either as a 
-single integer or a vector of integers of length p.",
+  dots <- list(...)
+  has_reference <- "reference_category" %in% names(dots)
+  has_baseline  <- "baseline_category" %in% names(dots)
+  
+  # Example: If type == "blume-capel", then at least one must be present
+  if (type == "blume-capel" && !(has_reference || has_baseline)) {
+    stop("For the Blume-Capel model, a reference category needs to be specified. 
+         For bgms version smaller than 0.1.6, use the reference_category argument. 
+         For all package versions including and older than 0.1.6., the baseline_category argument.",
          call. = FALSE)
   }
   
@@ -197,7 +193,7 @@ single integer or a vector of integers of length p.",
   # Fit the model
   tryCatch(
     {fit <- bgm_fit(fit, data = data, type = type, not_cont = not_cont, iter = iter,
-                    save = save, centrality = centrality, progress = progress, reference_category = reference_category, ...)
+                    save = save, centrality = centrality, progress = progress, ...)
     },
     error = function(e){
       # If an error occurs, stop running the code
@@ -209,7 +205,6 @@ single integer or a vector of integers of length p.",
                      save = save, not_cont = not_cont,
                      data = data, centrality = centrality,
                      posterior_method = posterior_method, 
-                     reference_category = reference_category,
                      ...)
 
   # Output results
