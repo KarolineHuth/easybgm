@@ -151,6 +151,15 @@ easybgm <- function(data, type, package = NULL, not_cont = NULL, iter = 1e4,
   # Example: If type == "blume-capel", then at least one must be present
   if (type == "blume-capel" && !(has_reference || has_baseline)) {
     stop("For the Blume-Capel model, a reference category needs to be specified. 
+         If type is 'blume-capel' it specifies the reference category in the Blume-Capel model.
+         Should be an integer within the range of integer scores observed for the
+         'blume-capel' variable. Can be a single number specifying the reference
+         category for all Blume-Capel variables at once, or a vector of length
+         p where the i-th element contains the reference category for
+         variable i if it is Blume-Capel, and bgm ignores its elements for
+         other variable types. The value of the reference category is also recoded
+         when bgm recodes the corresponding observations. Only required if there is at
+         least one variable of type ``blume-capel''.
          For bgms version smaller than 0.1.6, use the reference_category argument. 
          For all package versions including and older than 0.1.6., the baseline_category argument.",
          call. = FALSE)
