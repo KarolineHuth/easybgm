@@ -18,12 +18,12 @@ bgm_fit.package_bgms <- function(fit, type, data, iter, save,
   }
   
   if(packageVersion("bgms") > "0.1.4.2"){
-  bgms_fit <- do.call(
-    bgm, c(list(x = data, iter = iter, 
-                variable_type = type, 
-                display_progress = progress, 
-                ...))
-  )}
+    bgms_fit <- do.call(
+      bgm, c(list(x = data, iter = iter, 
+                  variable_type = type, 
+                  display_progress = progress, 
+                  ...))
+    )}
   if(packageVersion("bgms") < "0.1.6"){
     bgms_fit <- do.call(
       bgm, c(list(x = data, iter = iter, save = T, 
@@ -66,7 +66,7 @@ bgm_extract.package_bgms <- function(fit, type, save,
   } else {
     varnames <- fit$arguments$data_columnnames
     if (is.null(varnames)) {
-        varnames <- paste0("V", 1:fit$arguments$no_variables)}
+      varnames <- paste0("V", 1:fit$arguments$no_variables)}
   }
   
   if(packageVersion("bgms") > "0.1.4.2"){
@@ -95,7 +95,7 @@ bgm_extract.package_bgms <- function(fit, type, save,
     
     pars <- extract_pairwise_interactions(fit)
     bgms_res$parameters <- vector2matrix(colMeans(pars), p = p)
-    
+    bgms_res$samples_posterior <- extract_pairwise_interactions(fit)
     bgms_res$thresholds <- extract_category_thresholds(fit)
     colnames(bgms_res$parameters) <- varnames
     
@@ -134,16 +134,13 @@ bgm_extract.package_bgms <- function(fit, type, save,
   }
   
   # --- Optionally compute centrality ---
-  if (args$save && centrality) {
-    bgms_res$samples_posterior <- extract_pairwise_interactions(fit)
+  if (centrality) {
     bgms_res$centrality <- centrality(bgms_res)
   }
   
   # --- Finalize output ---
-  if (args$edge_selection) {
-    colnames(bgms_res$inc_probs) <- colnames(bgms_res$parameters)
-    colnames(bgms_res$inc_BF) <- colnames(bgms_res$parameters)
-  }
+  colnames(bgms_res$inc_probs) <- colnames(bgms_res$parameters)
+  colnames(bgms_res$inc_BF) <- colnames(bgms_res$parameters)
   
   bgms_res$model <- type
   bgms_res$fit_arguments <- args
