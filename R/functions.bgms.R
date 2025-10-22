@@ -66,8 +66,7 @@ bgm_extract.package_bgms <- function(fit, type, save,
   } else {
     varnames <- fit$arguments$data_columnnames
     if (is.null(varnames)) {
-      varnames <- paste0("V", 1:fit$arguments$no_variables)
-    }
+        varnames <- paste0("V", 1:fit$arguments$no_variables)}
   }
   
   if(packageVersion("bgms") > "0.1.4.2"){
@@ -103,7 +102,7 @@ bgm_extract.package_bgms <- function(fit, type, save,
     bgms_res$structure <- matrix(1, ncol = p, nrow = p)
     
     if (args$edge_selection) {
-      bgms_res$inc_probs <- bgms::extract_posterior_inclusion_probabilities(fit)
+      bgms_res$inc_probs <- extract_posterior_inclusion_probabilities(fit)
       bgms_res$inc_BF <- (bgms_res$inc_probs / (1 - bgms_res$inc_probs)) /
         (edge.prior / (1 - edge.prior))
       bgms_res$structure <- 1 * (bgms_res$inc_probs > 0.5)
@@ -117,7 +116,9 @@ bgm_extract.package_bgms <- function(fit, type, save,
       bgms_res$sample_graph <- as.character(table_structures[, 1])
     }
   } else {
-    bgms_res$parameters <- extract_pairwise_interactions(fit)
+    p <- args$no_variables
+    pars <- extract_pairwise_interactions(fit)
+    bgms_res$parameters <- vector2matrix(colMeans(pars), p = p)
     bgms_res$thresholds <- extract_category_thresholds(fit)
     colnames(bgms_res$parameters) <- varnames
     
@@ -125,7 +126,7 @@ bgm_extract.package_bgms <- function(fit, type, save,
                                  nrow = nrow(bgms_res$parameters))
     
     if (args$edge_selection) {
-      bgms_res$inc_probs <- bgms::extract_posterior_inclusion_probabilities(fit)
+      bgms_res$inc_probs <- extract_posterior_inclusion_probabilities(fit)
       bgms_res$inc_BF <- (bgms_res$inc_probs / (1 - bgms_res$inc_probs)) /
         (edge.prior / (1 - edge.prior))
       bgms_res$structure <- 1 * (bgms_res$inc_probs > 0.5)
