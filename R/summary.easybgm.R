@@ -12,34 +12,44 @@
 #' @export
 
 summary.easybgm <- function(object, evidence_thresh = 10, ...) {
+  ## -----------------------------
+  ## 0. Check arguments
+  ## -----------------------------
   
   dots_check(...)
   
-  # nodes
-
+  ## -----------------------------
+  ## 1. Determine number of nodes
+  ## -----------------------------
   if(is.null(object$inc_probs)){
     p <- ncol(object$parameters)
   } else {
     p <- ncol(object$inc_probs)
   }
   
-  # create data frame with parameter results
+  ## -----------------------------
+  ## 2. Create data frame with edge-specific results
+  ## -----------------------------
+  
   if(object$model %in% c("dgm-binary")){
-    # names for each relation
+    ## ---- 2a. Prepare relation names ----
     names <- colnames(object$inc_probs)
     names_bycol <- matrix(rep(names, each = p), ncol = p)
     names_byrow <- matrix(rep(names, each = p), ncol = p, byrow = T)
     names_comb <- matrix(paste0(names_byrow, "-", names_bycol), ncol = p)
     mat_names <- names_comb[upper.tri(names_comb)]
     
+    ## ---- 2b. Extract inclusion probabilities and Bayes Factors ----
     inc_probs  <- round(object$inc_probs, 3)[upper.tri(object$inc_probs)]
     BF <- round(object$inc_BF, 3)[upper.tri(object$inc_BF)]
-    #create the category of the edge (i.e., included, excluded, inconclusive)
+    
+    ## ---- 2c. Classify edges based on Bayes Factor ----(i.e., included, excluded, inconclusive)
     category <- character(length(BF))
     category[(BF < evidence_thresh) & (BF > 1/evidence_thresh)] <- "inconclusive"
     category[BF > evidence_thresh] <- "included"
     category[BF < 1/evidence_thresh] <- "excluded"
     
+    ## ---- 2d. Create results data frame ----
     results <-
       data.frame(
         relation = mat_names,
@@ -55,7 +65,7 @@ summary.easybgm <- function(object, evidence_thresh = 10, ...) {
       "Inclusion BF",
       "Category")
   } else if(is.null(object$inc_probs)){
-    # names for each relation
+    ## ---- 2e. Case: Only parameter estimates (no inclusion probs) ----
     names <- colnames(object$parameters)
     names_bycol <- matrix(rep(names, each = p), ncol = p)
     names_byrow <- matrix(rep(names, each = p), ncol = p, byrow = T)
@@ -75,63 +85,95 @@ summary.easybgm <- function(object, evidence_thresh = 10, ...) {
       "Relation",
       "Parameter")
   } else {
-    # names for each relation
+    ## ---- 2f. General case: parameters + inclusion probs + Bayes Factors 
     names <- colnames(object$parameters)
     names_bycol <- matrix(rep(names, each = p), ncol = p)
     names_byrow <- matrix(rep(names, each = p), ncol = p, byrow = T)
     names_comb <- matrix(paste0(names_byrow, "-", names_bycol), ncol = p)
     mat_names <- names_comb[upper.tri(names_comb)]
     
-    #create results matrix
+    ## ---- 2g. Extract and round relevant values ----
     parameter_values <- round(object$parameters, 3)[upper.tri(object$parameters)]
     inc_probs  <- round(object$inc_probs, 3)[upper.tri(object$inc_probs)]
     BF <- round(object$inc_BF, 3)[upper.tri(object$inc_BF)]
-    #create the category of the edge (i.e., included, excluded, inconclusive)
+    
+    ## ---- 2h. Classify edges ---- (i.e., included, excluded, inconclusive)
     category <- character(length(BF))
     category[(BF < evidence_thresh) & (BF > 1/evidence_thresh)] <- "inconclusive"
     category[BF > evidence_thresh] <- "included"
     category[BF < 1/evidence_thresh] <- "excluded"
     
-    
-    results <-
-      data.frame(
-        relation = mat_names,
-        parameter_values = parameter_values,
-        inc_probs =  inc_probs,
-        BF = BF,
-        category = category
-      )
-    colnames(results) <- c(
-      "Relation",
-      "Estimate",
-      "Posterior Incl. Prob.",
-      "Inclusion BF",
-      "Category")
+    ## ---- 2i. Create results data frame ----
+    ## ----  Create results data frame with convergence (newer bgms)----
+    if("package_bgms" %in% class(object) && packageVersion("bgms") > "0.1.4.2"){
+      results <-
+        data.frame(
+          relation = mat_names,
+          parameter_values = parameter_values,
+          inc_probs =  inc_probs,
+          BF = BF,
+          category = category,
+          convergence = round(object$convergence_parameter, 3)
+        )
+      colnames(results) <- c(
+        "Relation",
+        "Estimate",
+        "Posterior Incl. Prob.",
+        "Inclusion BF",
+        "Category", 
+        "Convergence")
+    } else {
+      ## ----  Create results data frame without convergence----
+      results <-
+        data.frame(
+          relation = mat_names,
+          parameter_values = parameter_values,
+          inc_probs =  inc_probs,
+          BF = BF,
+          category = category
+        )
+      colnames(results) <- c(
+        "Relation",
+        "Estimate",
+        "Posterior Incl. Prob.",
+        "Inclusion BF",
+        "Category")
+    }
   }
-  # create list with output
+  
+  ## -----------------------------
+  ## 3. Create summary output list
+  ## -----------------------------
   out <- list()
   out$parameters <- results
   out$package <- strsplit(class(object)[1], "_")[[1]][2]
   out$model <- object$model
   out$n_nodes <- p
   out$n_possible_edges <- p*(p-1)/2
+  
+  ## ---- 3a. Aggregate edge counts ----
   if(!is.null(object$inc_probs)){
     out$n_inclu_edges <- sum(BF > evidence_thresh)
     out$n_incon_edges <- sum((BF < evidence_thresh) & (BF > 1/evidence_thresh))
     out$n_exclu_edges <- sum(BF < 1/evidence_thresh)
   }
-  # structure information
+  
+  ## ---- 3b. Structure uncertainty (only for BDgraph/bgms) ----
   if(!is.null(object$structure_probabilities)){
     out$possible_struc <- 2^(p*(p-1)/2)
     out$n_structures <- length(object$sample_graph)
     out$max_structure_prob <- max(object$structure_probabilities)
   }
   
-  # Save command calls
+  ## -----------------------------
+  ## 4. Save call and BF threshold info
+  ## -----------------------------
   out$fit_object <- object
   out$evidence_thresh <- evidence_thresh
   
-  # return object
+  ## -----------------------------
+  ## 5. Return summary object
+  ## -----------------------------
   class(out) <- class(object)
   return(out)
   print(out)
@@ -214,8 +256,14 @@ print.easybgm <- function(x, ...){
     print(x$parameters, quote = FALSE, right = TRUE, row.names=F)
     cat("\n Bayes Factors larger than", x$evidence_thresh, "were considered sufficient evidence for the classification",
         "\n Bayes factors were obtained using Bayesian model-averaging.",
-        "\n ---",
-        "\n AGGREGATED EDGE OVERVIEW",
+        "\n ")
+    if("package_bgms" %in% class(x) && packageVersion("bgms") > "0.1.4.2"){
+      cat("\n Convergence indicates the R-hat (Gelman–Rubin) statistic measuring how well MCMC chains have converged to", 
+          "\n the same target distribution, and values greater than about 1.01–1.05 are considered concerning, indicating", 
+          "\n potential lack of convergence. ",
+          "\n ---")
+    }
+    cat("\n AGGREGATED EDGE OVERVIEW",
         "\n Number of edges with sufficient evidence for inclusion:", x$n_inclu_edges,
         "\n Number of edges with insufficient evidence:", x$n_incon_edges,
         "\n Number of edges with sufficient evidence for exclusion:", x$n_exclu_edges,

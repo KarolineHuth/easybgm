@@ -138,6 +138,11 @@ bgm_extract.package_bgms <- function(fit, type, save,
     bgms_res$centrality <- centrality(bgms_res)
   }
   
+  # --- For newer version compute convergence ---
+  if (packageVersion("bgms") > "0.1.4.2") {
+    bgms_res$convergence_parameter <-  fit_bgms$posterior_summary_pairwise$Rhat
+  }
+  
   # --- Finalize output ---
   colnames(bgms_res$inc_probs) <- colnames(bgms_res$parameters)
   colnames(bgms_res$inc_BF) <- colnames(bgms_res$parameters)
