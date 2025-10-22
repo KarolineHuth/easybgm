@@ -28,41 +28,44 @@ summary.easybgm_compare <- function(object, evidence_thresh = 10, ...) {
   ## 2. Create data frame with edge-specific results
   ## -----------------------------
   
-  ## ---- 2f. General case: parameters + inclusion probs + Bayes Factors 
+  ## ---- 2a. General case: parameters + inclusion probs + Bayes Factors 
   names <- colnames(object$parameters)
   names_bycol <- matrix(rep(names, each = p), ncol = p)
   names_byrow <- matrix(rep(names, each = p), ncol = p, byrow = T)
   names_comb <- matrix(paste0(names_byrow, "-", names_bycol), ncol = p)
   mat_names <- names_comb[upper.tri(names_comb)]
   
-  ## ---- 2g. Extract and round relevant values ----
+  ## ---- 2b. Extract and round relevant values ----
   parameter_values <- round(object$parameters, 3)[upper.tri(object$parameters)]
-  inc_probs  <- round(object$inc_probs, 3)[upper.tri(object$inc_probs)]
   BF <- round(object$inc_BF, 3)[upper.tri(object$inc_BF)]
+  group1 <- round(object$parameters_g1, 3)[upper.tri(object$parameters_g1)]
+  group2 <- round(object$parameters_g2, 3)[upper.tri(object$parameters_g2)]
   
-  ## ---- 2h. Classify edges ---- (i.e., included, excluded, inconclusive)
+  ## ---- 2c. Classify edges ---- (i.e., similar, different, inconclusive)
   category <- character(length(BF))
   category[(BF < evidence_thresh) & (BF > 1/evidence_thresh)] <- "inconclusive"
-  category[BF > evidence_thresh] <- "included"
-  category[BF < 1/evidence_thresh] <- "excluded"
+  category[BF > evidence_thresh] <- "similar"
+  category[BF < 1/evidence_thresh] <- "different"
   
-  ## ---- 2i. Create results data frame ----
+  ## ---- 2d. Create results data frame ----
   ## ----  Create results data frame with convergence (newer bgms)----
-  if("package_bgms" %in% class(object) && packageVersion("bgms") > "0.1.4.2"){
+  if("package_bgms_compare" %in% class(object) && packageVersion("bgms") > "0.1.4.2"){
     results <-
       data.frame(
         relation = mat_names,
+        group1 = group1, 
+        group2 = group2,
         parameter_values = parameter_values,
-        inc_probs =  inc_probs,
         BF = BF,
         category = category,
         convergence = round(object$convergence_parameter, 3)
       )
     colnames(results) <- c(
       "Relation",
-      "Estimate",
-      "Posterior Incl. Prob.",
-      "Inclusion BF",
+      "Estimate G1", 
+      "Estimate G2",
+      "Estimate Combined",
+      "Difference BF",
       "Category", 
       "Convergence")
   } else {
@@ -70,16 +73,18 @@ summary.easybgm_compare <- function(object, evidence_thresh = 10, ...) {
     results <-
       data.frame(
         relation = mat_names,
+        group1 = group1, 
+        group2 = group2,
         parameter_values = parameter_values,
-        inc_probs =  inc_probs,
         BF = BF,
         category = category
       )
     colnames(results) <- c(
       "Relation",
-      "Estimate",
-      "Posterior Incl. Prob.",
-      "Inclusion BF",
+      "Estimate G1", 
+      "Estimate G2",
+      "Estimate Combined",
+      "Difference BF",
       "Category")
   }
   
@@ -154,20 +159,11 @@ print.easybgm_compare <- function(x, ...){
         "\n Bayes factors were obtained via single-model comparison.",
         "\n ---",
         "\n AGGREGATED EDGE OVERVIEW",
-        "\n Number of edges with sufficient evidence for inclusion:", x$n_inclu_edges,
+        "\n Number of edges with sufficient evidence for group differences:", x$n_inclu_edges,
         "\n Number of edges with insufficient evidence:", x$n_incon_edges,
-        "\n Number of edges with sufficient evidence for exclusion:", x$n_exclu_edges,
+        "\n Number of edges with sufficient evidence for group similarity:", x$n_exclu_edges,
         "\n Number of possible edges:", x$n_possible_edges,
         "\n")
-  } else if (ncol(x$parameters) < 3) {
-    cat("\n BAYESIAN ANALYSIS OF NETWORKS",
-        "\n Model type:", x$model,
-        "\n Number of nodes:", x$n_nodes,
-        "\n Fitting Package:", x$package,
-        "\n---",
-        "\n EDGE SPECIFIC OVERVIEW",
-        "\n")
-    print(x$parameters, quote = FALSE, right = TRUE, row.names=F)
   } else if(is.null(x$n_structures)){
     cat("\n BAYESIAN ANALYSIS OF NETWORKS",
         "\n Model type:", x$model,
@@ -181,9 +177,9 @@ print.easybgm_compare <- function(x, ...){
         "\n Bayes factors were obtained using Bayesian model-averaging.",
         "\n ---",
         "\n AGGREGATED EDGE OVERVIEW",
-        "\n Number of edges with sufficient evidence for inclusion:", x$n_inclu_edges,
+        "\n Number of edges with sufficient evidence for group differences:", x$n_inclu_edges,
         "\n Number of edges with insufficient evidence:", x$n_incon_edges,
-        "\n Number of edges with sufficient evidence for exclusion:", x$n_exclu_edges,
+        "\n Number of edges with sufficient evidence for group similarity:", x$n_exclu_edges,
         "\n Number of possible edges:", x$n_possible_edges,
         "\n")
   } else {
@@ -198,16 +194,16 @@ print.easybgm_compare <- function(x, ...){
     cat("\n Bayes Factors larger than", x$evidence_thresh, "were considered sufficient evidence for the classification",
         "\n Bayes factors were obtained using Bayesian model-averaging.",
         "\n ")
-    if("package_bgms" %in% class(x) && packageVersion("bgms") > "0.1.4.2"){
+    if("package_bgms_compare" %in% class(x) && packageVersion("bgms") > "0.1.4.2"){
       cat("\n Convergence indicates the R-hat (Gelman–Rubin) statistic measuring how well MCMC chains have converged to", 
           "\n the same target distribution, and values greater than about 1.01–1.05 are considered concerning, indicating", 
           "\n potential lack of convergence. ",
           "\n ---")
     }
     cat("\n AGGREGATED EDGE OVERVIEW",
-        "\n Number of edges with sufficient evidence for inclusion:", x$n_inclu_edges,
+        "\n Number of edges with sufficient evidence for group differences:", x$n_inclu_edges,
         "\n Number of edges with insufficient evidence:", x$n_incon_edges,
-        "\n Number of edges with sufficient evidence for exclusion:", x$n_exclu_edges,
+        "\n Number of edges with sufficient evidence for group similarity:", x$n_exclu_edges,
         "\n Number of possible edges:", x$n_possible_edges,
         "\n",
         "\n ---",

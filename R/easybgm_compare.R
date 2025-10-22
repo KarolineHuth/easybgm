@@ -173,6 +173,6 @@ easybgm_compare <- function(data, type, package = NULL, not_cont = NULL, iter = 
                      ...)
 
   # Output results
-  class(res) <- c(package, "easybgm")
+  class(res) <- c(package, "easybgm_compare", "easybgm")
   return(res)
 }

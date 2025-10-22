@@ -141,8 +141,8 @@ bgm_extract.package_bgms_compare <- function(fit, type, save,
     bgms_res$structure <- 1*(bgms_res$inc_probs > 0.5)
     
     #Obtain structure information
-    bgms_res$parameters_g1 <- extract_group_params(fit)$pairwise_effects_groups[, 1]
-    bgms_res$parameters_g2 <- extract_group_params(fit)$pairwise_effects_groups[, 2]
+    bgms_res$parameters_g1 <- vector2matrix(extract_group_params(fit)$pairwise_effects_groups[, 1], p = p)
+    bgms_res$parameters_g2 <- vector2matrix(extract_group_params(fit)$pairwise_effects_groups[, 2], p = p)
     
     if(save){
       structures <- apply(extract_indicators(fit), 1, paste0, collapse="")
@@ -152,6 +152,11 @@ bgm_extract.package_bgms_compare <- function(fit, type, save,
       bgms_res$sample_graph <- as.character(table_structures[, 1])
       bgms_res$samples_posterior <- extract_pairwise_interactions(fit)
     } 
+  }
+  
+  # --- For newer version compute convergence ---
+  if (packageVersion("bgms") > "0.1.4.2") {
+    bgms_res$convergence_parameter <-  fit$posterior_summary_pairwise_differences$Rhat
   }
   
   # Adapt column names of output
