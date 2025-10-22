@@ -140,7 +140,7 @@ bgm_extract.package_bgms <- function(fit, type, save,
   
   # --- For newer version compute convergence ---
   if (packageVersion("bgms") > "0.1.4.2") {
-    bgms_res$convergence_parameter <-  fit_bgms$posterior_summary_pairwise$Rhat
+    bgms_res$convergence_parameter <-  fit$posterior_summary_pairwise$Rhat
   }
   
   # --- Finalize output ---
