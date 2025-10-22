@@ -10,7 +10,7 @@ easybgm_compare(
   package = NULL,
   not_cont = NULL,
   iter = 10000,
-  save = FALSE,
+  save = TRUE,
   progress = TRUE,
   ...
 )
@@ -28,7 +28,7 @@ variables (1 = not continuous, 0 = continuous).}
 
 \item{iter}{number of iterations for the sampler.}
 
-\item{save}{Logical. Should the posterior samples be obtained (default = FALSE)?}
+\item{save}{Logical. Should the posterior samples be obtained (default = TRUE)?}
 
 \item{progress}{Logical. Should a progress bar be shown (default = TRUE)?}
 

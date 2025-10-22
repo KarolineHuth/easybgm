@@ -23,7 +23,7 @@ bgm_fit.package_bggm_compare <- function(fit, type, data, iter, save,
   } else {
     fit$var_names <- colnames(data[[1]])
   }
-  class(fit) <- c("package_bggm_compare", "easybgm")
+  class(fit) <- c("package_bggm_compare", "easybgm_compare", "easybgm")
   return(fit)
 }
 

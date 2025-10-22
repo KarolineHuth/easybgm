@@ -11,7 +11,7 @@
 #' @param not_cont If data-type is mixed, a vector of length p, specifying the not-continuous
 #'     variables (1 = not continuous, 0 = continuous).
 #' @param iter number of iterations for the sampler.
-#' @param save Logical. Should the posterior samples be obtained (default = FALSE)?
+#' @param save Logical. Should the posterior samples be obtained (default = TRUE)?
 #' @param progress Logical. Should a progress bar be shown (default = TRUE)?
 #' @param ... Additional arguments that are handed to the fitting functions of the packages, e.g., informed prior specifications.
 #'
@@ -96,7 +96,7 @@
 
 
 easybgm_compare <- function(data, type, package = NULL, not_cont = NULL, iter = 1e4,
-                    save = FALSE, progress = TRUE,
+                    save = TRUE, progress = TRUE,
                     ...){
 
   if(class(data) != "list"){

@@ -105,7 +105,7 @@ bgm_extract.package_bgms_compare <- function(fit, type, save,
   }
   if(packageVersion("bgms") > "0.1.4.2"){
     
-    class(fit) <- c("bgmCompare", "bgms")
+    class(fit) <- c("bgmCompare")
     
     args <- extract_arguments(fit)
     args$save <- TRUE
@@ -130,8 +130,8 @@ bgm_extract.package_bgms_compare <- function(fit, type, save,
     
     
     p <- args$num_variables
-    pars <- fit$posterior_summary_pairwise_differences$mean
-    bgms_res$parameters <- vector2matrix(pars, p = p)
+    pars <- extract_pairwise_interactions(fit)
+    bgms_res$parameters <- vector2matrix(colMeans(pars), p = p)
     colnames(bgms_res$parameters) <- varnames
     bgms_res$structure <- matrix(1, ncol = ncol(bgms_res$parameters), 
                                  nrow = nrow(bgms_res$parameters))
@@ -141,16 +141,16 @@ bgm_extract.package_bgms_compare <- function(fit, type, save,
     bgms_res$structure <- 1*(bgms_res$inc_probs > 0.5)
     
     #Obtain structure information
-    bgms_res$parameters_g1 <- extract_group_params(fit_bgms_compare)$pairwise_effects_groups[, 1]
-    bgms_res$parameters_g2 <- extract_group_params(fit_bgms_compare)$pairwise_effects_groups[, 2]
+    bgms_res$parameters_g1 <- extract_group_params(fit)$pairwise_effects_groups[, 1]
+    bgms_res$parameters_g2 <- extract_group_params(fit)$pairwise_effects_groups[, 2]
     
     if(save){
-      structures <- apply(extract_indicators(fit)$pairwise_difference_indicator, 1, paste0, collapse="")
+      structures <- apply(extract_indicators(fit), 1, paste0, collapse="")
       table_structures <- as.data.frame(table(structures))
-      bgms_res$structure_probabilities <- table_structures[,2]/nrow(extract_indicators(fit)$pairwise_difference_indicator)
+      bgms_res$structure_probabilities <- table_structures[,2]/nrow(extract_indicators(fit))
       bgms_res$graph_weights <- table_structures[,2]
       bgms_res$sample_graph <- as.character(table_structures[, 1])
-      bgms_res$samples_posterior <- extract_pairwise_difference(fit)
+      bgms_res$samples_posterior <- extract_pairwise_interactions(fit)
     } 
   }
   
@@ -160,10 +160,10 @@ bgm_extract.package_bgms_compare <- function(fit, type, save,
   
   bgms_res$model <- type
   bgms_res$fit_arguments <- args
-  bgms_res$edge.prior <- edge.prior[1, 1] # otherwise it stores a whole matrix 
+  bgms_res$edge.prior <- edge.prior # otherwise it stores a whole matrix 
   #bgms_res$n <- c(args$no_cases_gr1, args$no_cases_gr2)
   
   output <- bgms_res
-  class(output) <- c("package_bgms_compare", "easybgm")
+  class(output) <- c("package_bgms_compare", "easybgm_compare", "easybgm")
   return(output)
 }
