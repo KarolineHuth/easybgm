@@ -64,7 +64,7 @@ summary.easybgm_compare <- function(object, evidence_thresh = 10, ...) {
       "Relation",
       "Estimate G1", 
       "Estimate G2",
-      "Estimate Combined",
+      "Difference",
       "Difference BF",
       "Category", 
       "Convergence")
@@ -83,7 +83,7 @@ summary.easybgm_compare <- function(object, evidence_thresh = 10, ...) {
       "Relation",
       "Estimate G1", 
       "Estimate G2",
-      "Estimate Combined",
+      "Difference",
       "Difference BF",
       "Category")
   }
@@ -147,7 +147,7 @@ print.easybgm_compare <- function(x, ...){
     #NextMethod("print")
     print(summary.easybgm(x))
   } else if(any(class(x) == "package_bggm")){
-    cat("\n BAYESIAN ANALYSIS OF NETWORKS",
+    cat("\n BAYESIAN GROUP COMPARISON OF NETWORKS",
         "\n Model type:", x$model,
         "\n Number of nodes:", x$n_nodes,
         "\n Fitting Package:", x$package,
@@ -183,7 +183,7 @@ print.easybgm_compare <- function(x, ...){
         "\n Number of possible edges:", x$n_possible_edges,
         "\n")
   } else {
-    cat("\n BAYESIAN ANALYSIS OF NETWORKS",
+    cat("\n BAYESIAN GROUP COMPARISON OF NETWORKS",
         "\n Model type:", x$model,
         "\n Number of nodes:", x$n_nodes,
         "\n Fitting Package:", x$package,
