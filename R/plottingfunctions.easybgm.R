@@ -129,6 +129,11 @@ plot_edgeevidence.easybgm <- function(output, evidence_thresh = 10, split = FALS
     stop("The model was fitted without edge selection and no inclusion probabilities were obtained. Therefore, the plot cannot be obtained. Run the model with edge_selection set to TRUE.",
          call. = FALSE)
   }
+  
+  if(any(class(output) == "easybgm_compare")){
+    warning("Note, the plot indicates the edge evidence for the pairwise difference between the groups.")
+  }
+  
   if(output$model == "dgm-binary"){
     default_args <- list(
       edge.color = c("#36648b", "#eeb004", "#bfbfbf"),
@@ -278,6 +283,10 @@ plot_network.easybgm <- function(output, exc_prob = 0.5, evidence_thresh = 10,  
             call. = FALSE)
   }
   
+  if(any(class(output) == "easybgm_compare")){
+    warning("Note, the plot indicates the strength of the pairwise difference in edge parameters between the groups.")
+  }
+  
   
   graph <- output$parameters
   default_args <- list(
@@ -327,6 +336,12 @@ plot_network.easybgm <- function(output, exc_prob = 0.5, evidence_thresh = 10,  
 # -------------------------------------------------
 #' @export
 plot_structure.easybgm <- function(output, ...) {
+  
+  if(any(class(output) == "easybgm_compare")){
+    warning("Note, the plot indicates the structure of the pairwise difference between the groups.")
+  }
+  
+  
   default_args <- list(
     layout = qgraph::averageLayout(as.matrix(output$parameters*output$structure)),
     theme = "TeamFortress",
@@ -363,6 +378,14 @@ plot_parameterHDI.easybgm <- function(output, ...) {
   
   if(any(class(output) == "package_bdgraph")){
     warning("Posterior samples of the interaction parameters are obtained after the estimation. Especially for ordinal and skewed data, these estimates might be sub-optimal. Please interpret with caution.")
+  }
+  
+  if(any(class(output) == "easybgm_compare")){
+    if (packageVersion("bgms") > "0.1.4.2") {
+      warning("Note, the plot indicates the posterior highest density interval of the overall group edges.")
+    } else {
+      warning("Note, the plot indicates the posterior highest density interval for subgroup differences.")
+    }
   }
   
   def_args <- list(
@@ -419,6 +442,10 @@ plot_centrality.easybgm <- function(output, group_names = group_names, ...){
   
   if(!any(class(output) == "easybgm")){
     stop("Wrong input provided. The function requires as input the output of the easybgm function.")
+  }
+  
+  if(any(class(output) == "easybgm_compare")){
+    stop("The centrality plot cannot be obtained for Bayesian network comparison fits.")
   }
   
   if(is.null(output$centrality)){
@@ -582,6 +609,10 @@ plot_centrality.list <- function(output, group_names = NULL, ...){
 #' @export
 plot_prior_sensitivity.list <- function(output,
                                         evidence_thres = 10, ...) {
+  
+  if(any(class(output[[1]]) == "easybgm_compare")){
+    stop("The centrality plot cannot be obtained for Bayesian network comparison fits.")
+  }
   
   # Convert to easybgm output if provided objects are bgms
   

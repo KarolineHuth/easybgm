@@ -278,5 +278,3 @@ calculate_edge_prior <- function(alpha, beta) {
    alpha / (alpha + beta)
 }
 
-
-

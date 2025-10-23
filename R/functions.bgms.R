@@ -4,11 +4,7 @@
 #' @export
 bgm_fit.package_bgms <- function(fit, type, data, iter, save,
                                  not_cont, centrality, progress, ...){
-  
-  if (packageVersion("bgms") < "0.1.4") {
-    stop("easybgm now requires bgms version 0.1.4 or higher.")
-  }
-  
+
   if(!save && centrality){
     save <- TRUE
   }
@@ -92,7 +88,6 @@ bgm_extract.package_bgms <- function(fit, type, save,
   # --- Main extraction ---
   if (args$save) {
     p <- args$no_variables
-    
     pars <- extract_pairwise_interactions(fit)
     bgms_res$parameters <- vector2matrix(colMeans(pars), p = p)
     bgms_res$samples_posterior <- extract_pairwise_interactions(fit)
