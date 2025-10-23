@@ -28,13 +28,11 @@
 #' }
 
 plot_structure_probabilities <- function(output, as_BF = FALSE, ...) {
-  if(any(any(class(output) == "easybgm"), any(class(output) == "bgms")) == FALSE){
+  if(any(any(class(output) == "easybgm"), any(class(output) == "bgms"), any(class(output) == "bgmCompare")) == FALSE){
     stop("Wrong input provided. The function requires as input the output of the easybgm or bgm function.")
   }
 
-  if(any(class(output)=="bgms") & (packageVersion("bgms") < "0.1.1")){
-    stop("The fit of this version of bgms is not compatible with the plot. Please install the latest package version and refit the data.")
-  }
+
   UseMethod("plot_structure_probabilities", output)
 
 }
@@ -71,13 +69,10 @@ plot_structure_probabilities <- function(output, as_BF = FALSE, ...) {
 #' }
 
 plot_complexity_probabilities <- function(output, ...) {
-  if(any(any(class(output) == "easybgm"), any(class(output) == "bgms")) == FALSE){
+  if(any(any(class(output) == "easybgm"), any(class(output) == "bgms"), any(class(output) == "bgmCompare")) == FALSE){
     stop("Wrong input provided. The function requires as input the output of the easybgm or bgm function.")
   }
 
-  if(any(class(output)=="bgms") & (packageVersion("bgms") < "0.1.1")){
-    stop("The fit of this version of bgms is not compatible with the plot. Please install the latest package version and refit the data.")
-  }
   UseMethod("plot_complexity_probabilities", output)
 
 }
@@ -127,13 +122,10 @@ plot_complexity_probabilities <- function(output, ...) {
 
 
 plot_edgeevidence <- function(output, evidence_thresh = 10, split = FALSE, show = "all",...) {
-  if(any(any(class(output) == "easybgm"), any(class(output) == "bgms")) == FALSE){
+  if(any(any(class(output) == "easybgm"), any(class(output) == "bgms"), any(class(output) == "bgmCompare")) == FALSE){
     stop("Wrong input provided. The function requires as input the output of the easybgm or bgm function.")
   }
 
-  if(any(class(output)=="bgms") & (packageVersion("bgms") < "0.1.1")){
-    stop("The fit of this version of bgms is not compatible with the plot. Please install the latest package version and refit the data.")
-  }
 
   UseMethod("plot_edgeevidence", output)
 
@@ -179,13 +171,10 @@ plot_edgeevidence <- function(output, evidence_thresh = 10, split = FALSE, show 
 
 plot_network <- function(output, exc_prob = .5, evidence_thresh = 10, dashed = FALSE, ...) {
 
-  if(any(any(class(output) == "easybgm"), any(class(output) == "bgms")) == FALSE){
+  if(any(any(class(output) == "easybgm"), any(class(output) == "bgms"), any(class(output) == "bgmCompare")) == FALSE){
     stop("Wrong input provided. The function requires as input the output of the easybgm or bgm function.")
   }
 
-  if(any(class(output)=="bgms") & (packageVersion("bgms") < "0.1.1")){
-    stop("The fit of this version of bgms is not compatible with the plot. Please install the latest package version and refit the data.")
-  }
   UseMethod("plot_network", output)
 
 }
@@ -223,13 +212,10 @@ plot_network <- function(output, exc_prob = .5, evidence_thresh = 10, dashed = F
 #' }
 
 plot_structure <- function(output, ...) {
-  if(any(any(class(output) == "easybgm"), any(class(output) == "bgms")) == FALSE){
+  if(any(any(class(output) == "easybgm"), any(class(output) == "bgms"), any(class(output) == "bgmCompare")) == FALSE){
     stop("Wrong input provided. The function requires as input the output of the easybgm or bgm function.")
   }
 
-  if(any(class(output)=="bgms") & (packageVersion("bgms") < "0.1.1")){
-    stop("The fit of this version of bgms is not compatible with the plot. Please install the latest package version and refit the data.")
-  }
   UseMethod("plot_structure", output)
 
 }
@@ -269,13 +255,11 @@ plot_structure <- function(output, ...) {
 
 
 plot_parameterHDI <- function(output, ...) {
-  if(any(any(class(output) == "easybgm"), any(class(output) == "bgms")) == FALSE){
+  if(any(any(class(output) == "easybgm"), any(class(output) == "bgms"), any(class(output) == "bgmCompare")) == FALSE){
     stop("Wrong input provided. The function requires as input the output of the easybgm or bgm function.")
   }
 
-  if(any(class(output)=="bgms") & (packageVersion("bgms") < "0.1.1")){
-    stop("The fit of this version of bgms is not compatible with the plot. Please install the latest package version and refit the data.")
-  }
+
   UseMethod("plot_parameterHDI", output)
 
 }
@@ -315,13 +299,10 @@ plot_parameterHDI <- function(output, ...) {
 #' }
 
 plot_centrality <- function(output, group_names = NULL, ...){
-  if(any(any(class(output) == "easybgm"), any(class(output) == "list"), any(class(output) == "bgms")) == FALSE){
+  if(any(any(class(output) == "easybgm"), any(class(output) == "list"), any(class(output) == "bgms"), any(class(output) == "bgmCompare")) == FALSE){
     stop("Wrong input provided. The function requires as input the output of the easybgm or bgm function.")
   }
 
-  if(any(class(output)=="bgms") & (packageVersion("bgms") < "0.1.1")){
-    stop("The fit of this version of bgms is not compatible with the plot. Please install the latest package version and refit the data.")
-  }
   UseMethod("plot_centrality", output)
 
 }
@@ -362,13 +343,9 @@ plot_centrality <- function(output, group_names = NULL, ...){
 
 plot_prior_sensitivity <- function(output, ...) {
   if (!is.list(output))
-    stop("Wrong input provided. Please provide a list of outputs of the easybgm function.")
+    stop("Wrong input provided. Please provide a list of outputs of the easybgm or bgms function.")
   if(any(any(class(output[[1]]) == "easybgm"), any(class(output[[1]]) == "bgms")) == FALSE){
     stop("Wrong input provided. The function requires as input the output of the easybgm or bgm function.")
-  }
-  
-  if(any(class(output)=="bgms") & (packageVersion("bgms") < "0.1.1")){
-    stop("The fit of this version of bgms is not compatible with the plot. Please install the latest package version and refit the data.")
   }
   
   UseMethod("plot_prior_sensitivity", output)

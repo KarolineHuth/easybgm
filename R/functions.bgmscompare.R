@@ -17,7 +17,7 @@ bgm_fit.package_bgms_compare <- function(fit, type, data, iter, save,
   }
   if(packageVersion("bgms") < "0.1.6.0"){
     bgms_fit <- do.call(
-      bgmCompare, c(list(data[[1]], data[[2]], iter = iter, save = T, 
+      bgmCompare, c(list(data[[1]], data[[2]], iter = iter, save = TRUE, 
                          variable_type = type, 
                          display_progress = progress, 
                          ...))
@@ -56,14 +56,14 @@ bgm_extract.package_bgms_compare <- function(fit, type, save,
   if(any(class(fit) == "easybgm")){
     varnames <- fit$var_names
     fit <- fit$packagefit
-  } else if (any(class(fit) == "bgms")){
+  } else if (any(class(fit) == "bgmCompare")){
     varnames <- extract_arguments(fit)$data_columnnames
     if(is.null(varnames)){
       varnames <- paste0("V", 1:extract_arguments(fit)$no_variables)
     }
   }
   
-  # To ensure reverse-compatability
+  # To ensure reverse-compitability
   if(packageVersion("bgms") < "0.1.6.0"){
     args <- fit$arguments
     
@@ -77,6 +77,7 @@ bgm_extract.package_bgms_compare <- function(fit, type, save,
       args$inclusion_probability_difference <- edge.prior
     }
     
+      
     bgms_res <- list()
     
     
@@ -130,8 +131,8 @@ bgm_extract.package_bgms_compare <- function(fit, type, save,
     
     
     p <- args$num_variables
-    pars <- extract_pairwise_interactions(fit)
-    bgms_res$parameters <- vector2matrix(colMeans(pars), p = p)
+    pars <- fit$posterior_summary_pairwise_differences$mean
+    bgms_res$parameters <- vector2matrix(pars, p = p)
     colnames(bgms_res$parameters) <- varnames
     bgms_res$structure <- matrix(1, ncol = ncol(bgms_res$parameters), 
                                  nrow = nrow(bgms_res$parameters))

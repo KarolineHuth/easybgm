@@ -147,7 +147,7 @@ print.easybgm_compare <- function(x, ...){
     #NextMethod("print")
     print(summary.easybgm(x))
   } else if(any(class(x) == "package_bggm")){
-    cat("\n BAYESIAN GROUP COMPARISON OF NETWORKS",
+    cat("\n BAYESIAN NETWORK COMPARISON",
         "\n Model type:", x$model,
         "\n Number of nodes:", x$n_nodes,
         "\n Fitting Package:", x$package,
@@ -183,7 +183,7 @@ print.easybgm_compare <- function(x, ...){
         "\n Number of possible edges:", x$n_possible_edges,
         "\n")
   } else {
-    cat("\n BAYESIAN GROUP COMPARISON OF NETWORKS",
+    cat("\n BAYESIAN NETWORK COMPARISON",
         "\n Model type:", x$model,
         "\n Number of nodes:", x$n_nodes,
         "\n Fitting Package:", x$package,
@@ -196,8 +196,8 @@ print.easybgm_compare <- function(x, ...){
         "\n ")
     if("package_bgms_compare" %in% class(x) && packageVersion("bgms") > "0.1.4.2"){
       cat("\n Convergence indicates the R-hat (Gelman–Rubin) statistic measuring how well MCMC chains have converged to", 
-          "\n the same target distribution, and values greater than about 1.01–1.05 are considered concerning, indicating", 
-          "\n potential lack of convergence. ",
+          "\n the same target distribution, and values greater than about 1.01–1.05 are considered concerning, ", 
+          "\n indicating potential lack of convergence. ",
           "\n ---")
     }
     cat("\n AGGREGATED EDGE OVERVIEW",

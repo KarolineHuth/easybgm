@@ -1,25 +1,22 @@
 #' @export
 
-plot_structure_probabilities.bgms <- function(output, as_BF = FALSE, ...) {
-  if(packageVersion("bgms") < "0.1.3"){
+plot_structure_probabilities.bgmCompare <- function(output, as_BF = FALSE, ...) {
+  if(packageVersion("bgms") < "0.1.4"){
     stop("Your version of the package bgms is not supported anymore. Please update.")
   }
   
   fit_args <- bgms::extract_arguments(output)
   
-  # Give error if save is false
-  if(fit_args$save == FALSE){
-    stop("The plot cannot be obtained for this model fit as the posterior samples weren't stored. Rerun the model fit and set 'save = TRUE'.")
+  if (packageVersion("bgms") < "0.1.6.0" & !(fit_args$save)) {
+    stop("Please run your bgmCompare function with save = T.")
   }
   
-
-  # Extract the results from bgms
-  res <- bgm_extract.package_bgms(fit = output, save = fit_args$save, centrality = FALSE,
-                                  type = NULL, not_cont = NULL, data = NULL,
-                                  edge_prior = fit_args$edge_prior,
-                                  inclusion_probability  = fit_args$inclusion_probability,
-                                  beta_bernoulli_alpha = fit_args$beta_bernoulli_alpha,
-                                  beta_bernoulli_beta = fit_args$beta_bernoulli_beta)
+  res <- bgm_extract.package_bgms_compare(fit = output, save = TRUE,
+                                          type = NULL, not_cont = NULL, data = NULL,
+                                          edge_prior = fit_args$pairwise_difference_prior,
+                                          inclusion_probability  = fit_args$inclusion_probability_difference,
+                                          beta_bernoulli_alpha = fit_args$pairwise_beta_bernoulli_alpha,
+                                          beta_bernoulli_beta = fit_args$pairwise_beta_bernoulli_beta)
   output <- res
   
   
@@ -80,27 +77,24 @@ plot_structure_probabilities.bgms <- function(output, as_BF = FALSE, ...) {
 #' @export
 #'
 
-plot_complexity_probabilities.bgms <- function(output, ...) {
+plot_complexity_probabilities.bgmCompare <- function(output, ...) {
   
-  if(packageVersion("bgms") < "0.1.3"){
+  if(packageVersion("bgms") < "0.1.4"){
     stop("Your version of the package bgms is not supported anymore. Please update.")
   }
   
   fit_args <- bgms::extract_arguments(output)
   
-  # Give error if save is false
-  if(fit_args$save == FALSE){
-    stop("The plot cannot be obtained for this model fit as the posterior samples weren't stored. Rerun the model fit and set 'save = TRUE'.")
+  if (packageVersion("bgms") < "0.1.6.0" & !(fit_args$save)) {
+    stop("Please run your bgmCompare function with save = T.")
   }
   
-  
-  # Extract the results from bgms
-  res <- bgm_extract.package_bgms(fit = output, save = fit_args$save, centrality = FALSE,
-                                  type = NULL, not_cont = NULL, data = NULL,
-                                  edge_prior = fit_args$edge_prior,
-                                  inclusion_probability  = fit_args$inclusion_probability,
-                                  beta_bernoulli_alpha = fit_args$beta_bernoulli_alpha,
-                                  beta_bernoulli_beta = fit_args$beta_bernoulli_beta)
+  res <- bgm_extract.package_bgms_compare(fit = output, save = TRUE,
+                                          type = NULL, not_cont = NULL, data = NULL,
+                                          edge_prior = fit_args$pairwise_difference_prior,
+                                          inclusion_probability  = fit_args$inclusion_probability_difference,
+                                          beta_bernoulli_alpha = fit_args$pairwise_beta_bernoulli_alpha,
+                                          beta_bernoulli_beta = fit_args$pairwise_beta_bernoulli_beta)
   output <- res
   
   # Specify default arguments for function
@@ -149,22 +143,26 @@ plot_complexity_probabilities.bgms <- function(output, ...) {
 
 #' @export
 
-plot_edgeevidence.bgms <- function(output, evidence_thresh = 10, split = FALSE, show = "all", ...) {
+plot_edgeevidence.bgmCompare <- function(output, evidence_thresh = 10, split = FALSE, show = "all", ...) {
   
-  if(packageVersion("bgms") < "0.1.3"){
+  if(packageVersion("bgms") < "0.1.4"){
     stop("Your version of the package bgms is not supported anymore. Please update.")
   }
   
+  warning("Note, the plot indicates the edge evidence for the pairwise difference between the groups.")
+  
   fit_args <- bgms::extract_arguments(output)
   
+  if (packageVersion("bgms") < "0.1.6.0" & !(fit_args$save)) {
+    stop("Please run your bgmCompare function with save = T.")
+  }
   
-  res <- bgm_extract.package_bgms(fit = output, save = fit_args$save, centrality = FALSE,
-                                  type = NULL, not_cont = NULL, data = NULL,
-                                  edge_prior = fit_args$edge_prior,
-                                  inclusion_probability  = fit_args$inclusion_probability,
-                                  beta_bernoulli_alpha = fit_args$beta_bernoulli_alpha,
-                                  beta_bernoulli_beta = fit_args$beta_bernoulli_beta)
-  
+  res <- bgm_extract.package_bgms_compare(fit = output, save = TRUE,
+                                          type = NULL, not_cont = NULL, data = NULL,
+                                          edge_prior = fit_args$pairwise_difference_prior,
+                                          inclusion_probability  = fit_args$inclusion_probability_difference,
+                                          beta_bernoulli_alpha = fit_args$pairwise_beta_bernoulli_alpha,
+                                          beta_bernoulli_beta = fit_args$pairwise_beta_bernoulli_beta)
   output <- res
   
   
@@ -286,23 +284,26 @@ plot_edgeevidence.bgms <- function(output, evidence_thresh = 10, split = FALSE, 
 # ---------------------------------------------------------------------------------------------------------------
 #' @export
 
-plot_network.bgms <- function(output, exc_prob = .5, evidence_thresh = 10, dashed = TRUE, ...) {
+plot_network.bgmCompare <- function(output, exc_prob = .5, evidence_thresh = 10, dashed = TRUE, ...) {
   
-  if(packageVersion("bgms") < "0.1.3"){
+  if(packageVersion("bgms") < "0.1.4"){
     stop("Your version of the package bgms is not supported anymore. Please update.")
   }
   
+  warning("Note, the plot indicates the strength of the pairwise difference in edge parameters between the groups.")
+  
   fit_args <- bgms::extract_arguments(output)
   
+  if (packageVersion("bgms") < "0.1.6.0" & !(fit_args$save)) {
+    stop("Please run your bgmCompare function with save = T.")
+  }
   
-
-  res <- bgm_extract.package_bgms(fit = output, save = fit_args$save, centrality = FALSE,
-                                  type = NULL, not_cont = NULL, data = NULL,
-                                  edge_prior = fit_args$edge_prior,
-                                  inclusion_probability  = fit_args$inclusion_probability,
-                                  beta_bernoulli_alpha = fit_args$beta_bernoulli_alpha,
-                                  beta_bernoulli_beta = fit_args$beta_bernoulli_beta)
-  
+  res <- bgm_extract.package_bgms_compare(fit = output, save = TRUE,
+                                          type = NULL, not_cont = NULL, data = NULL,
+                                          edge_prior = fit_args$pairwise_difference_prior,
+                                          inclusion_probability  = fit_args$inclusion_probability_difference,
+                                          beta_bernoulli_alpha = fit_args$pairwise_beta_bernoulli_alpha,
+                                          beta_bernoulli_beta = fit_args$pairwise_beta_bernoulli_beta)
   output <- res
   
   
@@ -354,24 +355,28 @@ plot_network.bgms <- function(output, exc_prob = .5, evidence_thresh = 10, dashe
 
 #' @export
 
-plot_structure.bgms <- function(output, ...) {
+plot_structure.bgmCompare <- function(output, ...) {
   
-  if(packageVersion("bgms") < "0.1.3"){
+  if(packageVersion("bgms") < "0.1.4"){
     stop("Your version of the package bgms is not supported anymore. Please update.")
   }
   
+  warning("Note, the plot indicates the structure of the pairwise difference between the groups.")
+  
   fit_args <- bgms::extract_arguments(output)
   
+  if (packageVersion("bgms") < "0.1.6.0" & !(fit_args$save)) {
+    stop("Please run your bgmCompare function with save = T.")
+  }
   
-  res <- bgm_extract.package_bgms(fit = output, save = fit_args$save, centrality = FALSE,
-                                  type = NULL, not_cont = NULL, data = NULL,
-                                  edge_prior = fit_args$edge_prior,
-                                  inclusion_probability  = fit_args$inclusion_probability,
-                                  beta_bernoulli_alpha = fit_args$beta_bernoulli_alpha,
-                                  beta_bernoulli_beta = fit_args$beta_bernoulli_beta)
   
+  res <- bgm_extract.package_bgms_compare(fit = output, save = TRUE,
+                                          type = NULL, not_cont = NULL, data = NULL,
+                                          edge_prior = fit_args$pairwise_difference_prior,
+                                          inclusion_probability  = fit_args$inclusion_probability_difference,
+                                          beta_bernoulli_alpha = fit_args$pairwise_beta_bernoulli_alpha,
+                                          beta_bernoulli_beta = fit_args$pairwise_beta_bernoulli_beta)
   output <- res
-  
   
   # Specify default arguments for function
   default_args <- list(
@@ -403,27 +408,33 @@ plot_structure.bgms <- function(output, ...) {
 
 #' @export
 
-plot_parameterHDI.bgms <- function(output, ...) {
+plot_parameterHDI.bgmCompare <- function(output, ...) {
   
-  if(packageVersion("bgms") < "0.1.3"){
+  if(packageVersion("bgms") < "0.1.4"){
     stop("Your version of the package bgms is not supported anymore. Please update.")
   }
   
-  fit_args <- bgms::extract_arguments(output)
   
-  if(!fit_args$save){
-    stop("Samples of the posterior distribution required. When estimating the model with bgm, set \"save = TRUE\".")
+  if (packageVersion("bgms") > "0.1.4.2") {
+    warning("Note, the plot indicates the posterior highest density interval of the overall group edges.")
+  } else {
+    warning("Note, the plot indicates the posterior highest density interval for subgroup differences.")
   }
   
   
-
-  res <- bgm_extract.package_bgms(fit = output, save = fit_args$save, centrality = FALSE,
-                                  type = NULL, not_cont = NULL, data = NULL,
-                                  edge_prior = fit_args$edge_prior,
-                                  inclusion_probability  = fit_args$inclusion_probability,
-                                  beta_bernoulli_alpha = fit_args$beta_bernoulli_alpha,
-                                  beta_bernoulli_beta = fit_args$beta_bernoulli_beta)
+  fit_args <- bgms::extract_arguments(output)
   
+  if (packageVersion("bgms") < "0.1.6.0" & !(fit_args$save)) {
+    stop("Please run your bgmCompare function with save = T.")
+  }
+  
+  
+  res <- bgm_extract.package_bgms_compare(fit = output, save = TRUE,
+                                          type = NULL, not_cont = NULL, data = NULL,
+                                          edge_prior = fit_args$pairwise_difference_prior,
+                                          inclusion_probability  = fit_args$inclusion_probability_difference,
+                                          beta_bernoulli_alpha = fit_args$pairwise_beta_bernoulli_alpha,
+                                          beta_bernoulli_beta = fit_args$pairwise_beta_bernoulli_beta)
   output <- res
   
   # Specify default arguments for function
@@ -479,76 +490,8 @@ plot_parameterHDI.bgms <- function(output, ...) {
 
 #' @export
 
-plot_centrality.bgms <- function(output, group_names = NULL, ...){
+plot_centrality.bgmCompare <- function(output, group_names = NULL, ...){
   
-  if(packageVersion("bgms") < "0.1.3"){
-    stop("Your version of the package bgms is not supported anymore. Please update.")
-  }
-  
-  fit_args <- bgms::extract_arguments(output)
-  
-  if(!fit_args$save){
-    stop("Samples of the posterior distribution required. When estimating the model with bgm, set \"save = TRUE\".")
-  }
-  
-
-  res <- bgm_extract.package_bgms(fit = output, save = fit_args$save, centrality = TRUE,
-                                  type = NULL, not_cont = NULL, data = NULL,
-                                  edge_prior = fit_args$edge_prior,
-                                  inclusion_probability  = fit_args$inclusion_probability,
-                                  beta_bernoulli_alpha = fit_args$beta_bernoulli_alpha,
-                                  beta_bernoulli_beta = fit_args$beta_bernoulli_beta)
-  
-  output <- res
-  
-  # Specify default arguments for function
-  default_args <- list(
-    theme_ = theme_minimal(),
-    ylab = "Strength Centrality",
-    xlab = "Nodes",
-    geom_errorbar = geom_errorbar(aes(y=.data$mean, ymin = .data$lower, ymax = .data$upper)
-                                  , linewidth =.5, width=.4),
-    theme = theme(
-      axis.text = element_text(size=16),
-      panel.border = element_blank(),
-      axis.line = element_line(colour = "black", linewidth = 1.1),
-      axis.ticks.length = unit(.2, "cm"),
-      axis.ticks = element_line(linewidth = .8),
-      axis.title.x = element_text(size = 18, face = "bold"),
-      axis.title.y = element_text(size = 18, face = "bold"),
-      plot.title = element_text(size = 18, face = "bold"),
-      panel.grid.major = element_blank()
-    )
-  )
-  
-  args <- set_defaults(default_args, ...)
-  cent_samples <- output$centrality
-  p <- ncol(output$parameters)
-  rownames(cent_samples) <- NULL
-  # Creating summary statistics
-  
-  centrality_means <- colMeans(cent_samples)
-  centrality_hdi <- apply(cent_samples, MARGIN = 2, FUN = hdi, allowSplit = FALSE)
-  if(is.null(colnames(output$parameters))) {
-    node_names <- 1:ncol(output$parameters)
-  } else {
-    node_names <- colnames(output$parameters)
-  }
-  centrality_summary <- data.frame(node = node_names,
-                                   mean = centrality_means,
-                                   lower = centrality_hdi[1, ],
-                                   upper = centrality_hdi[2, ])
-  
-  centrality_summary |>
-    dplyr::arrange(mean) |>
-    dplyr::mutate(node = factor(.data$node, levels = .data$node)) |>
-    ggplot(aes(x = .data$node, y=.data$mean, ...))+
-    args$theme_ +
-    geom_point()+
-    args$geom_errorbar+
-    coord_flip() +
-    ylab(args$ylab) +
-    xlab(args$xlab) +
-    args$theme
+  stop("Plot not supported for bgmCompare objects.")
 }
 
