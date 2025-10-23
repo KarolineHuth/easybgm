@@ -5,10 +5,12 @@
 \alias{plot_parameterHDI}
 \title{Plot of interaction parameters and their 95\% highest density intervals}
 \usage{
-plot_parameterHDI(output, ...)
+plot_parameterHDI(output, pars = "temporal", ...)
 }
 \arguments{
 \item{output}{Output object from the easybgm function. Supports also objects from the bgm function of the \code{bgms} package.}
+
+\item{pars}{For 'easybgm_longitudinal' objects, the type of parameters to be plotted, either the "temporal" or "contemporaneous" parameters.}
 
 \item{...}{Additional arguments passed onto \code{ggplot2}}
 }

@@ -141,9 +141,9 @@ plot_edgeevidence <- function(output, evidence_thresh = 10, split = FALSE, show 
 #'
 #' @param output Output object from the easybgm function. Supports also objects from the bgm function of the `bgms` package.
 #' @param exc_prob The threshold for excluding edges. All edges with a lower inclusion probability will not be shown. The default is set to 0.5 in line with the median probability plot.
-
 #' @param dashed A binary parameter indicating whether edges with inconclusive evidence should be dashed. Default is FALSE
 #' @param evidence_thresh If dashed = TRUE, users can specify the threshold for sufficient evidence for inclusion. All edges with evidence lower than `evidence_tresh` are dashed.
+#' @param pars For 'easybgm_longitudinal' objects, the type of parameters to be plotted, either the "temporal" or "contemporaneous" parameters.
 #' @param ... Additional arguments passed onto `qgraph`.
 #' 
 #' @return Returns a plot
@@ -169,7 +169,10 @@ plot_edgeevidence <- function(output, evidence_thresh = 10, split = FALSE, show 
 #' plot_network(fit, dashed = TRUE, evidence_thresh = 10)
 #' 
 
-plot_network <- function(output, exc_prob = .5, evidence_thresh = 10, dashed = FALSE, ...) {
+plot_network <- function(output, exc_prob = .5, 
+                         evidence_thresh = 10, dashed = FALSE, 
+                         pars = "temporal",
+                         ...) {
 
   if(any(any(class(output) == "easybgm"), any(class(output) == "bgms"), any(class(output) == "bgmCompare")) == FALSE){
     stop("Wrong input provided. The function requires as input the output of the easybgm or bgm function.")
@@ -231,6 +234,7 @@ plot_structure <- function(output, ...) {
 #' @name HDI
 #'
 #' @param output Output object from the easybgm function. Supports also objects from the bgm function of the `bgms` package.
+#' @param pars For 'easybgm_longitudinal' objects, the type of parameters to be plotted, either the "temporal" or "contemporaneous" parameters.
 #' @param ... Additional arguments passed onto `ggplot2`
 #'
 #' @return Returns a plot
@@ -254,7 +258,9 @@ plot_structure <- function(output, ...) {
 
 
 
-plot_parameterHDI <- function(output, ...) {
+plot_parameterHDI <- function(output, 
+                              pars = "temporal", 
+                              ...) {
   if(any(any(class(output) == "easybgm"), any(class(output) == "bgms"), any(class(output) == "bgmCompare")) == FALSE){
     stop("Wrong input provided. The function requires as input the output of the easybgm or bgm function.")
   }

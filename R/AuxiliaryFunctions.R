@@ -140,18 +140,30 @@ centrality_all <- function(res){
 
 
 # 7. turn list into matrix
-list2matrix <- function(obj, p, convert = FALSE) {
-  nlist <- length(obj)/(p*p)
+list2matrix <- function(obj, p, convert = FALSE, part = c("lower", "all")) {
+  # match the argument safely
+  part <- match.arg(part)
+  
+  nlist <- length(obj) / (p * p)
   m <- obj[, , 1]
-  nest <- sum(lower.tri(m))
+  
+  # determine number of elements to extract
+  nest <- if (part == "lower") sum(lower.tri(m)) else p * p
+  
   res <- matrix(0, nrow = nlist, ncol = nest)
-  for(i in 1:nlist){
+  
+  for (i in seq_len(nlist)) {
     m <- obj[, , i]
-    if(convert == T){
+    if (convert) {
       m <- pr2pc(m)
     }
-    res[i, ] <- as.vector(m[lower.tri(m)])
+    res[i, ] <- if (part == "lower") {
+      as.vector(m[lower.tri(m)])
+    } else {
+      as.vector(m)
+    }
   }
+  
   return(res)
 }
 

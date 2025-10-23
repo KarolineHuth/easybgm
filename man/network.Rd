@@ -5,7 +5,14 @@
 \alias{plot_network}
 \title{Network plot}
 \usage{
-plot_network(output, exc_prob = 0.5, evidence_thresh = 10, dashed = FALSE, ...)
+plot_network(
+  output,
+  exc_prob = 0.5,
+  evidence_thresh = 10,
+  dashed = FALSE,
+  pars = "temporal",
+  ...
+)
 }
 \arguments{
 \item{output}{Output object from the easybgm function. Supports also objects from the bgm function of the \code{bgms} package.}
@@ -15,6 +22,8 @@ plot_network(output, exc_prob = 0.5, evidence_thresh = 10, dashed = FALSE, ...)
 \item{evidence_thresh}{If dashed = TRUE, users can specify the threshold for sufficient evidence for inclusion. All edges with evidence lower than \code{evidence_tresh} are dashed.}
 
 \item{dashed}{A binary parameter indicating whether edges with inconclusive evidence should be dashed. Default is FALSE}
+
+\item{pars}{For 'easybgm_longitudinal' objects, the type of parameters to be plotted, either the "temporal" or "contemporaneous" parameters.}
 
 \item{...}{Additional arguments passed onto \code{qgraph}.}
 }
