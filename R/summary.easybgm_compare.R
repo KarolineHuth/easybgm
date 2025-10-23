@@ -44,8 +44,8 @@ summary.easybgm_compare <- function(object, evidence_thresh = 10, ...) {
   ## ---- 2c. Classify edges ---- (i.e., similar, different, inconclusive)
   category <- character(length(BF))
   category[(BF < evidence_thresh) & (BF > 1/evidence_thresh)] <- "inconclusive"
-  category[BF > evidence_thresh] <- "similar"
-  category[BF < 1/evidence_thresh] <- "different"
+  category[BF > evidence_thresh] <- "different"
+  category[BF < 1/evidence_thresh] <- "similar"
   
   ## ---- 2d. Create results data frame ----
   ## ----  Create results data frame with convergence (newer bgms)----
@@ -159,13 +159,13 @@ print.easybgm_compare <- function(x, ...){
         "\n Bayes factors were obtained via single-model comparison.",
         "\n ---",
         "\n AGGREGATED EDGE OVERVIEW",
-        "\n Number of edges with sufficient evidence for group differences:", x$n_inclu_edges,
+        "\n Number of edges with sufficient evidence for group difference:", x$n_inclu_edges,
         "\n Number of edges with insufficient evidence:", x$n_incon_edges,
         "\n Number of edges with sufficient evidence for group similarity:", x$n_exclu_edges,
         "\n Number of possible edges:", x$n_possible_edges,
         "\n")
   } else if(is.null(x$n_structures)){
-    cat("\n BAYESIAN ANALYSIS OF NETWORKS",
+    cat("\n BAYESIAN NETWORK COMPARISON",
         "\n Model type:", x$model,
         "\n Number of nodes:", x$n_nodes,
         "\n Fitting Package:", x$package,
@@ -173,7 +173,7 @@ print.easybgm_compare <- function(x, ...){
         "\n EDGE SPECIFIC OVERVIEW",
         "\n")
     print(x$parameters, quote = FALSE, right = TRUE, row.names=F)
-    cat("\n Bayes Factors larger than", x$evidence_thresh, "were considered sufficient evidence for the classification",
+    cat("\n Bayes Factors larger than", x$evidence_thresh, "were considered sufficient evidence for the classification.",
         "\n Bayes factors were obtained using Bayesian model-averaging.",
         "\n ---",
         "\n AGGREGATED EDGE OVERVIEW",
@@ -191,7 +191,7 @@ print.easybgm_compare <- function(x, ...){
         "\n EDGE SPECIFIC OVERVIEW",
         "\n")
     print(x$parameters, quote = FALSE, right = TRUE, row.names=F)
-    cat("\n Bayes Factors larger than", x$evidence_thresh, "were considered sufficient evidence for the classification",
+    cat("\n Bayes Factors larger than", x$evidence_thresh, "were considered sufficient evidence for the classification.",
         "\n Bayes factors were obtained using Bayesian model-averaging.",
         "\n ")
     if("package_bgms_compare" %in% class(x) && packageVersion("bgms") > "0.1.4.2"){

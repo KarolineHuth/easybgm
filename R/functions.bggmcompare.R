@@ -77,6 +77,6 @@ bgm_extract.package_bggm_compare <- function(fit, type, save,
     bggm_res$model <- "gcgm"
   }
   output <- bggm_res
-  class(output) <- c("package_bggm", "easybgm")
+  class(output) <- c("package_bggm", "easybgm_compare", "easybgm")
   return(output)
 }
