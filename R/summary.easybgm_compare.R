@@ -38,9 +38,10 @@ summary.easybgm_compare <- function(object, evidence_thresh = 10, ...) {
   ## ---- 2b. Extract and round relevant values ----
   parameter_values <- round(object$parameters, 3)[upper.tri(object$parameters)]
   BF <- round(object$inc_BF, 3)[upper.tri(object$inc_BF)]
-  group1 <- round(object$parameters_g1, 3)[upper.tri(object$parameters_g1)]
-  group2 <- round(object$parameters_g2, 3)[upper.tri(object$parameters_g2)]
-  
+  if(!is.null(object$parameters_g1)){
+    group1 <- round(object$parameters_g1, 3)[upper.tri(object$parameters_g1)]
+    group2 <- round(object$parameters_g2, 3)[upper.tri(object$parameters_g2)]
+  }
   ## ---- 2c. Classify edges ---- (i.e., similar, different, inconclusive)
   category <- character(length(BF))
   category[(BF < evidence_thresh) & (BF > 1/evidence_thresh)] <- "inconclusive"
@@ -49,25 +50,45 @@ summary.easybgm_compare <- function(object, evidence_thresh = 10, ...) {
   
   ## ---- 2d. Create results data frame ----
   ## ----  Create results data frame with convergence (newer bgms)----
-  if("package_bgms_compare" %in% class(object) && packageVersion("bgms") > "0.1.4.2"){
-    results <-
-      data.frame(
-        relation = mat_names,
-        group1 = group1, 
-        group2 = group2,
-        parameter_values = parameter_values,
-        BF = BF,
-        category = category,
-        convergence = round(object$convergence_parameter, 3)
-      )
-    colnames(results) <- c(
-      "Relation",
-      "Estimate G1", 
-      "Estimate G2",
-      "Difference",
-      "Difference BF",
-      "Category", 
-      "Convergence")
+  if("package_bgms_compare" %in% class(object)&& packageVersion("bgms") > "0.1.4.2" ){
+    if(is.null(object$group_estimates)){
+      results <-
+        data.frame(
+          relation = mat_names,
+          group1 = group1, 
+          group2 = group2,
+          parameter_values = parameter_values,
+          BF = BF,
+          category = category,
+          convergence = round(object$convergence_parameter, 3)
+        )
+      colnames(results) <- c(
+        "Relation",
+        "Estimate G1", 
+        "Estimate G2",
+        "Difference",
+        "Difference BF",
+        "Category", 
+        "Convergence")
+    }
+    if(!is.null(object$group_estimates)){
+      results <-
+        data.frame(
+          relation = mat_names,
+          overall_estimate = round(object$overall_estimate, 3)[upper.tri(object$overall_estimate)], 
+          parameter_values = parameter_values,
+          BF = BF,
+          category = category,
+          convergence = round(object$convergence_parameter, 3)
+        )
+      colnames(results) <- c(
+        "Relation",
+        "Across-group Estimate", 
+        "Average Difference",
+        "Difference BF",
+        "Category", 
+        "Convergence")
+    }
   } else {
     ## ----  Create results data frame without convergence----
     results <-
@@ -199,6 +220,11 @@ print.easybgm_compare <- function(x, ...){
           "\n the same target distribution, and values greater than about 1.01–1.05 are considered concerning, ", 
           "\n indicating potential lack of convergence. ",
           "\n ---")
+    }
+    if(!is.null(x$fit_object$group_estimates)){
+      cat("\n GROUP SPECIFIC EDGE ESTIMATES", 
+          "\n ")
+      print(x$fit_object$group_estimates, quote = FALSE, right = TRUE, row.names=F)
     }
     cat("\n AGGREGATED EDGE OVERVIEW",
         "\n Number of edges with sufficient evidence for group differences:", x$n_inclu_edges,

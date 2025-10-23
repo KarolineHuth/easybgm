@@ -4,12 +4,13 @@
 #' 
 #' @name easybgm_compare
 #'
-#' @param data A list with two n x p matrices or dataframes containing the variables for n independent observations on p variables for two groups. Note that the variables need to be the same in the two different dataframes.
+#' @param data A list with two n x p matrices or dataframes containing the variables for n independent observations on p variables for two groups. Note that the variables need to be the same in the two different dataframes. Alternatively, when "bgms" version > 0.1.6 is installed, 'data' can also be a matrix with the data from all groups. If this is the case, the 'group_indicator' argument also needs to be specified. 
 #' @param type What is the data type? Options: continuous, mixed, ordinal, binary, or blume-capel.
 #' @param package The R-package that should be used for fitting the network model; supports BGGM and bgms. Optional argument;
 #'     default values are specified depending on the datatype.
 #' @param not_cont If data-type is mixed, a vector of length p, specifying the not-continuous
 #'     variables (1 = not continuous, 0 = continuous).
+#' @param group_indicator Optional integer vector of group memberships for rows of data (multi-group designs), when data is a matrix instead of a list of two dataframes.
 #' @param iter number of iterations for the sampler.
 #' @param save Logical. Should the posterior samples be obtained (default = TRUE)?
 #' @param progress Logical. Should a progress bar be shown (default = TRUE)?
@@ -95,12 +96,18 @@
 
 
 
-easybgm_compare <- function(data, type, package = NULL, not_cont = NULL, iter = 1e4,
-                    save = TRUE, progress = TRUE,
-                    ...){
-
-  if(class(data) != "list"){
-    stop("Please provide your two datasets in a list containing only the two datasets.",
+easybgm_compare <- function(data, 
+                            type, 
+                            package = NULL, 
+                            not_cont = NULL, 
+                            group_indicator = NULL, 
+                            iter = 1e4,
+                            save = TRUE, 
+                            progress = TRUE,
+                            ...){
+  
+  if(class(data) != "list" & is.null(group_indicator)){
+    stop("Your data can't be read. There are two options of providing your data: 1) Provide two datasets in a list containing only the two datasets, or for ordinal data with the bgms pacakge > 0.1.6. 2) provide the data as a matrix or data.frame together with specifying the 'group_indicator' argument, which then also allows for multi-group comparison.",
          call. = FALSE)
   }
   if(type == "mixed" & is.null(not_cont)){
@@ -108,7 +115,7 @@ easybgm_compare <- function(data, type, package = NULL, not_cont = NULL, iter = 
          (1 = not continuous, 0 = continuous).",
          call. = FALSE)
   }
-
+  
   dots <- list(...)
   has_reference <- "reference_category" %in% names(dots)
   has_baseline  <- "baseline_category" %in% names(dots)
@@ -142,36 +149,43 @@ easybgm_compare <- function(data, type, package = NULL, not_cont = NULL, iter = 
     if(package == "bgms") package <- "package_bgms_compare"
     if(type == "binary") package <- "package_bgms_compare"
   }
-
-
+  
+  
   if((package == "package_bgms_compare") & (type %in% c("continuous", "mixed"))){
     warning("bgms can only fit ordinal or binary datatypes. For continuous or mixed data,
            choose the BGGM package. By default we have changed the package to BGGM",
             call. = FALSE)
     package <- "package_bggm_compare"
-
+    
   }
-
-
+  
+  if(class(data) != "list" &  package == "package_bggm_compare"){
+    stop("Your data can't be read. For continuous data fit with BGGM, you can only provide two datasets in a list.",
+         call. = FALSE)
+  }
+  
   fit <- list()
   class(fit) <- c(package, "easybgm")
-
+  
   # Fit the model
   tryCatch(
-    {fit <- bgm_fit(fit, data = data, type = type, not_cont = not_cont, iter = iter,
+    {fit <- bgm_fit(fit, data = data, type = type, not_cont = not_cont, 
+                    group_indicator = group_indicator, 
+                    iter = iter,
                     save = save, progress = progress, ...)
     },
     error = function(e){
       # If an error occurs, stop running the code
       stop(paste("Error meassage: ", e$message, "Please consult the original message for more information.") )
     })
-
+  
   # Extract the results
   res <- bgm_extract(fit, type = type,
                      save = save, not_cont = not_cont,
+                     group_indicator = group_indicator, 
                      data = data, 
                      ...)
-
+  
   # Output results
   class(res) <- c(package, "easybgm_compare", "easybgm")
   return(res)

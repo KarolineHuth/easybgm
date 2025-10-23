@@ -9,6 +9,7 @@ easybgm_compare(
   type,
   package = NULL,
   not_cont = NULL,
+  group_indicator = NULL,
   iter = 10000,
   save = TRUE,
   progress = TRUE,
@@ -16,7 +17,7 @@ easybgm_compare(
 )
 }
 \arguments{
-\item{data}{A list with two n x p matrices or dataframes containing the variables for n independent observations on p variables for two groups. Note that the variables need to be the same in the two different dataframes.}
+\item{data}{A list with two n x p matrices or dataframes containing the variables for n independent observations on p variables for two groups. Note that the variables need to be the same in the two different dataframes. Alternatively, when "bgms" version > 0.1.6 is installed, 'data' can also be a matrix with the data from all groups. If this is the case, the 'group_indicator' argument also needs to be specified.}
 
 \item{type}{What is the data type? Options: continuous, mixed, ordinal, binary, or blume-capel.}
 
@@ -25,6 +26,8 @@ default values are specified depending on the datatype.}
 
 \item{not_cont}{If data-type is mixed, a vector of length p, specifying the not-continuous
 variables (1 = not continuous, 0 = continuous).}
+
+\item{group_indicator}{Optional integer vector of group memberships for rows of data (multi-group designs), when data is a matrix instead of a list of two dataframes.}
 
 \item{iter}{number of iterations for the sampler.}
 

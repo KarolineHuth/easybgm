@@ -2,7 +2,7 @@
 # 1. Fitting function
 # --------------------------------------------------------------------------------------------------
 #' @export
-bgm_fit.package_bggm_compare <- function(fit, type, data, iter, save,
+bgm_fit.package_bggm_compare <- function(fit, type, data, group_indicator, iter, save,
                                  not_cont, progress, ...){
   
   prior_defaults <- list(
