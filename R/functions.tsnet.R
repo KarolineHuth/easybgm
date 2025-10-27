@@ -47,8 +47,8 @@ bgm_extract.package_tsnet <- function(fit, type,
   colnames(tsnet_res$parameters_contemporaneous) <- rownames(tsnet_res$parameters_contemporaneous) <- varnames
   
   # Raw samples
-  tsnet_res$posterior_samples_temporal <- list2matrix(post_samps$fit$beta, p = 6, part = "all")
-  tsnet_res$posterior_samples_contemporaneous <- list2matrix(post_samps$fit$pcor, p = 6)
+  tsnet_res$posterior_samples_temporal <- list2matrix(post_samps$fit$beta, p = tsnet_res$p, part = "all")
+  tsnet_res$posterior_samples_contemporaneous <- list2matrix(post_samps$fit$pcor, p = tsnet_res$p)
   
   
   tsnet_res$model <- "GVAR"

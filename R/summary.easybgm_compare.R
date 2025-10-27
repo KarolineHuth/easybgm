@@ -166,7 +166,7 @@ print.easybgm_compare <- function(x, ...){
   
   if(is.null(x$n_possible_edges)){
     #NextMethod("print")
-    print(summary.easybgm(x))
+    print(summary.easybgm_compare(x))
   } else if(any(class(x) == "package_bggm")){
     cat("\n BAYESIAN NETWORK COMPARISON",
         "\n Model type:", x$model,
