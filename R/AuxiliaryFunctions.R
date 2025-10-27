@@ -47,7 +47,7 @@ extract_posterior <- function(fit, data, method = c("ggm", "gcgm"), posterior_me
   } else {
     S <- t(data) %*% data
   }
-  
+
   if(posterior_method == "MAP"){
     Rs = matrix(0, nrow = 10000, ncol = (p*(p-1))/2)
     index <- which.max(fit$graph_weights)
@@ -177,14 +177,14 @@ dots_check <- function(...){
 # The function tests if we have overlap in the posterior distributions,
 # and with that if we need a(nother) bridge hypothesis.
 is_overlap <- function(ordered_list) {
-  
+
   for (i in 1: (length(ordered_list) - 1)) {
     #check all pairs of hypotheses
     this_el <- ordered_list[[i]]
     next_el <- ordered_list[[i + 1]]
-    
+
     overlap <- which(this_el$tab != 0 & next_el$tab != 0)
-    
+
     if (length(overlap) == 0) {
       before_position <- i
       if (this_el$alpha == next_el$alpha) {
@@ -208,7 +208,7 @@ is_overlap <- function(ordered_list) {
 
 # Given a list of the results for all needed hypotheses, the function
 # computes the log BF of sparse against dense.
-# @args ordered list of the results, with the outer two the hypotheses of 
+# @args ordered list of the results, with the outer two the hypotheses of
 # interest, and in between the bridge hypotheses. k the number of potential edges.
 compute_bayes_factor <- function(ordered_list, k) {
   bf <- 0
@@ -216,34 +216,34 @@ compute_bayes_factor <- function(ordered_list, k) {
   for (i in 1: (length(ordered_list) - 1)) {
     el1 <- ordered_list[[i]]
     el2 <- ordered_list[[i + 1]]
-    
+
     alpha1 <- el1$alpha
     alpha2 <- el2$alpha
     beta1 <- el1$beta
     beta2 <- el2$beta
     tab1 <- el1$tab
     tab2 <- el2$tab
-    
+
     log_prior1 <- lchoose(k, c) - lbeta(alpha1, beta1) + lfactorial(alpha1 + c - 1) +
       lfactorial(beta1 + k - c - 1) - lfactorial(alpha1 + beta1 + k - 1)
     log_prior2 <- lchoose(k, c) - lbeta(alpha2, beta2) + lfactorial(alpha2 + c - 1) +
       lfactorial(beta2 + k - c - 1) - lfactorial(alpha2 + beta2 + k - 1)
-    
+
     prob1 <- tab1 / sum(tab1)
     prob2 <- tab2 / sum(tab2)
-    
+
     log_prob1 <- log(prob1)
     log_prob2 <- log(prob2)
-    
+
     odds1 <- log_prior1 - log_prob1
     odds2 <- log_prob2 - log_prior2
-    
+
     log_bf <- odds1 + odds2
     log_bf[is.infinite(log_bf)] <- NA
     log_bf <- mean(log_bf, na.rm = TRUE)
-    
+
     bf <- bf + log_bf
-    
+
   }
   return(bf)
 }
@@ -253,28 +253,93 @@ compute_bayes_factor <- function(ordered_list, k) {
 # @args alpha, beta parameters, c the complexity for which the probability has to b computed
 # p the number of nodes
 beta_bernoulli_prob <- function(c, alpha, beta, p) {
-  
+
   k <- p * (p - 1) / 2
 
   log_nom <- lbeta(alpha + c, beta + k - c)
   log_denom <- lbeta(alpha, beta)
 
   log_choose <- lchoose(k, c)
-  
+
 
   log_prob <- log_choose + log_nom - log_denom
-  
+
   return(log_prob)
 }
 
-# Calculates the probability of an edge being present in the beta-bernoulli (BB) 
+# Calculates the probability of an edge being present in the beta-bernoulli (BB)
 # or the stochastic block prior on the network structure of the bgms package
 # Returns the prior inclusion probability for individual edges
-# which simply calculates the expected value of the BB distribution 
-# @args alpha, beta arguments of beta bernoulli prior, 
+# which simply calculates the expected value of the BB distribution
+# @args alpha, beta arguments of beta bernoulli prior,
 
 
 calculate_edge_prior <- function(alpha, beta) {
    alpha / (alpha + beta)
+}
+
+
+# ---------------------------------------------------------------------------------
+# 3. Function for calculating Clustering Bayes factors for Stochastic Block Model
+# --------------------------------------------------------------------------------
+#' Calculate Clustering Bayes Factors for when using the Stochastic Block Model
+#' as an edge prior
+#'
+#' This function calculates Bayes factors to evaluate evidence in favor of
+#' clustering for models fitted with the \code{bgms} packae with
+#' \code{edge_prior = "Stochastic-Block"}. It supports two types of calculations:
+#' simple Bayes factors between two hypothesized number of clusters (`b1` and `b2`),
+#' and Bayes factor of the hypothesis of clustering against the null hypothesis of
+#' no clustering.
+#'
+#' @param fit A fitted object of class \code{easybgm} or \code{bgms} containing
+#' the clustering results.
+#' @param type A character string specifying the type of Bayes factor to calculate.
+#'   Options are `"simple"` or `"complement"`. Defaults to `"simple"`.
+#' @param b1 Indicates the number of clusters according to the first simple hypothesis,
+#'  required for `type = "simple"`.
+#' @param b2 Indicates the number of clusters according to the first simple hypothesis,
+#'  required for `type = "simple"`.
+
+#' @return A numeric value representing the Bayes factor.
+#'
+#' @export
+clusterBayesfactor <- function(fit,
+                               type = "complement",
+                               b1 = NULL,
+                               b2 = NULL) {
+
+  # check if the type argument is valid
+  if (!type %in% c("simple", "complement")) {
+    stop("The type argument must be either 'simple' or 'complement'.")
+  }
+
+  # Check the class of fit (if it is a bgms object, rename components)
+  if (inherits(fit, "bgms")) {
+    names(fit)[names(fit) == "arguments"] <- "fit_arguments"
+  }
+
+  lambda <- fit$fit_arguments$lambda
+
+  if (type == "simple") {
+    if (is.null(b1) || is.null(b2)) {
+      stop("For the simple type, both b1 and b2, indicating the number of clusters to be tested, must be provided.")
+    }
+    # Calculate prior odds in favor of b1 against b2
+    prO <- (lambda^(b1 - b2) * factorial(b2)) / factorial(b1)
+
+    # Calculate the posterior odds in favor of b1 against b2
+    poO <-  unname(fit$sbm$cposterior_num_blocks[b1, 1]) / unname(fit$sbm$posterior_num_blocks[b2, 1])
+
+    bayesFactor <- poO / prO
+
+  } else if (type == "complement") {
+    # In favor of the complement
+    prO <- (exp(lambda) - 1 - lambda) / lambda
+    poO <- sum(fit$sbm$posterior_num_blocks[-1, 1]) / unname(fit$sbm$posterior_num_blocks[1, 1])
+    bayesFactor <- poO / prO
+  }
+
+  return(round(bayesFactor, 1))
 }
 
