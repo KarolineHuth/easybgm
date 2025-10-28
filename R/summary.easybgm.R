@@ -258,18 +258,29 @@ print.easybgm <- function(x, ...){
         "\n Number of edges with insufficient evidence:", x$n_incon_edges,
         "\n Number of edges with sufficient evidence for exclusion:", x$n_exclu_edges,
         "\n Number of possible edges:", x$n_possible_edges,
-        "\n",
-        "\n ---",
-        "\n CLUSTERING OVERVIEW",
         "\n")
-    print(x$posterior_num_blocks, quote = FALSE, right = TRUE, row.names=F)
-    cat("\n Estimated cluster assignments of the nodes:",
-        "\n")
-    print(x$posterior_node_allocations, quote = FALSE, right = TRUE, row.names=F)
-    cat("\n Bayes factor in favor of more than one cluster:", x$BF,
-        "\n If you wish to test hypotheses about specific number of clusters,",
-        "\n please use the clusterBayesfactor function.",
-        "\n")
+    if(!is.null(x$posterior_num_blocks)){
+      cat("\n ---",
+          "\n CLUSTERING OVERVIEW",
+          "\n")
+      print(x$posterior_num_blocks, quote = FALSE, right = TRUE, row.names=F)
+      cat("\n Estimated cluster assignments of the nodes:",
+          "\n")
+      print(x$posterior_node_allocations, quote = FALSE, right = TRUE, row.names=F)
+      cat("\n Bayes factor in favor of more than one cluster:", x$BF,
+          "\n If you wish to test hypotheses about specific number of clusters,",
+          "\n please use the clusterBayesfactor function.",
+          "\n")
+    }
+
+    if(!is.null(x$n_structures)){
+      cat("\n ---",
+          "\n STRUCTURE OVERVIEW",
+          "\n Number of visited structures:", x$n_structures,
+          "\n Number of possible structures:", x$possible_struc,
+          "\n Posterior probability of most likely structure:", x$max_structure_prob,
+          "\n---")
+    }
     if(!is.null(x$n_structures)){
       cat("\n ---",
           "\n STRUCTURE OVERVIEW",
