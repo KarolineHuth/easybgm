@@ -112,7 +112,6 @@ bgm_extract.package_bgms <- function(fit, type, save,
       bgms_res$inc_BF <- (bgms_res$inc_probs / (1 - bgms_res$inc_probs)) /
         (edge.prior / (1 - edge.prior))
       bgms_res$structure <- 1 * (bgms_res$inc_probs > 0.5)
-      # ADD THIS BLOCK:
       gammas <- extract_indicators(fit)
       structures <- apply(gammas, 1, paste0, collapse = "")
       table_structures <- as.data.frame(table(structures))
