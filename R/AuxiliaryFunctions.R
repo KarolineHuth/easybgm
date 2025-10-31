@@ -286,22 +286,27 @@ calculate_edge_prior <- function(alpha, beta) {
 #' as an edge prior
 #'
 #' This function calculates Bayes factors to evaluate evidence in favor of
-#' clustering for models fitted with the \code{bgms} packae with
-#' \code{edge_prior = "Stochastic-Block"}. It supports two types of calculations:
-#' simple Bayes factors between two hypothesized number of clusters (`b1` and `b2`),
-#' and Bayes factor of the hypothesis of clustering against the null hypothesis of
-#' no clustering.
+#' clustering for models fitted with the \code{bgms} package (i.e., with arguments
+#' \code{package = "bgms"} and \code{edge_prior = "Stochastic-Block"} within
+#' the \code{easybgm} function). The function supports two types of Bayes factors:
+#' Bayes factors between two point hypothesized number of clusters (`b1` and `b2`),
+#' and Bayes factor of the hypothesis of clustering (i.e., the complement hypothesis)
+#' against the hypothesis of no clustering (i.e., the null, which simply means
+#' that the network exibits one global cluster).
 #'
 #' @param fit A fitted object of class \code{easybgm} or \code{bgms} containing
 #' the clustering results.
 #' @param type A character string specifying the type of Bayes factor to calculate.
-#'   Options are `"simple"` or `"complement"`. Defaults to `"simple"`.
-#' @param b1 Indicates the number of clusters according to the first simple hypothesis,
-#'  required for `type = "simple"`.
-#' @param b2 Indicates the number of clusters according to the first simple hypothesis,
-#'  required for `type = "simple"`.
+#'   Options are `"point"` or `"complement"`. Defaults to `"complement"`.
+#' @param b1 Indicates the number of clusters according to the first point hypothesis,
+#'  required for `type = "point"`.
+#' @param b2 Indicates the number of clusters according to the second point hypothesis,
+#'  required for `type = "point"`.
 
-#' @return A numeric value representing the Bayes factor.
+#' @return A numeric value representing the Bayes factor. When type is `"point"`,
+#' the Bayes factor represents evidence in favor of `b1` clusters against `b2`
+#' clusters. When type is `"complement"`, the Bayes factor represents evidence
+#' in favor of clustering (i.e., more than one cluster) against no clustering.
 #'
 #' @export
 clusterBayesfactor <- function(fit,
@@ -310,8 +315,8 @@ clusterBayesfactor <- function(fit,
                                b2 = NULL) {
 
   # check if the type argument is valid
-  if (!type %in% c("simple", "complement")) {
-    stop("The type argument must be either 'simple' or 'complement'.")
+  if (!type %in% c("point", "complement")) {
+    stop("The type argument must be either 'point' or 'complement'.")
   }
 
   # Check the class of fit (if it is a bgms object, rename components)
@@ -321,15 +326,15 @@ clusterBayesfactor <- function(fit,
 
   lambda <- fit$fit_arguments$lambda
 
-  if (type == "simple") {
+  if (type == "point") {
     if (is.null(b1) || is.null(b2)) {
-      stop("For the simple type, both b1 and b2, indicating the number of clusters to be tested, must be provided.")
+      stop("For the point type, both b1 and b2, indicating the number of clusters to be tested, must be provided.")
     }
     # Calculate prior odds in favor of b1 against b2
     prO <- (lambda^(b1 - b2) * factorial(b2)) / factorial(b1)
 
     # Calculate the posterior odds in favor of b1 against b2
-    poO <-  unname(fit$sbm$cposterior_num_blocks[b1, 1]) / unname(fit$sbm$posterior_num_blocks[b2, 1])
+    poO <-  unname(fit$sbm$posterior_num_blocks[b1, 1]) / unname(fit$sbm$posterior_num_blocks[b2, 1])
 
     bayesFactor <- poO / prO
 
