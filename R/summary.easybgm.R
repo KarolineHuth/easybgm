@@ -288,7 +288,7 @@ print.easybgm <- function(x, ...){
     if("package_bgms" %in% class(x) && packageVersion("bgms") > "0.1.4.2"){
       cat("\n Convergence indicates the R-hat (Gelman–Rubin) statistic measuring how well MCMC chains have converged to",
           "\n the same target distribution, and values greater than about 1.01–1.05 are considered concerning, indicating",
-          "\n potential lack of convergence. ",
+          "\n potential lack of convergence for the estimates of the pairwise interactions. ",
           "\n ---")
     }
     cat("\n AGGREGATED EDGE OVERVIEW",
