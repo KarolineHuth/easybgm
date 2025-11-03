@@ -267,18 +267,6 @@ beta_bernoulli_prob <- function(c, alpha, beta, p) {
   return(log_prob)
 }
 
-# Calculates the probability of an edge being present in the beta-bernoulli (BB)
-# or the stochastic block prior on the network structure of the bgms package
-# Returns the prior inclusion probability for individual edges
-# which simply calculates the expected value of the BB distribution
-# @args alpha, beta arguments of beta bernoulli prior,
-
-
-calculate_edge_prior <- function(alpha, beta) {
-   alpha / (alpha + beta)
-}
-
-
 # ---------------------------------------------------------------------------------
 # 3. Function for calculating Clustering Bayes factors for Stochastic Block Model
 # --------------------------------------------------------------------------------

@@ -70,11 +70,10 @@ bgm_extract.package_bgms <- function(fit, type, save,
   args$save <- save
   if (args$edge_prior[1] == "Bernoulli") {
     edge.prior <- args$inclusion_probability
-  } else {
-    edge.prior <- calculate_edge_prior(
-      alpha = args$beta_bernoulli_alpha,
-      beta = args$beta_bernoulli_beta
-    )
+  } else { # this is both for the BB and SBM (however, when the SBM has
+    # within and between beta hyperparameters, this needs to be adjusted
+    edge.prior <- args$beta_bernoulli_alpha /
+      (args$beta_bernoulli_alpha + args$beta_bernoulli_beta)
     args$inclusion_probability <- edge.prior
   }
   bgms_res <- list()
@@ -89,8 +88,14 @@ bgm_extract.package_bgms <- function(fit, type, save,
     bgms_res$structure <- matrix(1, ncol = p, nrow = p)
     if (args$edge_selection) {
       bgms_res$inc_probs <- extract_posterior_inclusion_probabilities(fit)
+      if (args$edge_prior[1] == "Bernoulli") {
       bgms_res$inc_BF <- (bgms_res$inc_probs / (1 - bgms_res$inc_probs)) /
         (edge.prior / (1 - edge.prior))
+      } else {
+        bgms_res$inc_BF <- (bgms_res$inc_probs / (1 - bgms_res$inc_probs)) /
+          (args$beta_bernoulli_alpha / args$beta_bernoulli_beta)
+      } # this is both for the BB and SBM (however, when the SBM has
+      # within and between beta hyperparameters, this needs to be adjusted
       bgms_res$structure <- 1 * (bgms_res$inc_probs > 0.5)
       gammas <- extract_indicators(fit)
       structures <- apply(gammas, 1, paste0, collapse = "")
