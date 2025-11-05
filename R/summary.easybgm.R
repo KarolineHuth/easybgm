@@ -37,11 +37,11 @@ summary.easybgm <- function(object, evidence_thresh = 10, ...) {
     names_bycol <- matrix(rep(names, each = p), ncol = p)
     names_byrow <- matrix(rep(names, each = p), ncol = p, byrow = T)
     names_comb <- matrix(paste0(names_byrow, "-", names_bycol), ncol = p)
-    mat_names <- names_comb[upper.tri(names_comb)]
+    mat_names <- names_comb[lower.tri(names_comb)]
 
     ## ---- 2b. Extract inclusion probabilities and Bayes Factors ----
-    inc_probs  <- round(object$inc_probs, 3)[upper.tri(object$inc_probs)]
-    BF <- round(object$inc_BF, 3)[upper.tri(object$inc_BF)]
+    inc_probs  <- round(object$inc_probs, 3)[lower.tri(object$inc_probs)]
+    BF <- round(object$inc_BF, 3)[lower.tri(object$inc_BF)]
 
     ## ---- 2c. Classify edges based on Bayes Factor ----(i.e., included, excluded, inconclusive)
     category <- character(length(BF))
@@ -70,9 +70,9 @@ summary.easybgm <- function(object, evidence_thresh = 10, ...) {
     names_bycol <- matrix(rep(names, each = p), ncol = p)
     names_byrow <- matrix(rep(names, each = p), ncol = p, byrow = T)
     names_comb <- matrix(paste0(names_byrow, "-", names_bycol), ncol = p)
-    mat_names <- names_comb[upper.tri(names_comb)]
+    mat_names <- names_comb[lower.tri(names_comb)]
 
-    parameter_values <- round(object$parameters, 3)[upper.tri(object$parameters)]
+    parameter_values <- round(object$parameters, 3)[lower.tri(object$parameters)]
 
 
     results <-
@@ -90,12 +90,12 @@ summary.easybgm <- function(object, evidence_thresh = 10, ...) {
     names_bycol <- matrix(rep(names, each = p), ncol = p)
     names_byrow <- matrix(rep(names, each = p), ncol = p, byrow = T)
     names_comb <- matrix(paste0(names_byrow, "-", names_bycol), ncol = p)
-    mat_names <- names_comb[upper.tri(names_comb)]
+    mat_names <- names_comb[lower.tri(names_comb)]
 
     ## ---- 2g. Extract and round relevant values ----
-    parameter_values <- round(object$parameters, 3)[upper.tri(object$parameters)]
-    inc_probs  <- round(object$inc_probs, 3)[upper.tri(object$inc_probs)]
-    BF <- round(object$inc_BF, 3)[upper.tri(object$inc_BF)]
+    parameter_values <- round(object$parameters, 3)[lower.tri(object$parameters)]
+    inc_probs  <- round(object$inc_probs, 3)[lower.tri(object$inc_probs)]
+    BF <- round(object$inc_BF, 3)[lower.tri(object$inc_BF)]
 
     ## ---- 2h. Classify edges ---- (i.e., included, excluded, inconclusive)
     category <- character(length(BF))
