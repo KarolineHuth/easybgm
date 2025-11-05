@@ -123,6 +123,9 @@ bgm_extract.package_bgms <- function(fit, type, save,
       bgms_res$structure_probabilities <- table_structures[, 2] / nrow(gammas)
       bgms_res$graph_weights <- table_structures[, 2]
       bgms_res$sample_graph <- as.character(table_structures[, 1])
+      # finalize output
+      colnames(bgms_res$inc_probs) <- colnames(bgms_res$parameters)
+      colnames(bgms_res$inc_BF) <- colnames(bgms_res$parameters)
     }
   }
   if (args$edge_prior[1] == "Stochastic-Block" && packageVersion("bgms") > "0.1.6") {
@@ -137,8 +140,6 @@ bgm_extract.package_bgms <- function(fit, type, save,
     bgms_res$convergence_parameter <-  fit$posterior_summary_pairwise$Rhat
   }
   # --- Finalize output ---
-  colnames(bgms_res$inc_probs) <- colnames(bgms_res$parameters)
-  colnames(bgms_res$inc_BF) <- colnames(bgms_res$parameters)
   bgms_res$model <- type
   bgms_res$fit_arguments <- args
   output <- bgms_res
