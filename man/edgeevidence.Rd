@@ -16,7 +16,9 @@ plot_edgeevidence(
 \arguments{
 \item{output}{Output object from the easybgm function. Supports also objects from the bgm function of the \code{bgms} package.}
 
-\item{evidence_thresh}{Bayes Factor which will be considered sufficient evidence for in-/exclusion, default is 10.}
+\item{evidence_thresh}{Bayes Factor which will be considered sufficient evidence for in-/exclusion, default is 10. Note that
+this parameter defines when edges provide sufficient evidence, thus when the edge color will turn saturated blue or yellow.
+All edges with a BF between 3 and the evidence threshold will receive a light saturated edge color.}
 
 \item{split}{if TRUE, plot is split in included and excluded edges. Note that by default separate plots are shown and appear after each other in the plot window. To show the plots side-by-side specify par(mfrow = c(1, 2)).}
 
@@ -28,7 +30,10 @@ plot_edgeevidence(
 Returns a plot
 }
 \description{
-The edge evidence plot colors edges according to their hypothesis testing results: blue for included, red for excluded, and gray for inconclusive. This plot can be used to visualize the hypothesis testing results whether edge presence or absence. The edge evidence plot can aid researchers in deciding which edges provide robust inferential conclusions
+The edge evidence plot colors edges according to their hypothesis testing results: blue for included,
+light blue for weakly included, gray for inconclusive, light yellow for weakly excluded, and yellow for excluded.
+This plot can be used to visualize the hypothesis testing results whether edge presence or absence. The edge evidence
+plot can aid researchers in deciding which edges provide robust inferential conclusions
 }
 \examples{
 \donttest{

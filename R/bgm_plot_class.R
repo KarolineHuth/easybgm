@@ -81,12 +81,17 @@ plot_complexity_probabilities <- function(output, ...) {
 
 #' @title Edge evidence plot
 #'
-#' @description The edge evidence plot colors edges according to their hypothesis testing results: blue for included, red for excluded, and gray for inconclusive. This plot can be used to visualize the hypothesis testing results whether edge presence or absence. The edge evidence plot can aid researchers in deciding which edges provide robust inferential conclusions
+#' @description The edge evidence plot colors edges according to their hypothesis testing results: blue for included, 
+#'    light blue for weakly included, gray for inconclusive, light yellow for weakly excluded, and yellow for excluded. 
+#'    This plot can be used to visualize the hypothesis testing results whether edge presence or absence. The edge evidence 
+#'    plot can aid researchers in deciding which edges provide robust inferential conclusions
 #'
 #' @name edgeevidence
 #'
 #' @param output Output object from the easybgm function. Supports also objects from the bgm function of the `bgms` package.
-#' @param evidence_thresh Bayes Factor which will be considered sufficient evidence for in-/exclusion, default is 10.
+#' @param evidence_thresh Bayes Factor which will be considered sufficient evidence for in-/exclusion, default is 10. Note that 
+#'    this parameter defines when edges provide sufficient evidence, thus when the edge color will turn saturated blue or yellow. 
+#'    All edges with a BF between 3 and the evidence threshold will receive a light saturated edge color. 
 #' @param split if TRUE, plot is split in included and excluded edges. Note that by default separate plots are shown and appear after each other in the plot window. To show the plots side-by-side specify par(mfrow = c(1, 2)).
 #' @param show specifies which edges should be shown, indicated by "all", "included", "inconclusive", "excluded".
 #' @param ... Additional arguments passed onto `qgraph`.
