@@ -180,7 +180,7 @@ plot_edgeevidence.bgms <- function(output, evidence_thresh = 10, split = FALSE, 
   
   # Specify default arguments for function
   default_args <- list(
-    edge.color = c("#36648b", "#eeb004", "#bfbfbf"),
+    edge.color = c("#36648b","#86a2b9", "#bfbfbf", "#f9d183", "#eeb004"),
     colnames = colnames(output$parameters),
     layout = qgraph::averageLayout(as.matrix(output$parameters*output$structure)),
     theme = "TeamFortress",
@@ -198,9 +198,16 @@ plot_edgeevidence.bgms <- function(output, evidence_thresh = 10, split = FALSE, 
   
   # assign a color to each edge (inclusion - blue, exclusion - red, no conclusion - grey)
   graph_color <- graph
-  graph_color <-  ifelse(graph < evidence_thresh & graph > 1/evidence_thresh,
-                         graph_color <- args$edge.color[3], graph_color <- args$edge.color[1])
-  graph_color[graph < (1/evidence_thresh)] <- args$edge.color[2]
+  # 1. Most evidence for inclusion
+  graph_color[graph > evidence_thresh] <- args$edge.color[1]
+  # 2. Moderate inclusion (BF > 3 but ≤ evidence_thresh)
+  graph_color[graph > 3 & graph <= evidence_thresh] <- args$edge.color[2]
+  # 3. Inconclusive (BF between 1/3 and 3)
+  graph_color[graph >= 1/3 & graph <= 3] <- args$edge.color[3]
+  # 4. Moderate exclusion (BF < 1/3 but > 1/evidence_thresh)
+  graph_color[graph < 1/3 & graph > 1/evidence_thresh] <- args$edge.color[4]
+  # 5. Strong evidence for exclusion (BF ≤ 1/evidence_thresh)
+  graph_color[graph <= 1/evidence_thresh] <- args$edge.color[5]
   
   if (show == "all") {
     if (!split) {

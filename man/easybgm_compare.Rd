@@ -17,7 +17,10 @@ easybgm_compare(
 )
 }
 \arguments{
-\item{data}{A list with two n x p matrices or dataframes containing the variables for n independent observations on p variables for two groups. Note that the variables need to be the same in the two different dataframes. Alternatively, when "bgms" version > 0.1.6 is installed, 'data' can also be a matrix with the data from all groups. If this is the case, the 'group_indicator' argument also needs to be specified.}
+\item{data}{A list with two n x p matrices or dataframes containing the variables for n independent observations on
+p variables for two groups. Note that the variables need to be the same in the two different dataframes. Alternatively,
+when "bgms" version > 0.1.6 is installed, 'data' can also be a matrix of binary and ordinal responses from all groups.
+If this is the case, the 'group_indicator' argument also needs to be specified.}
 
 \item{type}{What is the data type? Options: continuous, mixed, ordinal, binary, or blume-capel.}
 
@@ -27,9 +30,10 @@ default values are specified depending on the datatype.}
 \item{not_cont}{If data-type is mixed, a vector of length p, specifying the not-continuous
 variables (1 = not continuous, 0 = continuous).}
 
-\item{group_indicator}{Optional integer vector of group memberships for rows of data (multi-group designs), when data is a matrix instead of a list of two dataframes.}
+\item{group_indicator}{Optional integer vector of group memberships for the rows of the dataframe (multi-group comparison),
+when data is a matrix instead of a list of two dataframes.}
 
-\item{iter}{number of iterations for the sampler.}
+\item{iter}{number of iterations for the sampler. Default is 1e4.}
 
 \item{save}{Logical. Should the posterior samples be obtained (default = TRUE)?}
 
@@ -46,7 +50,7 @@ The returned object of \code{easybgm} contains several elements:
 
 \item \code{inc_probs} A p x p matrix containing the posterior inclusion probabilities of subgroup differences.
 
-\item \code{BF} A p x p matrix containing the posterior inclusion Bayes factors of subgroup differences.
+\item \code{inc_BF} A p x p matrix containing the posterior inclusion Bayes factors of subgroup differences.
 
 \item \code{structure} Adjacency matrix of the median probability model (i.e., edges with a posterior probability larger 0.5).
 }
@@ -59,7 +63,9 @@ In addition, for \code{bgms}, the function returns:
 
 \item \code{graph_weights} A vector containing the number of times a particular structure was visited.
 
-\item \code{sample_graphs} A vector containing the indexes of a particular structure.
+\item \code{sample_graph} A vector containing the indexes of a particular structure.
+
+\item \code{convergence_parameter} A vector containing the R-hat (Gelman–Rubin) statistic for the difference parameter measuring how well MCMC chains have converged to the same target distribution.
 }
 
 For both packages, when setting \code{save = TRUE}, the function will also return the following object:
@@ -70,37 +76,33 @@ For both packages, when setting \code{save = TRUE}, the function will also retur
 }
 }
 \description{
-Easy comparison of networks using Bayesian inference to extract differences across conditional (in)dependence across groups.
+Easy comparison of networks using Bayesian inference to extract differences in conditional (in)dependence across groups.
 }
 \details{
 Users may oftentimes wish to deviate from the default, usually uninformative, prior specifications of the
 packages to informed priors. This can be done by simply adding additional arguments to the \code{easybgm} function.
 Depending on the package that is running the underlying network estimation, researcher can specify different prior
-arguments. We give an overview of the prior arguments per package below.
-
-\strong{bgms}:
-
-\itemize{
-
-\item \code{interaction_scale} the scale of the Cauchy distribution that is used as a
-prior for the pairwise interaction parameters. The default is 2.5.
-
-\item \code{pairwise_difference_prior} prior on the graph structure, which can be either "Bernoulli" or "Beta-Bernoulli". The default is "Bernoulli".
-
-\item \code{pairwise_difference_probability} prior edge inclusion probability for the "Bernoulli" distribution. an be a single probability or a matrix of p rows and p columns specifying the probability of a difference for each edge pair. The default is 0.5.
-
-\item \code{pairwise_beta_bernoulli_alpha} and \code{pairwise_beta_bernoulli_beta} the parameters of the "Beta-Bernoulli" priors. The default is 1 for both.
-
-\item \code{threshold_alpha} and \code{threshold_beta} the parameters of the beta-prime distribution for the threshold parameters. The defaults are both set to 1.
-
-}
-
-\strong{BGGM}:
-
-\itemize{
-
-\item \code{prior_sd} the standard deviation of the prior distribution of the interaction parameters, approximately the scale of a beta distribution. The default is 0.25.
-}
+arguments. Please consult the original packages "bgms" and "BGGM" for the specific informed prior options.
 
 We always encourage researcher to conduct prior robustness checks.
+}
+\examples{
+
+
+library(easybgm)
+library(bgms)
+
+data <- na.omit(ADHD)
+
+group1 <- data[1:100, 1:5]
+group2 <- data[101:200, 1:5]
+
+# Fitting the Wenchuan PTSD data
+
+fit <- easybgm_compare(list(group1, group2), type = "binary",
+                iter = 1000 # for demonstration only (> 5e4 recommended)
+                save = TRUE
+                )
+
+summary(fit)
 }
