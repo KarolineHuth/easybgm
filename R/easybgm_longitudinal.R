@@ -11,7 +11,7 @@
 #' @param package The R-package that should be used for fitting the network model; supports currently only tsnet. 
 #' @param type The type of the data to be fit.
 #' @param iter number of iterations for the sampler.
-#' @param centrality Logical. Should the centrality measures be extracted (default = FALSE)? Note, that it will significantly increase the computation time.
+#' @param centrality Logical. Should the centrality measures be extracted (default = FALSE)? 
 #' @param progress Logical. Should a progress bar be shown (default = TRUE)?
 #' @param ... Additional arguments that are handed to the fitting functions of the packages, e.g., informed prior specifications.
 #'
@@ -30,16 +30,6 @@
 #' }
 #'
 #'
-#' @return In addition, for `BDgraph` and `bgms`, the function returns:
-#'
-#' \itemize{
-#'
-#' \item \code{structure_probabilities} A vector containing the posterior probabilities of all visited structures, between 0 and 1.
-#'
-#' \item \code{graph_weights} A vector containing the number of times a particular structure was visited.
-#'
-#' \item \code{sample_graphs} A vector containing the indexes of a particular structure.
-#' }
 #'
 #' @return For all packages, when setting `save = TRUE` and `centrality = TRUE`, the function will return the following objects respectively:
 #'
@@ -72,33 +62,12 @@
 #'
 #' @export
 #'
-#' @importFrom tsnet stan_gvar stan_fit_convert
+#' @importFrom tsnet stan_gvar stan_fit_convert get_centrality
 #'
 #' @examples
 #' 
 #'
-#' library(easybgm)
-#' library(bgms)
-#'
-#' data <- na.omit(Wenchuan)
-#'
-#' # Fitting the Wenchuan PTSD data
-#'
-#' fit <- easybgm(data, type = "continuous",
-#'                 iter = 1000 # for demonstration only (> 5e4 recommended)
-#'                 )
-#'
-#' summary(fit)
-#' 
-#' \donttest{
-#' # To extract the posterior parameter distribution
-#' # and centrality measures
-#'
-#' fit <- easybgm(data, type = "continuous",
-#'                 iter = 1000, # for demonstrative purposes, generally, 1e5 iterations are recommended
-#'                 save = TRUE,
-#'                 centrality = TRUE)
-#' }
+
 
 
 
@@ -125,7 +94,7 @@ easybgm_longitudinal <- function(data,
   # Fit the model
   tryCatch(
     {fit <- bgm_fit(fit, data = data, type = type, iter = iter,
-                    progress = progress, ...)
+                    progress = progress, centrality = centrality, ...)
     },
     error = function(e){
       # If an error occurs, stop running the code

@@ -3,7 +3,7 @@
 # --------------------------------------------------------------------------------------------------
 #' @export
 bgm_fit.package_tsnet <- function(fit, type, data, iter,
-                                  progress, ...){
+                                  progress, centrality, ...){
   
   # Fit the model
   tsnet_fit <- do.call(
@@ -50,6 +50,16 @@ bgm_extract.package_tsnet <- function(fit, type,
   tsnet_res$posterior_samples_temporal <- list2matrix(post_samps$fit$beta, p = tsnet_res$p, part = "all")
   tsnet_res$posterior_samples_contemporaneous <- list2matrix(post_samps$fit$pcor, p = tsnet_res$p)
   
+  if (centrality){
+    cent_samples <- get_centrality(fit)
+    tsnet_res$centrality_samples <- cent_samples
+    cent_samples[["instrength"]] <- colMeans(cent_samples[["instrength"]])
+    cent_samples[["outstrength"]] <- colMeans(cent_samples[["outstrength"]])
+    cent_samples[["strength"]] <- colMeans(cent_samples[["strength"]])
+    cent_samples[["density_beta"]] <- mean(cent_samples[["density_beta"]])
+    cent_samples[["density_pcor"]] <- mean(cent_samples[["density_pcor"]])
+    tsnet_res$centrality <- cent_samples
+  }
   
   tsnet_res$model <- "GVAR"
   

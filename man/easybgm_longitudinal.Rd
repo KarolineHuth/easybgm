@@ -26,7 +26,7 @@ example data \code{\link{ts_data}} for the correct format.}
 
 \item{iter}{number of iterations for the sampler.}
 
-\item{centrality}{Logical. Should the centrality measures be extracted (default = FALSE)? Note, that it will significantly increase the computation time.}
+\item{centrality}{Logical. Should the centrality measures be extracted (default = FALSE)?}
 
 \item{progress}{Logical. Should a progress bar be shown (default = TRUE)?}
 
@@ -44,17 +44,6 @@ The returned object of \code{easybgm_longitudinal} contains several elements:
 \item \code{BF} A p x p matrix containing the posterior inclusion Bayes factors.
 
 \item \code{structure} Adjacency matrix of the median probability model (i.e., edges with a posterior probability larger 0.5).
-}
-
-In addition, for \code{BDgraph} and \code{bgms}, the function returns:
-
-\itemize{
-
-\item \code{structure_probabilities} A vector containing the posterior probabilities of all visited structures, between 0 and 1.
-
-\item \code{graph_weights} A vector containing the number of times a particular structure was visited.
-
-\item \code{sample_graphs} A vector containing the indexes of a particular structure.
 }
 
 For all packages, when setting \code{save = TRUE} and \code{centrality = TRUE}, the function will return the following objects respectively:
@@ -86,30 +75,4 @@ arguments. We give an overview of the prior arguments per package below.
 }
 
 We would always encourage researcher to conduct prior robustness checks.
-}
-\examples{
-
-
-library(easybgm)
-library(bgms)
-
-data <- na.omit(Wenchuan)
-
-# Fitting the Wenchuan PTSD data
-
-fit <- easybgm(data, type = "continuous",
-                iter = 1000 # for demonstration only (> 5e4 recommended)
-                )
-
-summary(fit)
-
-\donttest{
-# To extract the posterior parameter distribution
-# and centrality measures
-
-fit <- easybgm(data, type = "continuous",
-                iter = 1000, # for demonstrative purposes, generally, 1e5 iterations are recommended
-                save = TRUE,
-                centrality = TRUE)
-}
 }
