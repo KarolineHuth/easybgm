@@ -64,7 +64,6 @@
 #'
 #' @importFrom tsnet stan_gvar stan_fit_convert get_centrality
 #'
-#' @examples
 #' 
 #'
 
@@ -74,7 +73,7 @@
 easybgm_longitudinal <- function(data, 
                                  type = "continuous", 
                                  package = NULL, 
-                                 iter = 1e3,
+                                 iter = 1e4,
                                  centrality = FALSE, 
                                  progress = TRUE, 
                                  ...){

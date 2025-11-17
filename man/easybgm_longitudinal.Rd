@@ -8,7 +8,7 @@ easybgm_longitudinal(
   data,
   type = "continuous",
   package = NULL,
-  iter = 1000,
+  iter = 10000,
   centrality = FALSE,
   progress = TRUE,
   ...

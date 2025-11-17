@@ -29,9 +29,17 @@ summary.easybgm_longitudinal <- function(object, evidence_thresh = 10, ...) {
   ## -----------------------------
   
   ## ---- 2a. Parameters temporal 
-  samples <- object$posterior_samples_temporal
-  hdi_intervals <- as.data.frame(apply(samples, MARGIN = 2, FUN = hdi))
-  posterior_medians <- apply(samples, MARGIN = 2, FUN = median)
+  samples_temp <- object$posterior_samples_temporal
+  ### STILL GIVES AN ERROR
+  hdi_intervals <- as.data.frame(apply(samples_temp, MARGIN = 2, FUN = hdi))
+  posterior_medians <- apply(samples_temp, MARGIN = 2, FUN = median)
+  bf_temporal <- object$bf_temporal
+  
+  ## Classify edges ---- 
+  category <- character(length(bf_temporal))
+  category[(bf_temporal < evidence_thresh) & (bf_temporal > 1/evidence_thresh)] <- "inconclusive"
+  category[bf_temporal > evidence_thresh] <- "included"
+  category[bf_temporal < 1/evidence_thresh] <- "excluded"
   
   names <- colnames(object$parameters_temporal)
   names_bycol <- matrix(rep(names, each = object$p), ncol = object$p)
@@ -41,13 +49,17 @@ summary.easybgm_longitudinal <- function(object, evidence_thresh = 10, ...) {
   
   posterior_temporal <- cbind(index, 
                               data.frame(round(posterior_medians, 3), row.names = NULL),
-                              data.frame(t(round(hdi_intervals, 3)), row.names = NULL))
-  colnames(posterior_temporal) <- c("Relation", "Parameter", "HDI lower", "HDI upper")
+                              data.frame(t(round(hdi_intervals, 3)), row.names = NULL), 
+                              data.frame(round(as.vector(bf_temporal), 2)), 
+                              data.frame(category))
+  colnames(posterior_temporal) <- c("Relation", "Parameter", "HDI lower", "HDI upper", "BF", "Category")
+  
   
   ## ---- 2b. Parameters contemporaneous
-  samples <- object$posterior_samples_contemporaneous
-  hdi_intervals <- as.data.frame(apply(samples, MARGIN = 2, FUN = hdi))
-  posterior_medians <- apply(samples, MARGIN = 2, FUN = median)
+  samples_cont <- object$posterior_samples_contemporaneous
+  hdi_intervals <- as.data.frame(apply(samples_cont, MARGIN = 2, FUN = hdi))
+  posterior_medians <- apply(samples_cont, MARGIN = 2, FUN = median)
+  bf_contemporaneous <- object$bf_contemporaneous
   
   names <- colnames(object$parameters_temporal)
   names_bycol <- matrix(rep(names, each = object$p), ncol = object$p)
@@ -55,18 +67,21 @@ summary.easybgm_longitudinal <- function(object, evidence_thresh = 10, ...) {
   names_comb <- matrix(paste0(names_byrow, "-", names_bycol), ncol = object$p)
   index <- names_comb[upper.tri(names_comb)]
   
-  posterior_contemporaneous <- cbind(index, 
-                                     data.frame(round(posterior_medians, 3), row.names = NULL),
-                                     data.frame(t(round(hdi_intervals, 3)), row.names = NULL) 
-                                     )
-  colnames(posterior_contemporaneous) <- c("Relation", "Parameter", "HDI lower", "HDI upper")
-  
   ## ---- 2c. Classify edges ---- (i.e., similar, different, inconclusive)
   #### NOT YET IMPLEMENTED
-  # category <- character(length(BF))
-  # category[(BF < evidence_thresh) & (BF > 1/evidence_thresh)] <- "inconclusive"
-  # category[BF > evidence_thresh] <- "different"
-  # category[BF < 1/evidence_thresh] <- "similar"
+  category <- character(length(bf_contemporaneous))
+  category[(bf_contemporaneous < evidence_thresh) & (bf_contemporaneous > 1/evidence_thresh)] <- "inconclusive"
+  category[bf_contemporaneous > evidence_thresh] <- "included"
+  category[bf_contemporaneous < 1/evidence_thresh] <- "excluded"
+  
+  posterior_contemporaneous <- cbind(index, 
+                                     data.frame(round(posterior_medians, 3), row.names = NULL),
+                                     data.frame(t(round(hdi_intervals, 3)), row.names = NULL), 
+                                     data.frame(as.vector(round(bf_contemporaneous[upper.tri(bf_contemporaneous)], 2))), 
+                                     data.frame(category)
+  )
+  colnames(posterior_contemporaneous) <- c("Relation", "Parameter", "HDI lower", "HDI upper", "BF", "Category")
+  
   
   
   ## -----------------------------
@@ -78,14 +93,19 @@ summary.easybgm_longitudinal <- function(object, evidence_thresh = 10, ...) {
   out$package <- strsplit(class(object)[1], "_")[[1]][2]
   out$model <- object$model
   out$n_nodes <- p
-  out$n_possible_edges <- p*(p-1)/2
+  out$n_possible_edges_temp <- p^2
+  out$n_possible_edges_cont <- p*(p-1)/2
   
   ## ---- 3a. Aggregate edge counts ----
-  #### NOT YET IMPLEMENTED
-  # out$n_inclu_edges <- sum(BF > evidence_thresh)
-  # out$n_incon_edges <- sum((BF < evidence_thresh) & (BF > 1/evidence_thresh))
-  # out$n_exclu_edges <- sum(BF < 1/evidence_thresh)
+  #### Temporal
+  out$n_inclu_edges_temp <- sum(bf_temporal > evidence_thresh)
+  out$n_incon_edges_temp <- sum((bf_temporal < evidence_thresh) & (bf_temporal > 1/evidence_thresh))
+  out$n_exclu_edges_temp <- sum(bf_temporal < 1/evidence_thresh)
   
+  #### Contemporaneous
+  out$n_inclu_edges_cont <- sum(bf_contemporaneous > evidence_thresh)
+  out$n_incon_edges_cont <- sum((bf_contemporaneous < evidence_thresh) & (bf_contemporaneous > 1/evidence_thresh))
+  out$n_exclu_edges_cont <- sum(bf_contemporaneous < 1/evidence_thresh)
   
   ## -----------------------------
   ## 4. Save call and BF threshold info
@@ -135,6 +155,16 @@ print.easybgm_longitudinal <- function(x, ...){
         "\n CONTEMPORANEOUS EDGE OVERVIEW",
         "\n")
     print(x$parameters_contemporaneous, quote = FALSE, right = TRUE, row.names=F)
+    cat("\n",
+        "\n Bayes factors larger than", x$evidence_thresh, "were considered sufficient evidence for the classification.",
+        "\n Bayes factors were obtained via single-model comparison.",
+        "\n ---",
+        "\n AGGREGATED EDGE OVERVIEW",
+        "\n Number of edges with sufficient evidence for inclusion:", x$n_inclu_edges_temp,"(temporal)", x$n_inclu_edges_cont, "(contemporaneous)",
+        "\n Number of edges with insufficient evidence:", x$n_incon_edges_temp,"(temporal)", x$n_incon_edges_cont, "(contemporaneous)",
+        "\n Number of edges with sufficient evidence for exclusion:", x$n_exclu_edges_temp, "(temporal)", x$n_exclu_edges_cont, "(contemporaneous)",
+        "\n Number of possible edges:", x$n_possible_edges_temp, "(temporal)", x$n_possible_edges_cont, "(contemporaneous)",
+        "\n")
   }
 }
 
