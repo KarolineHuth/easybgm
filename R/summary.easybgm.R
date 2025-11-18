@@ -168,8 +168,7 @@ summary.easybgm <- function(object, evidence_thresh = 10, ...) {
   ## ---- 3c. Clustering information (Stochastic-Block prior) ----
   if(!is.null(object$fit_arguments)) {
     if(!is.null(object$fit_arguments$edge_prior) && object$fit_arguments$edge_prior == "Stochastic-Block") {
-      out$posterior_num_blocks <- as.data.frame(round(object$sbm$posterior_num_blocks, 3))
-      out$posterior_num_blocks <- cbind(seq_len(nrow(object$sbm$posterior_num_blocks)), object$sbm$posterior_num_blocks)
+      out$posterior_num_blocks <- cbind(seq_len(nrow(object$sbm$posterior_num_blocks)), round(object$sbm$posterior_num_blocks, 3))
       out$posterior_node_allocations <- data.frame(object$fit_arguments$data_columnnames, object$sbm$posterior_mean_allocations,  object$sbm$posterior_mode_allocations)
       colnames(out$posterior_num_blocks) <- c(
         "No. of Clusters",
@@ -287,7 +286,7 @@ print.easybgm <- function(x, ...){
         "\n ")
     if("package_bgms" %in% class(x) && packageVersion("bgms") > "0.1.4.2"){
       cat("\n Convergence indicates the R-hat (Gelman–Rubin) statistic measuring how well MCMC chains have converged to",
-          "\n the same target distribution, and values greater than about 1.01–1.05 are considered concerning, indicating",
+          "\n the same target distribution. Values greater than about 1.01–1.05 are considered concerning, indicating",
           "\n potential lack of convergence for the estimates of the pairwise interactions. ",
           "\n ---")
     }
