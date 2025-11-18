@@ -89,6 +89,7 @@ plot_complexity_probabilities <- function(output, ...) {
 #' @param evidence_thresh Bayes Factor which will be considered sufficient evidence for in-/exclusion, default is 10.
 #' @param split if TRUE, plot is split in included and excluded edges. Note that by default separate plots are shown and appear after each other in the plot window. To show the plots side-by-side specify par(mfrow = c(1, 2)).
 #' @param show specifies which edges should be shown, indicated by "all", "included", "inconclusive", "excluded".
+#' @param pars For 'easybgm_longitudinal' objects, the type of parameters to be plotted, either the "temporal" or "contemporaneous" parameters.
 #' @param ... Additional arguments passed onto `qgraph`.
 #'
 #' @return Returns a plot
@@ -281,6 +282,8 @@ plot_parameterHDI <- function(output,
 #'
 #' @param output One output object or a list of several output objects from the easybgm function. Supports also objects from the bgm function of the `bgms` package.
 #' @param group_names Specifying the group names, when providing a list of output objects. Needs to be a vector in the same length as the provided number of objects.
+#' @param metric For 'easybgm_longitudinal' objects, the type of centrality measure to be plotted, either the "instrength" or "outstrength" for the temporal parameters 
+#'                or "strength" for the contemporaneous parameters.
 #' @param ... Additional arguments passed onto `ggplot2`
 #'
 #' @return Returns a plot

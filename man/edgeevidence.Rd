@@ -23,6 +23,8 @@ plot_edgeevidence(
 \item{show}{specifies which edges should be shown, indicated by "all", "included", "inconclusive", "excluded".}
 
 \item{...}{Additional arguments passed onto \code{qgraph}.}
+
+\item{pars}{For 'easybgm_longitudinal' objects, the type of parameters to be plotted, either the "temporal" or "contemporaneous" parameters.}
 }
 \value{
 Returns a plot

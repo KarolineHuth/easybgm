@@ -13,6 +13,9 @@ plot_centrality(output, group_names = NULL, ...)
 \item{group_names}{Specifying the group names, when providing a list of output objects. Needs to be a vector in the same length as the provided number of objects.}
 
 \item{...}{Additional arguments passed onto \code{ggplot2}}
+
+\item{metric}{For 'easybgm_longitudinal' objects, the type of centrality measure to be plotted, either the "instrength" or "outstrength" for the temporal parameters
+or "strength" for the contemporaneous parameters.}
 }
 \value{
 Returns a plot

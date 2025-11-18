@@ -11,8 +11,72 @@ plot_complexity_probabilities.easybgm_longitudinal <- function(output, ...) {
 
 # ---------------------------------------------------------------------------------------------------------------
 #' @export
-plot_edgeevidence.easybgm_longitudinal <- function(output, evidence_thresh = 10, split = FALSE, show = "all", ...) {
-  stop("This plot is currently not supported for easybgm_longitudinal objects.")
+plot_edgeevidence.easybgm_longitudinal <- function(output, 
+                                                   evidence_thresh = 10, 
+                                                   pars = "temporal", 
+                                                   ...) {
+  
+  default_args <- list(
+    edge.color = c("#36648b","#86a2b9", "#bfbfbf", "#f9d183", "#eeb004"),
+    colnames = colnames(output$parameters),
+    layout = qgraph::averageLayout(as.matrix(output$parameters_temporal*(output$bf_temporal>1))),
+    legend = TRUE,
+    vsize = 10,
+    nodeNames = colnames(output$parameters),
+    edge.width = 2,
+    label.cex = 1,
+    legend.cex = .6
+  )
+  
+  args <- set_defaults(default_args, ...)
+  print(args$edge.color)
+  if(pars == "temporal"){
+    graph <- output$bf_temporal
+    
+    # assign a color to each edge (inclusion - blue, exclusion - red, no conclusion - grey)
+    graph_color <- graph
+    # 1. Most evidence for inclusion
+    graph_color[graph > evidence_thresh] <- args$edge.color[1]
+    # 2. Moderate inclusion (BF > 3 but ≤ evidence_thresh)
+    graph_color[graph > 3 & graph <= evidence_thresh] <- args$edge.color[2]
+    # 3. Inconclusive (BF between 1/3 and 3)
+    graph_color[graph >= 1/3 & graph <= 3] <- args$edge.color[3]
+    # 4. Moderate exclusion (BF < 1/3 but > 1/evidence_thresh)
+    graph_color[graph < 1/3 & graph > 1/evidence_thresh] <- args$edge.color[4]
+    # 5. Strong evidence for exclusion (BF ≤ 1/evidence_thresh)
+    graph_color[graph <= 1/evidence_thresh] <- args$edge.color[5]
+    print(graph_color)
+  } 
+  if(pars == "contemporaneous"){
+    graph <- output$bf_contemporaneous
+    diag(graph) <- 1
+    
+    # assign a color to each edge (inclusion - blue, exclusion - red, no conclusion - grey)
+    graph_color <- graph
+    # 1. Most evidence for inclusion
+    graph_color[graph > evidence_thresh] <- args$edge.color[1]
+    # 2. Moderate inclusion (BF > 3 but ≤ evidence_thresh)
+    graph_color[graph > 3 & graph <= evidence_thresh] <- args$edge.color[2]
+    # 3. Inconclusive (BF between 1/3 and 3)
+    graph_color[graph >= 1/3 & graph <= 3] <- args$edge.color[3]
+    # 4. Moderate exclusion (BF < 1/3 but > 1/evidence_thresh)
+    graph_color[graph < 1/3 & graph > 1/evidence_thresh] <- args$edge.color[4]
+    # 5. Strong evidence for exclusion (BF ≤ 1/evidence_thresh)
+    graph_color[graph <= 1/evidence_thresh] <- args$edge.color[5]
+  }
+  
+  graph[graph > -.001] <- 1
+  colnames(graph) <- colnames(output$fn_args$data)
+  qgraph_plot <- qgraph::qgraph(graph,
+                                edge.color = graph_color,
+                                layout = args$layout, 
+                                vsize = args$vsize,
+                                nodeNames = args$nodeNames,
+                                edge.width = args$edge.width,
+                                label.cex = args$label.cex,
+                                legend.cex = args$legend.cex,
+                                ...
+  )
 }
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -29,7 +93,7 @@ plot_network.easybgm_longitudinal <- function(output,
   if(!any(class(output) == "easybgm")){
     stop("Wrong input provided. The function requires as input the output of the easybgm function.")
   }
- 
+  
   if(is.null(output$inc_probs) & dashed == TRUE){
     dashed <- FALSE
     warning("The model was fitted without edge selection and no inclusion probabilities were obtained. Therefore, edges cannot be dashed according to their PIP.",
@@ -139,7 +203,7 @@ plot_parameterHDI.easybgm_longitudinal <- function(output,
     names_comb <- matrix(paste0(names_byrow, "-", names_bycol), ncol = output$p)
     index <- names_comb[upper.tri(names_comb)]
   }
-
+  
   
   posterior <- cbind(data.frame(posterior_medians, row.names = NULL),
                      data.frame(t(hdi_intervals), row.names = NULL), 
@@ -164,61 +228,61 @@ plot_parameterHDI.easybgm_longitudinal <- function(output,
 
 # ---------------------------------------------------------------------------------------------------------------
 #' @export
-plot_centrality.easybgm_longitudinal <- function(output, group_names = group_names, ...){
-  
-  if(!any(class(output) == "easybgm")){
-    stop("Wrong input provided. The function requires as input the output of the easybgm function.")
-  }
-  
-  stop("This plot is currently not supported for easybgm_longitudinal objects.")
+plot_centrality.easybgm_longitudinal <- function(output, 
+                                                 group_names = group_names, 
+                                                 metric = "strength", 
+                                                 ...){
   
   if(is.null(output$centrality)){
     stop("Centrality results are required. When estimating the model, set \"centrality = TRUE\".")
   }
   
-  # default_args <- list(
-  #   theme_ = theme_minimal(),
-  #   ylab = "Strength Centrality",
-  #   xlab = "Nodes",
-  #   geom_errorbar = geom_errorbar(aes(y=.data$mean, ymin = .data$lower, ymax = .data$upper)
-  #                                 , linewidth =.5, width=.4),
-  #   theme = theme(
-  #     axis.text = element_text(size=16),
-  #     panel.border = element_blank(),
-  #     axis.line = element_line(colour = "black", linewidth = 1.1),
-  #     axis.ticks.length = unit(.2, "cm"),
-  #     axis.ticks = element_line(linewidth = .8),
-  #     axis.title.x = element_text(size = 18, face = "bold"),
-  #     axis.title.y = element_text(size = 18, face = "bold"),
-  #     plot.title = element_text(size = 18, face = "bold"),
-  #     panel.grid.major = element_blank()
-  #   )
-  # )
-  # 
-  # args <- set_defaults(default_args, ...)
-  # cent_samples <- output$centrality
-  # p <- ncol(output$parameters)
-  # rownames(cent_samples) <- NULL
-  # # Creating summary statistics
-  # 
-  # centrality_means <- colMeans(cent_samples)
-  # centrality_hdi <- apply(cent_samples, MARGIN = 2, FUN = hdi, allowSplit = F)
-  # centrality_summary <- data.frame(node = colnames(output$parameters),
-  #                                  mean = centrality_means,
-  #                                  lower = centrality_hdi[1, ],
-  #                                  upper = centrality_hdi[2, ])
-  # 
-  # centrality_summary |>
-  #   dplyr::arrange(mean) |>
-  #   dplyr::mutate(node = factor(.data$node, levels = .data$node)) |>
-  #   ggplot2::ggplot(aes(x = .data$node, y=.data$mean, ...))+
-  #   args$theme_ +
-  #   geom_point()+
-  #   args$geom_errorbar+
-  #   coord_flip() +
-  #   ylab(args$ylab) +
-  #   xlab(args$xlab) +
-  #   args$theme
+  default_args <- list(
+    theme_ = theme_minimal(),
+    ylab = "Centrality",
+    xlab = "Nodes",
+    geom_errorbar = geom_errorbar(aes(y=.data$mean, ymin = .data$lower, ymax = .data$upper)
+                                  , linewidth =.5, width=.4),
+    theme = theme(
+      axis.text = element_text(size=16),
+      panel.border = element_blank(),
+      axis.line = element_line(colour = "black", linewidth = 1.1),
+      axis.ticks.length = unit(.2, "cm"),
+      axis.ticks = element_line(linewidth = .8),
+      axis.title.x = element_text(size = 18, face = "bold"),
+      axis.title.y = element_text(size = 18, face = "bold"),
+      plot.title = element_text(size = 18, face = "bold"),
+      panel.grid.major = element_blank()
+    )
+  )
+
+  args <- set_defaults(default_args, ...)
+  cent_samples <- output$centrality_samples[[metric]]
+  p <- ncol(output$parameters_cont)
+  rownames(cent_samples) <- NULL
+  # Creating summary statistics
+
+  centrality_means <- colMeans(cent_samples)
+  centrality_hdi <- apply(cent_samples, MARGIN = 2, FUN = hdi, allowSplit = F)
+  centrality_summary <- data.frame(node = colnames(output$parameters_cont),
+                                   mean = centrality_means,
+                                   lower = centrality_hdi[1, ],
+                                   upper = centrality_hdi[2, ])
+
+  centrality_summary |>
+    dplyr::arrange(mean) |>
+    dplyr::mutate(node = factor(.data$node, levels = .data$node)) |>
+    ggplot2::ggplot(aes(x = .data$node, y=.data$mean, ...))+
+    args$theme_ +
+    geom_point()+
+    args$geom_errorbar+
+    coord_flip() +
+    ylab(args$ylab) +
+    xlab(args$xlab) +
+    args$theme
+  
+
+  
 }
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -290,7 +354,7 @@ plot_centrality.list <- function(output, group_names = NULL, ...){
     cent_samples <- output[[i]]$centrality
     p <- ncol(output[[i]]$parameters)
     rownames(cent_samples) <- NULL
-
+    
     if(is.null(group_names)){
       group_i <- paste0("Group ", i)
     } else {
@@ -306,7 +370,7 @@ plot_centrality.list <- function(output, group_names = NULL, ...){
                                        lower = centrality_hdi[1, ],
                                        upper = centrality_hdi[2, ])
     if(i == 1){
-    centrality_summary <- centrality_summary_i
+      centrality_summary <- centrality_summary_i
     } else {
       centrality_summary <- rbind(centrality_summary, centrality_summary_i)
     }
