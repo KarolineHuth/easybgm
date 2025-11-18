@@ -50,7 +50,7 @@ bgm_extract.package_tsnet <- function(fit, type,
   tsnet_res$posterior_samples_temporal <- list2matrix(post_samps$fit$beta, p = tsnet_res$p, part = "all")
   tsnet_res$posterior_samples_contemporaneous <- list2matrix(post_samps$fit$pcor, p = tsnet_res$p)
   
-  #-------------- 
+  #--------------
   # BF
   beta_post <- post_samps$fit$beta      
   pcor_post <- post_samps$fit$pcor    
@@ -74,7 +74,7 @@ bgm_extract.package_tsnet <- function(fit, type,
   }
   
   # Partial correlation
-  tsnet_res$bf_contemporaneous <- matrix(NA, nrow = n_row, ncol = n_col)
+  tsnet_res$bf_contemporaneous <- matrix(0, nrow = n_row, ncol = n_col)
   upper_idx <- which(upper.tri(tsnet_res$bf_contemporaneous), arr.ind = TRUE)
   for(k in 1:n_row){
       i <- upper_idx[k, 1]
