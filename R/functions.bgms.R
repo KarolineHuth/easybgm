@@ -40,9 +40,6 @@ bgm_fit.package_bgms <- function(fit, type, data, iter, save,
   return(fit)
 }
 
-
-
-
 # --------------------------------------------------------------------------------------------------
 # 2. Extracting results function
 # --------------------------------------------------------------------------------------------------
@@ -65,18 +62,68 @@ bgm_extract.package_bgms <- function(fit, type, save,
   if(packageVersion("bgms") > "0.1.4.2"){
     class(fit) <- "bgms"
   }
+
   # --- Extract model arguments and edge priors ---
   args <- bgms::extract_arguments(fit)
   args$save <- save
+  # extract SBM information
+  bgms_res <- list()
+  if (args$edge_prior[1] == "Stochastic-Block" && packageVersion("bgms") > "0.1.6") {
+    bgms_res$sbm <- extract_sbm(fit)
+  }
+  # extract the prior inclusion probabilities
   if (args$edge_prior[1] == "Bernoulli") {
+
+    # Single global inclusion probability
     edge.prior <- args$inclusion_probability
-  } else { # this is both for the BB and SBM (however, when the SBM has
-    # within and between beta hyperparameters, this needs to be adjusted
+
+  } else if (args$edge_prior[1] == "Beta-Bernoulli") {
+
+    # Single global Beta–Bernoulli inclusion probability
     edge.prior <- args$beta_bernoulli_alpha /
       (args$beta_bernoulli_alpha + args$beta_bernoulli_beta)
+
     args$inclusion_probability <- edge.prior
+
+  } else if (args$edge_prior[1] == "Stochastic-Block") {
+
+    # Cluster assignments: a length-p vector like c(1,1,1,2,2)
+    cl <-bgms_res$sbm$posterior_mean_allocations
+    p  <- length(cl)
+
+    # --- WITHIN-cluster inclusion probability ---
+    pi_within <- args$beta_bernoulli_alpha /
+      (args$beta_bernoulli_alpha + args$beta_bernoulli_beta)
+
+    # --- BETWEEN-cluster inclusion probability ---
+    # If no separate "between" hyperparameters given, fall back to within-cluster value
+    if (is.null(args$beta_bernoulli_alpha_between) ||
+        is.null(args$beta_bernoulli_beta_between)) {
+
+      pi_between <- pi_within
+
+    } else {
+
+      pi_between <- args$beta_bernoulli_alpha_between /
+        (args$beta_bernoulli_alpha_between + args$beta_bernoulli_beta_between)
+
+    }
+
+    # Matrix indicating whether node pairs share the same cluster
+    same_cluster <- outer(cl, cl, "==")
+
+    # Edge-specific prior inclusion probabilities (p × p matrix)
+    prior_mat <- ifelse(same_cluster, pi_within, pi_between)
+
+    # Vectorize consistent with bgms edge ordering (lower triangle)
+    edge.prior <- prior_mat[lower.tri(prior_mat)]
+
+    args$inclusion_probability <- edge.prior
+
+  } else {
+
+    stop("Unknown edge prior type in args$edge_prior[1].")
   }
-  bgms_res <- list()
   # --- Main extraction ---
   if (args$save) {
     p <- args$no_variables
@@ -89,12 +136,34 @@ bgm_extract.package_bgms <- function(fit, type, save,
     if (args$edge_selection) {
       bgms_res$inc_probs <- extract_posterior_inclusion_probabilities(fit)
       if (args$edge_prior[1] == "Bernoulli") {
-      bgms_res$inc_BF <- (bgms_res$inc_probs / (1 - bgms_res$inc_probs)) /
-        (edge.prior / (1 - edge.prior))
-      } else {
+        bgms_res$inc_BF <- (bgms_res$inc_probs / (1 - bgms_res$inc_probs)) /
+          (edge.prior / (1 - edge.prior))
+      } else if (args$edge_prior[1] == "Beta-Bernoulli") {
         bgms_res$inc_BF <- (bgms_res$inc_probs / (1 - bgms_res$inc_probs)) /
           (args$beta_bernoulli_alpha / args$beta_bernoulli_beta)
-      } # this is both for the BB and SBM (however, when the SBM has
+      } else if (args$edge_prior[1] == "Stochastic-Block") {
+        # when there is only one set of hyperparameters for the beta bernoulli
+        if (is.null(args$beta_bernoulli_alpha_between)) {
+          bgms_res$inc_BF <- (bgms_res$inc_probs / (1 - bgms_res$inc_probs)) /
+            (args$beta_bernoulli_alpha / args$beta_bernoulli_beta)
+        } else {
+          # when there are within and between hyperparameters
+          cl <- bgms_res$sbm$posterior_mean_allocations
+          p <- length(cl)
+          # Matrix saying whether two nodes are in the same cluster
+          same_cluster <- outer(cl, cl, "==")
+          # Prior odds: within-cluster vs between-cluster
+          prior_within  <- args$beta_bernoulli_alpha        / args$beta_bernoulli_beta
+          prior_between <- args$beta_bernoulli_alpha_between / args$beta_bernoulli_beta_between
+          prior_odds <- ifelse(same_cluster, prior_within, prior_between)
+          # Finally compute BFs edgewise
+          post_odds <- bgms_res$inc_probs / (1 - bgms_res$inc_probs)
+          bgms_res$inc_BF <- post_odds / prior_odds
+        }
+      } else {
+        stop("Unknown edge prior type.")
+      }
+      # this is both for the BB and SBM (however, when the SBM has
       # within and between beta hyperparameters, this needs to be adjusted
       bgms_res$structure <- 1 * (bgms_res$inc_probs > 0.5)
       gammas <- extract_indicators(fit)
@@ -114,9 +183,34 @@ bgm_extract.package_bgms <- function(fit, type, save,
                                  nrow = nrow(bgms_res$parameters))
     if (args$edge_selection) {
       bgms_res$inc_probs <- extract_posterior_inclusion_probabilities(fit)
-      bgms_res$inc_BF <- (bgms_res$inc_probs / (1 - bgms_res$inc_probs)) /
-        (edge.prior / (1 - edge.prior))
-      bgms_res$structure <- 1 * (bgms_res$inc_probs > 0.5)
+      if (args$edge_prior[1] == "Bernoulli") {
+        bgms_res$inc_BF <- (bgms_res$inc_probs / (1 - bgms_res$inc_probs)) /
+          (edge.prior / (1 - edge.prior))
+      } else if (args$edge_prior[1] == "Beta-Bernoulli") {
+        bgms_res$inc_BF <- (bgms_res$inc_probs / (1 - bgms_res$inc_probs)) /
+          (args$beta_bernoulli_alpha / args$beta_bernoulli_beta)
+      } else if (args$edge_prior[1] == "Stochastic-Block") {
+        # when there is only one set of hyperparameters for the beta bernoulli
+        if (is.null(args$beta_bernoulli_alpha_between)) {
+          bgms_res$inc_BF <- (bgms_res$inc_probs / (1 - bgms_res$inc_probs)) /
+            (args$beta_bernoulli_alpha / args$beta_bernoulli_beta)
+        } else {
+          # when there are within and between hyperparameters
+          cl <- bgms_res$sbm$posterior_mean_allocations
+          p <- length(cl)
+          # Matrix saying whether two nodes are in the same cluster
+          same_cluster <- outer(cl, cl, "==")
+          # Prior odds: within-cluster vs between-cluster
+          prior_within  <- args$beta_bernoulli_alpha        / args$beta_bernoulli_beta
+          prior_between <- args$beta_bernoulli_alpha_between / args$beta_bernoulli_beta_between
+          prior_odds <- ifelse(same_cluster, prior_within, prior_between)
+          # Finally compute BFs edgewise
+          post_odds <- bgms_res$inc_probs / (1 - bgms_res$inc_probs)
+          bgms_res$inc_BF <- post_odds / prior_odds
+        }
+      } else {
+        stop("Unknown edge prior type.")
+      }
       gammas <- extract_indicators(fit)
       structures <- apply(gammas, 1, paste0, collapse = "")
       table_structures <- as.data.frame(table(structures))
@@ -127,9 +221,6 @@ bgm_extract.package_bgms <- function(fit, type, save,
       colnames(bgms_res$inc_probs) <- colnames(bgms_res$parameters)
       colnames(bgms_res$inc_BF) <- colnames(bgms_res$parameters)
     }
-  }
-  if (args$edge_prior[1] == "Stochastic-Block" && packageVersion("bgms") > "0.1.6") {
-    bgms_res$sbm <- extract_sbm(fit)
   }
   # --- Optionally compute centrality ---
   if (centrality) {

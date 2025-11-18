@@ -14,7 +14,7 @@
 #' @param save Logical. Should the posterior samples be obtained (default = FALSE)?
 #' @param centrality Logical. Should the centrality measures be extracted (default = FALSE)? Note, that it will significantly increase the computation time.
 #' @param progress Logical. Should a progress bar be shown (default = TRUE)?
-#' @param posterior_method Determines how the posterior samples of the edge weight parameters are obtained for models fit with BDgraph. The argument can be either MAP for the maximum-a-posteriori or model-averaged. If MAP, samples are obtained for the edge weights only for the most likely structure. If model-averaged, samples are obtained for all plausible structures weighted by their posterior probability. Default is model-averaged. 
+#' @param posterior_method Determines how the posterior samples of the edge weight parameters are obtained for models fit with BDgraph. The argument can be either MAP for the maximum-a-posteriori or model-averaged. If MAP, samples are obtained for the edge weights only for the most likely structure. If model-averaged, samples are obtained for all plausible structures weighted by their posterior probability. Default is model-averaged.
 #' @param ... Additional arguments that are handed to the fitting functions of the packages, e.g., informed prior specifications.
 #'
 #'
@@ -41,7 +41,28 @@
 #' \item \code{graph_weights} A vector containing the number of times a particular structure was visited.
 #'
 #' \item \code{sample_graphs} A vector containing the indexes of a particular structure.
+#'
+#' For the \code{bgms} package, when \code{edge_prior = "Stochastic-Block"},
+#' the function will also return an object \code{sbm} which contains:
+#'   \itemize{
+#'
+#'    \item \code{posterior_num_blocks} A data frame with the estimated posterior
+#'    probability of the possible number of clusters.
+#'
+#'    \item \code{posterior_mean_allocations} The posterior mean of the cluster assignments of the nodes.
+#'
+#'    \item \code{posterior_mode_allocations} The posterior mode of the cluster assignments of the nodes.
+#'
+#'    \item \code{posterior_mean_coclustering_matrix} A p x p matrix containing the estimated
+#'       pairwise proportions of cluster occurrence of every variable. This matrix
+#'       can be plotted to visually inspect the estimated number of clusters
+#'       and visually inspect nodes that tend to switch clusters.
+#'
+#'   }
 #' }
+#'
+#' If using version 0.1.6.1 or higher of the \code{bgms} package, the function also returns the
+#' the Gelman-Rubin convergence statistic for each edge weight parameter.
 #'
 #' @return For all packages, when setting `save = TRUE` and `centrality = TRUE`, the function will return the following objects respectively:
 #'
@@ -70,8 +91,11 @@
 #'
 #' \item \code{inclusion_probability} prior edge inclusion probability for the "Bernoulli" distribution. The default is 0.5.
 #'
-#' \item \code{beta_bernoulli_alpha} and \code{beta_bernoulli_alpha} the parameters of the "Beta-Bernoulli" or "Stochastic Block" priors. The default is 1 for both.
-#' 
+#' \item \code{beta_bernoulli_alpha} and \code{beta_bernoulli_beta} the parameters of the "Beta-Bernoulli" or "Stochastic Block" priors. The default is 1 for both.
+#'
+#' \item \code{beta_bernoulli_alpha_between} and \code{beta_bernoulli_beta_between} the parameters of the "Stochastic Block" prior for edges between blocks.
+#' This is currently only available in a developer version of bgms and will be available in version 0.1.6.2 or higher.
+#'
 #' \item \code{dirichlet_alpha} The shape of the Dirichlet prior on the node-to-block
 #' allocation parameters for the Stochastic Block prior on the graph structure.
 #'
@@ -106,7 +130,7 @@
 #' @importFrom utils packageVersion
 #'
 #' @examples
-#' 
+#'
 #'
 #' library(easybgm)
 #' library(bgms)
@@ -120,7 +144,7 @@
 #'                 )
 #'
 #' summary(fit)
-#' 
+#'
 #' \donttest{
 #' # To extract the posterior parameter distribution
 #' # and centrality measures
@@ -134,7 +158,7 @@
 
 
 easybgm <- function(data, type, package = NULL, not_cont = NULL, iter = 1e4,
-                    save = FALSE, centrality = FALSE, progress = TRUE, posterior_method = "model-averaged", 
+                    save = FALSE, centrality = FALSE, progress = TRUE, posterior_method = "model-averaged",
                     ...){
 
 
@@ -147,10 +171,10 @@ easybgm <- function(data, type, package = NULL, not_cont = NULL, iter = 1e4,
   dots <- list(...)
   has_reference <- "reference_category" %in% names(dots)
   has_baseline  <- "baseline_category" %in% names(dots)
-  
+
   # Example: If type == "blume-capel", then at least one must be present
   if (type == "blume-capel" && !(has_reference || has_baseline)) {
-    stop("For the Blume-Capel model, a reference category needs to be specified. 
+    stop("For the Blume-Capel model, a reference category needs to be specified.
          If type is 'blume-capel' it specifies the reference category in the Blume-Capel model.
          Should be an integer within the range of integer scores observed for the
          'blume-capel' variable. Can be a single number specifying the reference
@@ -160,12 +184,12 @@ easybgm <- function(data, type, package = NULL, not_cont = NULL, iter = 1e4,
          other variable types. The value of the reference category is also recoded
          when bgm recodes the corresponding observations. Only required if there is at
          least one variable of type ``blume-capel''.
-         For bgms version smaller than 0.1.6, use the reference_category argument. 
+         For bgms version smaller than 0.1.6, use the reference_category argument.
          For all package versions including and older than 0.1.6., the baseline_category argument.",
          call. = FALSE)
   }
-  
-  
+
+
   # Set default values for fitting if package is unspecified
   if(is.null(package)){
     if(type == "continuous") package <- "package_bggm"
@@ -213,7 +237,7 @@ easybgm <- function(data, type, package = NULL, not_cont = NULL, iter = 1e4,
   res <- bgm_extract(fit, type = type,
                      save = save, not_cont = not_cont,
                      data = data, centrality = centrality,
-                     posterior_method = posterior_method, 
+                     posterior_method = posterior_method,
                      ...)
 
   # Output results

@@ -63,7 +63,28 @@ In addition, for \code{BDgraph} and \code{bgms}, the function returns:
 \item \code{graph_weights} A vector containing the number of times a particular structure was visited.
 
 \item \code{sample_graphs} A vector containing the indexes of a particular structure.
+
+For the \code{bgms} package, when \code{edge_prior = "Stochastic-Block"},
+the function will also return an object \code{sbm} which contains:
+\itemize{
+
+\item \code{posterior_num_blocks} A data frame with the estimated posterior
+probability of the possible number of clusters.
+
+\item \code{posterior_mean_allocations} The posterior mean of the cluster assignments of the nodes.
+
+\item \code{posterior_mode_allocations} The posterior mode of the cluster assignments of the nodes.
+
+\item \code{posterior_mean_coclustering_matrix} A p x p matrix containing the estimated
+pairwise proportions of cluster occurrence of every variable. This matrix
+can be plotted to visually inspect the estimated number of clusters
+and visually inspect nodes that tend to switch clusters.
+
 }
+}
+
+If using version 0.1.6.1 or higher of the \code{bgms} package, the function also returns the
+the Gelman-Rubin convergence statistic for each edge weight parameter.
 
 For all packages, when setting \code{save = TRUE} and \code{centrality = TRUE}, the function will return the following objects respectively:
 
@@ -94,7 +115,10 @@ prior for the pairwise interaction parameters. The default is 2.5.
 
 \item \code{inclusion_probability} prior edge inclusion probability for the "Bernoulli" distribution. The default is 0.5.
 
-\item \code{beta_bernoulli_alpha} and \code{beta_bernoulli_alpha} the parameters of the "Beta-Bernoulli" or "Stochastic Block" priors. The default is 1 for both.
+\item \code{beta_bernoulli_alpha} and \code{beta_bernoulli_beta} the parameters of the "Beta-Bernoulli" or "Stochastic Block" priors. The default is 1 for both.
+
+\item \code{beta_bernoulli_alpha_between} and \code{beta_bernoulli_beta_between} the parameters of the "Stochastic Block" prior for edges between blocks.
+This is currently only available in a developer version of bgms and will be available in version 0.1.6.2 or higher.
 
 \item \code{dirichlet_alpha} The shape of the Dirichlet prior on the node-to-block
 allocation parameters for the Stochastic Block prior on the graph structure.
