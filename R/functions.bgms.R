@@ -143,7 +143,7 @@ bgm_extract.package_bgms <- function(fit, type, save,
           (args$beta_bernoulli_alpha / args$beta_bernoulli_beta)
       } else if (args$edge_prior[1] == "Stochastic-Block") {
         # when there is only one set of hyperparameters for the beta bernoulli
-        if (is.null(args$beta_bernoulli_alpha_between)) {
+        if (is.null(args$beta_bernoulli_alpha_between) | packageVersion("bgms") < "0.1.6") {
           bgms_res$inc_BF <- (bgms_res$inc_probs / (1 - bgms_res$inc_probs)) /
             (args$beta_bernoulli_alpha / args$beta_bernoulli_beta)
         } else {
@@ -228,7 +228,14 @@ bgm_extract.package_bgms <- function(fit, type, save,
   }
   # --- For newer version compute convergence ---
   if (packageVersion("bgms") > "0.1.4.2") {
+    # extract the Rhat
     bgms_res$convergence_parameter <-  fit$posterior_summary_pairwise$Rhat
+    # calculate MC uncertainty
+    bgms_res$MCSE_BF <-BF_MCSE(gamma_mat = extract_indicators(fit),
+                               BF_vec = bgms_res$inc_BF[lower.tri(bgms_res$inc_BF)],
+                               ess = fit$posterior_summary_indicator$n_eff,
+                               return = "ci",
+                               smooth_bf = FALSE)
   }
   # --- Finalize output ---
   bgms_res$model <- type

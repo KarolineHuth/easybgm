@@ -62,7 +62,8 @@
 #' }
 #'
 #' If using version 0.1.6.1 or higher of the \code{bgms} package, the function also returns the
-#' the Gelman-Rubin convergence statistic for each edge weight parameter.
+#' the Gelman-Rubin convergence statistic for each edge weight parameter. As well as the
+#'  95% Monte Carlo confidence interval for the inclusion Bayes factor.
 #'
 #' @return For all packages, when setting `save = TRUE` and `centrality = TRUE`, the function will return the following objects respectively:
 #'

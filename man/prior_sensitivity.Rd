@@ -38,7 +38,7 @@ library(bgms)
 #                  inclusion_probability = .5
 #             )
 #fit3 <- easybgm(data, type = "ordinal",
-#                iter = 1000, inclusion_probability = .9)              
+#                iter = 1000, inclusion_probability = .9)
 
 #plot_prior_sensitivity(list(fit1, fit2, fit3))
 }
