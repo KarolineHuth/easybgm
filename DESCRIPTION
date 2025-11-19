@@ -30,7 +30,8 @@ Imports:
     ggplot2,
     HDInterval,
     igraph,
-    qgraph
+    qgraph,
+    coda
 Suggests: 
     testthat (>= 3.0.0),
     vdiffr
