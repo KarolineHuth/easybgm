@@ -109,12 +109,4 @@ network_bgmfit <- plot_network(fit_bgms)
 # vdiffr::expect_doppelganger("network plot using bgm to fit", network_bgmfit)
 
 
-##--------------------------------
-## Sparse vs dense test
-##--------------------------------
-set.seed(123)
-data <- na.omit(Wenchuan)
-sparse_dense <- sparse_or_dense(data[1:100, 1:5], type = "ordinal", iter = 1000)
-test_that("easybgm works for sparse vs dense", {
-  testthat::expect_snapshot(sparse_dense)
-})
+

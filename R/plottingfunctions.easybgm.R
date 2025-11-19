@@ -594,10 +594,10 @@ plot_centrality.list <- function(output, group_names = NULL, ...){
     }
   }
   
-  ordering <- centrality_summary %>%
-    filter(group == group_i) %>%
-    arrange(mean) %>%
-    pull(node)
+  ordering <- centrality_summary |>
+    filter(.data$group == group_i) |>
+    arrange(.data$mean) |>
+    pull(.data$node)
   
   centrality_summary |>
     mutate(node = factor(.data$node, levels = ordering)) |>
