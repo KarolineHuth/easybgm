@@ -102,8 +102,8 @@ bgm_extract.package_bgms_compare <- function(fit, type, save, group_indicator,
     if (args$pairwise_difference_prior[1] == "Bernoulli") {
       edge.prior <- args$inclusion_probability_difference
     } else { # if BB or SBM
-      edge.prior <- calculate_edge_prior(alpha = args$pairwise_beta_bernoulli_alpha,
-                                         beta = args$pairwise_beta_bernoulli_beta)
+      edge.prior <- args$beta_bernoulli_alpha /
+        (args$beta_bernoulli_alpha + args$beta_bernoulli_beta)
       
       # otherwise it saves the wrong values (could be done more elegantly)
       args$inclusion_probability_difference <- edge.prior
@@ -149,15 +149,15 @@ bgm_extract.package_bgms_compare <- function(fit, type, save, group_indicator,
       dots <- list(...)
       if (args$difference_prior[1] == "Bernoulli") {
         if("difference_probability" %in% dots){
-          edge.prior <- difference_prior
+          edge.prior <- args$difference_probability
           args$inclusion_probability_difference <- edge.prior 
         } else {
           edge.prior <- 0.5
           args$inclusion_probability_difference <- edge.prior 
         }
       } else { # if BB or SBM
-        edge.prior <- calculate_edge_prior(alpha = args$difference_selection_alpha,
-                                           beta = args$difference_selection_beta)
+        edge.prior <- args$beta_bernoulli_alpha /
+          (args$beta_bernoulli_alpha + args$beta_bernoulli_beta)
         
         # otherwise it saves the wrong values (could be done more elegantly)
         args$inclusion_probability_difference <- edge.prior
@@ -202,15 +202,15 @@ bgm_extract.package_bgms_compare <- function(fit, type, save, group_indicator,
       dots <- list(...)
       if (args$difference_prior[1] == "Bernoulli") {
         if("difference_probability" %in% dots){
-          edge.prior <- difference_prior
+          edge.prior <-  args$difference_probability
           args$inclusion_probability_difference <- edge.prior 
         } else {
           edge.prior <- 0.5
           args$inclusion_probability_difference <- edge.prior 
         }
       } else { # if BB or SBM
-        edge.prior <- calculate_edge_prior(alpha = args$difference_selection_alpha,
-                                           beta = args$difference_selection_beta)
+        edge.prior <- args$difference_selection_alpha /
+          (args$difference_selection_alpha + args$difference_selection_beta)
         
         # otherwise it saves the wrong values (could be done more elegantly)
         args$inclusion_probability_difference <- edge.prior

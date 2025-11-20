@@ -7,9 +7,9 @@
 #' @param output Output object from the easybgm function. Supports also objects from the bgm function of the `bgms` package.
 #' @param as_BF If TRUE plots the y-axis as Bayes factors instead of posterior structure probability. Default is FALSE.
 #' @param ... Additional arguments passed onto `ggplot2`
-#' 
+#'
 #' @return Returns a plot
-#' 
+#'
 #' @export
 #' @importFrom dplyr group_by summarise mutate group_modify filter
 #'
@@ -48,9 +48,9 @@ plot_structure_probabilities <- function(output, as_BF = FALSE, ...) {
 #'
 #' @param output Output object from the easybgm function. Supports also objects from the bgm function of the `bgms` package.
 #' @param ... Additional arguments passed onto `ggplot2`
-#' 
+#'
 #' @return Returns a plot
-#' 
+#'
 #' @export
 #' @import ggplot2
 #'
@@ -81,17 +81,17 @@ plot_complexity_probabilities <- function(output, ...) {
 
 #' @title Edge evidence plot
 #'
-#' @description The edge evidence plot colors edges according to their hypothesis testing results: blue for included, 
-#'    light blue for weakly included, gray for inconclusive, light yellow for weakly excluded, and yellow for excluded. 
-#'    This plot can be used to visualize the hypothesis testing results whether edge presence or absence. The edge evidence 
+#' @description The edge evidence plot colors edges according to their hypothesis testing results: blue for included,
+#'    light blue for weakly included, gray for inconclusive, light yellow for weakly excluded, and yellow for excluded.
+#'    This plot can be used to visualize the hypothesis testing results whether edge presence or absence. The edge evidence
 #'    plot can aid researchers in deciding which edges provide robust inferential conclusions
 #'
 #' @name edgeevidence
 #'
 #' @param output Output object from the easybgm function. Supports also objects from the bgm function of the `bgms` package.
-#' @param evidence_thresh Bayes Factor which will be considered sufficient evidence for in-/exclusion, default is 10. Note that 
-#'    this parameter defines when edges provide sufficient evidence, thus when the edge color will turn saturated blue or yellow. 
-#'    All edges with a BF between 3 and the evidence threshold will receive a light saturated edge color. 
+#' @param evidence_thresh Bayes Factor which will be considered sufficient evidence for in-/exclusion, default is 10. Note that
+#'    this parameter defines when edges provide sufficient evidence, thus when the edge color will turn saturated blue or yellow.
+#'    All edges with a BF between 3 and the evidence threshold will receive a light saturated edge color.
 #' @param split if TRUE, plot is split in included and excluded edges. Note that by default separate plots are shown and appear after each other in the plot window. To show the plots side-by-side specify par(mfrow = c(1, 2)).
 #' @param show specifies which edges should be shown, indicated by "all", "included", "inconclusive", "excluded".
 #' @param ... Additional arguments passed onto `qgraph`.
@@ -113,7 +113,7 @@ plot_complexity_probabilities <- function(output, ...) {
 #' plot_edgeevidence(fit)
 #'
 #' oldpar <- par(mfrow = c(1,1))
-#' 
+#'
 #' par(mfrow = c(1, 2))
 #' plot_edgeevidence(fit, split = TRUE)
 #'
@@ -121,7 +121,7 @@ plot_complexity_probabilities <- function(output, ...) {
 #' plot_edgeevidence(fit, show = "included")
 #' plot_edgeevidence(fit, show = "inconclusive")
 #' plot_edgeevidence(fit, show = "excluded")
-#' 
+#'
 #' par(oldpar)
 #' }
 
@@ -150,7 +150,7 @@ plot_edgeevidence <- function(output, evidence_thresh = 10, split = FALSE, show 
 #' @param dashed A binary parameter indicating whether edges with inconclusive evidence should be dashed. Default is FALSE
 #' @param evidence_thresh If dashed = TRUE, users can specify the threshold for sufficient evidence for inclusion. All edges with evidence lower than `evidence_tresh` are dashed.
 #' @param ... Additional arguments passed onto `qgraph`.
-#' 
+#'
 #' @return Returns a plot
 #'
 #' @export
@@ -172,7 +172,7 @@ plot_edgeevidence <- function(output, evidence_thresh = 10, split = FALSE, show 
 #'
 #' # Indicate which edges have insufficient evidence for inclusion through a dashed line
 #' plot_network(fit, dashed = TRUE, evidence_thresh = 10)
-#' 
+#'
 
 plot_network <- function(output, exc_prob = .5, evidence_thresh = 10, dashed = FALSE, ...) {
 
@@ -197,7 +197,7 @@ plot_network <- function(output, exc_prob = .5, evidence_thresh = 10, dashed = F
 #' @param ... Additional arguments passed onto `qgraph`
 #'
 #' @return Returns a plot
-#' 
+#'
 #' @export
 #'
 #' @import qgraph
@@ -239,7 +239,7 @@ plot_structure <- function(output, ...) {
 #' @param ... Additional arguments passed onto `ggplot2`
 #'
 #' @return Returns a plot
-#' 
+#'
 #' @export
 #' @import ggplot2 HDInterval
 #' @importFrom stats median
@@ -283,8 +283,9 @@ plot_parameterHDI <- function(output, ...) {
 #' @param ... Additional arguments passed onto `ggplot2`
 #'
 #' @return Returns a plot
-#' 
+#'
 #' @importFrom dplyr arrange
+#' @importFrom dplyr pull
 #' @importFrom ggplot2 .data
 #' @export
 #'
@@ -317,13 +318,13 @@ plot_centrality <- function(output, group_names = NULL, ...){
 #' @title Plot sensitivity to edge inclusion prior setting
 #' @description For a given list of easybgm outputs with different prior edge inclusion probabilities, the function
 #'  plots the percentage of edges that are included, excluded, and inconclusive.
-#' @name prior_sensitivity 
+#' @name prior_sensitivity
 #' @param output A list of easybgm outputs with different prior edge inclusion probabilities
 #' @param ... Additional arguments passed onto ggplot2.
 #'
 #' @return Returns a plot
-#' 
-#' @export 
+#'
+#' @export
 #'
 #' @examples
 #' \donttest{
@@ -341,8 +342,8 @@ plot_centrality <- function(output, group_names = NULL, ...){
 #' #                  inclusion_probability = .5
 #' #             )
 #' #fit3 <- easybgm(data, type = "ordinal",
-#' #                iter = 1000, inclusion_probability = .9)              
-#' 
+#' #                iter = 1000, inclusion_probability = .9)
+#'
 #' #plot_prior_sensitivity(list(fit1, fit2, fit3))
 #' }
 
@@ -352,7 +353,7 @@ plot_prior_sensitivity <- function(output, ...) {
   if(any(any(class(output[[1]]) == "easybgm"), any(class(output[[1]]) == "bgms")) == FALSE){
     stop("Wrong input provided. The function requires as input the output of the easybgm or bgm function.")
   }
-  
+
   UseMethod("plot_prior_sensitivity", output)
 }
 

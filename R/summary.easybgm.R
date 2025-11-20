@@ -5,13 +5,14 @@
 #'
 #' @param object easybgm object
 #' @param evidence_thresh Bayes Factor which will be considered sufficient evidence for in-/exclusion, default is 10.
+#' @param BF_uncertainty Whether the MC uncertainty estimates for the Bayes factors should be included in the output (only for bgms package)
 #' @param ... unused argument
 #'
-#' @return Creates and prints the output of a Bayesian cross-sectional network analysis. The summary output has four parts. The first part lists the package used, the number of variables, and the data type. The second part is a matrix of edge-specific information. Each edge is listed in a row. This row contains the posterior parameter estimate, the posterior inclusion probability, the inclusion Bayes factor, and the categorization of the edge. The category encodes whether an edge is included, excluded, or inconclusive based on the inclusion Bayes factor. Users can set the threshold for the Bayes factor classification with the evidence threshold. By default, the threshold is set to $10$. The third part of the summary provides aggregated edge information. It lists the number of included, excluded, and inconclusive edges in the network, as well as the number of possible edges. This gives the user a quick overview of the robustness and density of the network. The higher the number of conclusive edges (i.e., classified as either included or excluded), the more robust the network. Conversely, if the network has a high percentage of inconclusive edges, the network is not robust. Researchers should refrain from making strong inferential conclusions. The final output section is a description of the structure uncertainty. It shows the number of structures visited, the number of possible structures, and the highest posterior structure probability. This last section can only be obtained for networks fitted with 'BDgraph' and 'bgms'.
+#' @return Creates and prints the output of a Bayesian cross-sectional network analysis. The summary output has four parts. The first part lists the package used, the number of variables, and the data type. The second part is a matrix of edge-specific information. Each edge is listed in a row. This row contains the posterior parameter estimate, the posterior inclusion probability, the inclusion Bayes factor, and the categorization of the edge. The category encodes whether an edge is included, excluded, or inconclusive based on the inclusion Bayes factor. Users can set the threshold for the Bayes factor classification with the evidence threshold. By default, the threshold is set to 10. The third part of the summary provides aggregated edge information. It lists the number of included, excluded, and inconclusive edges in the network, as well as the number of possible edges. This gives the user a quick overview of the robustness and density of the network. The higher the number of conclusive edges (i.e., classified as either included or excluded), the more robust the network. Conversely, if the network has a high percentage of inconclusive edges, the network is not robust. Researchers should refrain from making strong inferential conclusions. The final output section is a description of the structure uncertainty. It shows the number of structures visited, the number of possible structures, and the highest posterior structure probability. This last section can only be obtained for networks fitted with 'BDgraph' and 'bgms'.
 #'
 #' @export
 
-summary.easybgm <- function(object, evidence_thresh = 10, ...) {
+summary.easybgm <- function(object, evidence_thresh = 10, BF_uncertainty = FALSE, ...) {
   ## -----------------------------
   ## 0. Check arguments
   ## -----------------------------
@@ -106,22 +107,53 @@ summary.easybgm <- function(object, evidence_thresh = 10, ...) {
     ## ---- 2i. Create results data frame ----
     ## ----  Create results data frame with convergence (newer bgms)----
     if("package_bgms" %in% class(object) && packageVersion("bgms") > "0.1.4.2"){
-      results <-
-        data.frame(
-          relation = mat_names,
-          parameter_values = parameter_values,
-          inc_probs =  inc_probs,
-          BF = BF,
-          category = category,
-          convergence = round(object$convergence_parameter, 3)
-        )
-      colnames(results) <- c(
-        "Relation",
-        "Estimate",
-        "Posterior Incl. Prob.",
-        "Inclusion BF",
-        "Category",
-        "Convergence")
+      # if users want the BF uncertainty estimates
+      if(BF_uncertainty){
+        results <-
+          data.frame(
+            relation = mat_names,
+            parameter_values = parameter_values,
+            inc_probs =  inc_probs,
+            BF = BF,
+            category = category,
+            convergence = round(object$convergence_parameter, 3),
+            MCSE_2.5 = ifelse(
+              is.na(object$MCSE_BF[, 1]),
+              "",
+              round(object$MCSE_BF[, 1], 3)
+            ),
+            MCSE_97.5 = ifelse(
+              is.na(object$MCSE_BF[, 2]),
+              "",
+              round(object$MCSE_BF[, 2], 3)
+            ))
+        colnames(results) <- c(
+          "Relation",
+          "Estimate",
+          "Posterior Incl. Prob.",
+          "Inclusion BF",
+          "Category",
+          "Convergence Estimate",
+          "BF (MC Lower 2.5%)",
+          "BF (MC Upper 97.5%)")
+      } else {
+        results <-
+          data.frame(
+            relation = mat_names,
+            parameter_values = parameter_values,
+            inc_probs =  inc_probs,
+            BF = BF,
+            category = category,
+            convergence = round(object$convergence_parameter, 3)
+          )
+        colnames(results) <- c(
+          "Relation",
+          "Estimate",
+          "Posterior Incl. Prob.",
+          "Inclusion BF",
+          "Category",
+          "Convergence")
+      }
     } else {
       ## ----  Create results data frame without convergence----
       results <-
@@ -183,13 +215,12 @@ summary.easybgm <- function(object, evidence_thresh = 10, ...) {
   ## -----------------------------
   out$fit_object <- object
   out$evidence_thresh <- evidence_thresh
-
+  out$BF_uncertainty <- BF_uncertainty
   ## -----------------------------
   ## 5. Return summary object
   ## -----------------------------
   class(out) <- class(object)
   return(out)
-  print(out)
 }
 
 #' @name print.easybgm
@@ -284,10 +315,23 @@ print.easybgm <- function(x, ...){
     cat("\n Bayes Factors larger than", x$evidence_thresh, "were considered sufficient evidence for the classification",
         "\n Bayes factors were obtained using Bayesian model-averaging.",
         "\n ")
-    if("package_bgms" %in% class(x) && packageVersion("bgms") > "0.1.4.2"){
-      cat("\n Convergence indicates the R-hat (Gelman–Rubin) statistic measuring how well MCMC chains have converged to",
-          "\n the same target distribution. Values greater than about 1.01–1.05 are considered concerning, indicating",
-          "\n potential lack of convergence for the estimates of the pairwise interactions. ",
+    if("package_bgms" %in% class(x) && packageVersion("bgms") > "0.1.4.2" && isTRUE(x$BF_uncertainty)){
+      cat(
+        "\n Convergence diagnostics: The 'Convergence Estimate' is the R-hat (Gelman-Rubin) statistic, which measures how well MCMC chains have",
+        "\n converged to the same target distribution for the edge weights. Values greater than about 1.01-1.05 are considered concerning,",
+        "\n indicating potential lack of convergence for the estimates of the pairwise interactions.",
+        "\n The 'BF Interval (MC)' is a 95% Monte Carlo confidence interval for the Bayes factor, obtained by first estimating the numerical standard",
+        "\n error of the log Bayes factor and then exponentiating a log-scale interval back to the BF scale. This interval reflects the numerical",
+        "\n Monte Carlo uncertainty of the Bayes factor; narrower intervals indicate a more stable and reliable BF estimate across repeated MCMC",
+        "\n runs. Note that when the posterior inclusion probability is exactly 1 or 0, the Bayes factor is infinite and the Monte Carlo interval",
+        "\n is not available.",
+        "\n ---")
+    }
+    if("package_bgms" %in% class(x) && packageVersion("bgms") > "0.1.4.2" && !isTRUE(x$BF_uncertainty)){
+      cat("\n Convergence indicates the R-hat (Gelman-Rubin) statistic measuring how well MCMC chains have converged to",
+          "\n the same target distribution. Values greater than about 1.01-1.05 are considered concerning, indicating",
+          "\n potential lack of convergence for the estimates of the pairwise interactions.",
+          "\n If you wish to also see the Monte Carlo uncertainty of the Bayes factors, please re-print the summary with BF_uncertainty = TRUE.",
           "\n ---")
     }
     cat("\n AGGREGATED EDGE OVERVIEW",

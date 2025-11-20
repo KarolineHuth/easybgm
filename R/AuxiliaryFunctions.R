@@ -261,3 +261,101 @@ clusterBayesfactor <- function(fit,
   return(round(bayesFactor, 1))
 }
 
+# function for calculating the MC uncertainty for the inclusion BF
+
+BF_MCSE <- function(gamma_mat,
+                    BF_vec,
+                    ess = NULL,
+                    smooth_bf = FALSE,
+                    return = c("mcse_log", "mcse_bf", "ci"),
+                    conf_level = 0.95) {
+
+  # Match argument
+  return <- match.arg(return)
+
+  T_samples <- nrow(gamma_mat)
+
+  # Compute raw posterior inclusion probabilities
+  p_raw <- apply(gamma_mat, 2, mean)
+
+  # Determine p_hat for BF calculation
+  if (smooth_bf) {
+    pseudo <- c(0.5, 0.5)
+    a <- pseudo[1]
+    b <- if (length(pseudo) > 1) pseudo[2] else pseudo[1]
+    p_for_bf <- (colSums(gamma_mat) + a) / (T_samples + a + b)
+  } else {
+    p_for_bf <- p_raw
+  }
+
+  # Compute Bayes factors
+  #post_odds <- p_for_bf / (1 - p_for_bf)
+  #BF_vec <- post_odds / prior_odds
+  #BF_vec <- BF_vec[lower.tri(BF_vec)]
+
+  # Compute effective sample size
+  if (is.null(ess)) {
+    ess_vec <- apply(gamma_mat, 2, function(x) {
+      ess <- as.numeric(coda::effectiveSize(x))
+      # Handle invalid ESS values
+      if (is.na(ess) || !is.finite(ess) || ess <= 0) {
+        return(1) # as a safe option (should never happen)
+      }
+      return(ess)
+    })
+  } else {
+    ess_vec <- ess
+  }
+
+  if (smooth_bf) {
+    a <- pseudo[1]
+    b <- if (length(pseudo) > 1) pseudo[2] else pseudo[1]
+    p_for_variance <- (colSums(gamma_mat) + a) / (T_samples + a + b)
+  } else {
+    p_for_variance <- p_raw
+  }
+
+  # Variance of p_hat
+  var_p <- p_for_variance * (1 - p_for_variance) / ess_vec
+
+  # Delta method to log BF scale
+  denom <- p_for_variance^2 * (1 - p_for_variance)^2
+  var_logBF <- var_p / denom
+  se_logBF <- sqrt(var_logBF)
+
+  # Set MCSE to NA where calculations are invalid
+  se_logBF[!is.finite(se_logBF)] <- NA_real_
+
+  # Return based on argument
+  if (return == "mcse_log") {
+    # Return MCSE on log scale
+    return(se_logBF)
+
+  } else if (return == "mcse_bf") {
+    # Return MCSE on BF scale
+    se_BF <- BF_vec * se_logBF
+    se_BF[!is.finite(se_BF)] <- NA_real_
+
+    return(se_BF)
+
+  } else if (return == "ci") {
+    # Return confidence intervals as data frame
+    z <- stats::qnorm(1 - (1 - conf_level) / 2)
+
+    # Compute CI on log scale, then exponentiate
+    log_BF <- log(BF_vec)
+    ci_lower <- exp(log_BF - z * se_logBF)
+    ci_upper <- exp(log_BF + z * se_logBF)
+
+    # Set CI to NA where BF or MCSE is invalid
+    ci_lower[!is.finite(BF_vec) | is.na(se_logBF)] <- NA_real_
+    ci_upper[!is.finite(BF_vec) | is.na(se_logBF)] <- NA_real_
+
+    # Return as data frame with two columns
+    ci_df <- data.frame(
+      lower = ci_lower,
+      upper = ci_upper
+    )
+    return(ci_df)
+  }
+}

@@ -101,7 +101,7 @@ easybgm_compare <- function(data,
                             progress = TRUE,
                             ...){
   
-  if(class(data) != "list" & is.null(group_indicator)){
+  if(!is.list(data) && is.null(group_indicator)){
     stop("Your data can't be read. There are two options of providing your data: 1) Provide two datasets in a list containing only the two datasets, or for ordinal data with the bgms pacakge > 0.1.6. 2) provide the data as a matrix or data.frame together with specifying the 'group_indicator' argument, which then also allows for multi-group comparison.",
          call. = FALSE)
   }
@@ -154,7 +154,7 @@ easybgm_compare <- function(data,
     
   }
   
-  if(class(data) != "list" &  package == "package_bggm_compare"){
+  if(!is.list(data) &&  package == "package_bggm_compare"){
     stop("Your data can't be read. For continuous data fit with BGGM, you can only provide two datasets in a list.",
          call. = FALSE)
   }

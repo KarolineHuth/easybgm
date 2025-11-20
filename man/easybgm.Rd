@@ -84,7 +84,8 @@ and visually inspect nodes that tend to switch clusters.
 }
 
 If using version 0.1.6.1 or higher of the \code{bgms} package, the function also returns the
-the Gelman-Rubin convergence statistic for each edge weight parameter.
+the Gelman-Rubin convergence statistic for each edge weight parameter. As well as the
+95\% Monte Carlo confidence interval for the inclusion Bayes factor.
 
 For all packages, when setting \code{save = TRUE} and \code{centrality = TRUE}, the function will return the following objects respectively:
 
@@ -166,7 +167,7 @@ summary(fit)
 # and centrality measures
 
 fit <- easybgm(data, type = "continuous",
-                iter = 1000, # for demonstrative purposes, generally, 1e5 iterations are recommended
+                iter = 1000, # for demonstration only (> 5e4 recommended)
                 save = TRUE,
                 centrality = TRUE)
 }
