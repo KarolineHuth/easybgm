@@ -1,112 +1,126 @@
-suppressPackageStartupMessages(library(bgms))
-data <- na.omit(Wenchuan)
-
-##--------------------------------
-## Fitting with bgms
-##--------------------------------
-set.seed(123)
-res_bgms <- easybgm(data[1:100, 1:5], type = "ordinal",
-                    package = "bgms", save = T, centrality = T, iter = 1000, edge_selection = T)
-test_that("easybgm works for bgms", {
-  testthat::expect_snapshot(summary(res_bgms))
+#### save parameter checks  ####
+### Check centrality computation; see centrality argument requires save = T
+### test type = blume-capel for bgms
+### prior for bgms SBM
+### how do i vary the versions of bgms with easybgm 
+devtools::load_all()
+test_that("easybgm returns expected structure across valid type–package combos", {
+  set.seed(123)
+  
+  # Subsample small data to stay fast on CRAN
+  data("Wenchuan", package = "bgms")
+  dat <- na.omit(Wenchuan)[1:20, 1:5]
+  p <- ncol(dat)
+  
+  # Test only core combinations
+  combos <- list(
+    list(type = "continuous", pkg = "BGGM"),
+    list(type = "mixed",      pkg = "BDgraph"),
+    list(type = "binary",     pkg = "bgms")
+  )
+  
+  for (cmb in combos) {
+    t <- cmb$type
+    pkg <- cmb$pkg
+    
+    not_cont <- if (t == "mixed") c(TRUE, TRUE, rep(FALSE, p - 2)) else NULL
+    
+    suppressMessages({
+      res <- easybgm(
+        data       = dat,
+        type       = t,
+        package    = pkg,
+        iter       = 10,          # tiny for speed
+        save       = FALSE,
+        centrality = FALSE,
+        progress   = FALSE,
+        not_cont   = not_cont
+      )
+    })
+    
+    # --- class check ---
+    expect_true(inherits(res, c("easybgm")))
+    expect_true(any(grepl("package_", class(res))))  # backend tag present
+    
+    # --- field presence check ---
+    expect_true(all(c("parameters", "inc_probs", "inc_BF", "structure", "model") %in% names(res)))
+    
+    # --- dimensions check ---
+    expect_equal(dim(res$parameters), c(p, p))
+    expect_equal(dim(res$inc_probs),  c(p, p))
+    expect_equal(dim(res$inc_BF),     c(p, p))
+    expect_equal(dim(res$structure),  c(p, p))
+    
+    # --- sanity check ---
+    expect_false(all(is.na(res$parameters)))
+    expect_false(all(is.na(res$inc_probs))) 
+    
+    ### if save = TRUE also check for `samples_posterior`with dimension k (= p*(p-1)/2) x iter and `centrality` with dimension p x iter 
+    ### if is SBM check for list element sbm with four elements
+  }
 })
 
-##--------------------------------
-## Plotting with bgms
-##--------------------------------
-
-# 1. Network plot
-network_bgms <- plot_network(res_bgms)
-# vdiffr::expect_doppelganger("network plot bgms", network_bgms)
-
-# 2. Evidence plot
-evidence_bgms <- plot_network(res_bgms)
-# vdiffr::expect_doppelganger("evidence plot bgms", evidence_bgms)
-
-# 3. Posterior structure plot
-poststruc_bgms <- plot_structure_probabilities(res_bgms)
-# vdiffr::expect_doppelganger("posterior structure plot bgms", poststruc_bgms)
-
-# 4. Posterior complexity plot
-postcompl_bgms <- plot_complexity_probabilities(res_bgms)
-# vdiffr::expect_doppelganger("posterior complexity plot bgms", postcompl_bgms)
-
-# 5. structure plot
-struc_bgms <- plot_structure(res_bgms)
-# vdiffr::expect_doppelganger("structure plot bgms", struc_bgms)
-
-# 6. HDI plot
-HDI_bgms <-plot_parameterHDI(res_bgms)
-# vdiffr::expect_doppelganger("HDI plot bgms", HDI_bgms)
-
-# 7. centrality plot
-centrality_bgms <-plot_centrality(res_bgms)
-# vdiffr::expect_doppelganger("centrality plot bgms", centrality_bgms)
-
-##--------------------------------
-## Fitting with BDgraph
-##--------------------------------
-set.seed(123)
-res_bdgraph <- suppressWarnings(easybgm(data[1:100, 1:5], type = "continuous",
-                    package = "BDgraph", save = T, centrality = T, iter = 1000))
-test_that("easybgm works for bdgraph", {
-  testthat::expect_snapshot(summary(res_bdgraph))
+test_that("plotting functions work across valid type–package combos", {
+  set.seed(123)
+  
+  data("Wenchuan", package = "bgms")
+  dat <- na.omit(Wenchuan)[1:20, 1:5]
+  p   <- ncol(dat)
+  
+  combos <- list(
+    list(type = "continuous", pkg = "BGGM"),
+    list(type = "mixed",      pkg = "BDgraph"),
+    list(type = "binary",     pkg = "bgms")
+  )
+  
+  for (cmb in combos) {
+    t   <- cmb$type
+    pkg <- cmb$pkg
+    not_cont <- if (t == "mixed") c(TRUE, TRUE, rep(FALSE, p - 2)) else NULL
+    
+    suppressMessages({
+      res <- easybgm(
+        data       = dat,
+        type       = t,
+        package    = pkg,
+        iter       = 10,
+        save       = TRUE,
+        centrality = TRUE,
+        progress   = FALSE,
+        not_cont   = not_cont
+      )
+    })
+    
+    # --- edge evidence ---
+    g1 <- invisible(plot_edgeevidence(res))
+    expect_true(inherits(g1, c("ggplot", "qgraph")))
+    
+    # --- network ---
+    g2 <- invisible(plot_network(res))
+    expect_true(inherits(g2, c("ggplot", "qgraph")))
+    
+    # --- structure plots (skip for BGGM) ---
+    if (pkg != "BGGM") {
+      g3 <- invisible(plot_structure_probabilities(res))
+      expect_s3_class(g3, "ggplot")
+      
+      g4 <- invisible(plot_complexity_probabilities(res))
+      expect_s3_class(g4, "ggplot")
+      
+      g5 <- invisible(plot_structure(res))
+      expect_true(inherits(g5, c("ggplot", "qgraph")))
+    }
+    
+    # --- posterior parameter HDI ---
+    g6 <- invisible(plot_parameterHDI(res))
+    expect_s3_class(g6, "ggplot")
+    
+    # --- centrality ---
+    g7 <- invisible(plot_centrality(res))
+    expect_s3_class(g7, "ggplot")
+  }
 })
 
-##--------------------------------
-## Plotting with BDgraph
-##--------------------------------
-
-#1. Network plot
-network_bdgraph <- plot_network(res_bdgraph)
-# vdiffr::expect_doppelganger("network plot Bdgraph", network_bdgraph)
-
-# 2. Evidence plot
-evidence_bdgraph <- plot_network(res_bdgraph)
-# vdiffr::expect_doppelganger("evidence plot Bdgraph", evidence_bdgraph)
-
-# 3. Posterior structure plot
-poststruc_bdgraph <- plot_structure_probabilities(res_bdgraph)
-# vdiffr::expect_doppelganger("posterior structure plot Bdgraph", poststruc_bdgraph)
-
-# 4. Posterior complexity plot
-postcompl_bdgraph <- plot_complexity_probabilities(res_bdgraph)
-# vdiffr::expect_doppelganger("posterior complexity plot Bdgraph", postcompl_bdgraph)
-
-# 5. structure plot
-struc_bdgraph <- plot_structure(res_bdgraph)
-# vdiffr::expect_doppelganger("structure plot Bdgraph", struc_bdgraph)
-
-# 6. HDI plot
-HDI_bdgraph <- suppressWarnings(plot_parameterHDI(res_bdgraph))
-# vdiffr::expect_doppelganger("HDI plot Bdgraph", HDI_bdgraph)
-
-# 7. centrality plot
-centrality_bdgraph <-plot_centrality(res_bdgraph)
-# vdiffr::expect_doppelganger("centrality plot Bdgraph", centrality_bdgraph)
-
-##--------------------------------
-## Fitting with BGGM
-##--------------------------------
-# DOES NOT WORK, output keeps changing slightly despite set.seed
-# set.seed(123)
-# res_bggm <- easybgm(data[1:300, 1:5], type = "continuous",
-#                        package = "BGGM")
-# test_that("easybgm works for bggm", {
-#   vdiffr::expect_snapshot(summary(res_bggm))
-# })
-
-
-##--------------------------------
-## Fitting with bgms
-##--------------------------------
-
-
-set.seed(123)
-data <- na.omit(Wenchuan)
-fit_bgms <- bgm(data[1:100, 1:5], iter = 1000)
-network_bgmfit <- plot_network(fit_bgms)
-# vdiffr::expect_doppelganger("network plot using bgm to fit", network_bgmfit)
 
 
 
