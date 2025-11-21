@@ -33,7 +33,7 @@ bgm_fit.package_bggm <- function(fit, type, data, iter, save,
 # 2. Extracting results function
 # --------------------------------------------------------------------------------------------------
 #' @export
-bgm_extract.package_bggm <- function(fit, type, save,
+bgm_extract.package_bggm <- function(fit, type, save, iter,
                                      not_cont, data, centrality, ...){
   bggm_res <- list()
   varnames <- fit$var_names

@@ -1,7 +1,7 @@
 # 1. Turns vector into matrix
 vector2matrix <- function(vec, p, diag = FALSE, bycolumn = FALSE) {
   m <- matrix(0, p, p)
-
+  
   if(!bycolumn){
     m[lower.tri(m, diag = diag)] <- vec
     m <- t(m)
@@ -36,43 +36,47 @@ string2graph <- function(Gchar, p) {
 }
 
 # 4. BDgraph extract posterior distribution for estimates
-extract_posterior <- function(fit, data, method = c("ggm", "gcgm"), posterior_method = c("maximum-posterior", "model-averaged"), not_cont){
+extract_posterior <- function(fit, data, iter = 10000,method = c("ggm", "gcgm"), posterior_method = c("maximum-posterior", "model-averaged"), not_cont){
   m <- length(fit$all_graphs)
   n <- nrow(data)
   p <- ncol(data)
-
-
+  
+  
   if(method == "gcgm") {
     S <- BDgraph::get_S_n_p(data, method = method, n = n, not.cont = not_cont)$S
   } else {
     S <- t(data) %*% data
   }
-
+  
   if(posterior_method == "MAP"){
-    Rs = matrix(0, nrow = 10000, ncol = (p*(p-1))/2)
+    Rs = matrix(0, nrow = iter, ncol = (p*(p-1))/2)
     index <- which.max(fit$graph_weights)
     graph_ix <- fit$sample_graphs[index]
     G <- string2graph(graph_ix, p)
-    K <- BDgraph::rgwish(n=10000, adj=G, b=3+n, D=diag(p) + S)
+    K <- BDgraph::rgwish(n=iter, adj=G, b=3+n, D=diag(p) + S)
     Rs <- list2matrix(K, p, convert = T)
   }
   if(posterior_method == "model-averaged"){
-
+    
     n_structures <- length(fit$graph_weights)
     sum_weights <- sum(fit$graph_weights)
     structure_weights <- fit$graph_weights/sum_weights
-    Rs = matrix(0, nrow = 1, ncol = (p*(p-1))/2)
+    
     for (i in 1:n_structures) {
       graph_ix <- fit$sample_graphs[i]
-      n_samples <- round(structure_weights[i]*100000)
+      n_samples <- round(structure_weights[i]*iter)
       G <- string2graph(graph_ix, p)
       K <- BDgraph::rgwish(n=n_samples, adj=G, b=3+n, D=diag(p) + S)
       samples_ix <- list2matrix(K, p, convert = T)
-      Rs <- rbind(Rs, samples_ix)
-
+      if(i ==1){
+        Rs = as.matrix(samples_ix)
+      } else{
+        Rs <- rbind(Rs, samples_ix)
+      }
+      
     }
   }
-
+  
   return(list(Rs))
 }
 
@@ -82,7 +86,7 @@ gwish_samples <- function(G, S, nsamples=1000) {
   p <- ncol(S)
   #Rs <- array(0, dim=c(nsamples, p, p))
   Rs = matrix(0, nrow = nsamples, ncol = (p*(p-1))/2)
-
+  
   for (i in 1:nsamples) {
     K <- BDgraph::rgwish(n=1, adj=G, b=3+n, D=diag(p) + S)*(G + diag(p))
     Rs[i,] <- as.vector(pr2pc(K)[upper.tri(pr2pc(K))])
@@ -111,19 +115,19 @@ centrality_all <- function(res){
   p <- as.numeric(nrow(res$parameters))
   samples <- res$samples_posterior
   for(i in 1:Nsamples){
-
+    
     #Strength
     strength_samples <- rowSums(abs(vector2matrix(samples[i, ], p, bycolumn = TRUE)))
     #EI
     influence_samples <- rowSums(vector2matrix(samples[i, ], p, bycolumn = TRUE))
-
+    
     DistMat <- 1/(ifelse(abs(vector2matrix(samples[i, ], p, bycolumn = TRUE))==0,0,abs(vector2matrix(samples[i, ], p, bycolumn = T))))
     igraphObject <- igraph::graph.adjacency(DistMat, weighted = TRUE, mode = "undirected")
     # Closeness
     closeness_samples <- igraph::closeness(igraphObject)
     # Betweenness
     betweenness_samples <- igraph::estimate_betweenness(igraphObject,cutoff = 1/1e-10)
-
+    
     if(i > 1){
       centrality_samples <- rbind(centrality_samples, cbind(c("Strength", "Closeness", "Betweenness", "ExpectedInfluence"),
                                                             rbind(strength_samples, closeness_samples, betweenness_samples, influence_samples)))
@@ -160,7 +164,7 @@ set_defaults <- function(args, ...) {
   dots <- list(...)
   def_args <- setdiff(names(args), names(dots))
   dots[def_args] <- args[def_args]
-
+  
   return(dots)
 }
 
@@ -178,17 +182,17 @@ dots_check <- function(...){
 # @args alpha, beta parameters, c the complexity for which the probability has to b computed
 # p the number of nodes
 beta_bernoulli_prob <- function(c, alpha, beta, p) {
-
+  
   k <- p * (p - 1) / 2
-
+  
   log_nom <- lbeta(alpha + c, beta + k - c)
   log_denom <- lbeta(alpha, beta)
-
+  
   log_choose <- lchoose(k, c)
-
-
+  
+  
   log_prob <- log_choose + log_nom - log_denom
-
+  
   return(log_prob)
 }
 
@@ -226,38 +230,38 @@ clusterBayesfactor <- function(fit,
                                type = "complement",
                                b1 = NULL,
                                b2 = NULL) {
-
+  
   # check if the type argument is valid
   if (!type %in% c("point", "complement")) {
     stop("The type argument must be either 'point' or 'complement'.")
   }
-
+  
   # Check the class of fit (if it is a bgms object, rename components)
   if (inherits(fit, "bgms")) {
     names(fit)[names(fit) == "arguments"] <- "fit_arguments"
   }
-
+  
   lambda <- fit$fit_arguments$lambda
-
+  
   if (type == "point") {
     if (is.null(b1) || is.null(b2)) {
       stop("For the point type, both b1 and b2, indicating the number of clusters to be tested, must be provided.")
     }
     # Calculate prior odds in favor of b1 against b2
     prO <- (lambda^(b1 - b2) * factorial(b2)) / factorial(b1)
-
+    
     # Calculate the posterior odds in favor of b1 against b2
     poO <-  unname(fit$sbm$posterior_num_blocks[b1, 1]) / unname(fit$sbm$posterior_num_blocks[b2, 1])
-
+    
     bayesFactor <- poO / prO
-
+    
   } else if (type == "complement") {
     # In favor of the complement
     prO <- (exp(lambda) - 1 - lambda) / lambda
     poO <- sum(fit$sbm$posterior_num_blocks[-1, 1]) / unname(fit$sbm$posterior_num_blocks[1, 1])
     bayesFactor <- poO / prO
   }
-
+  
   return(round(bayesFactor, 1))
 }
 
@@ -269,15 +273,15 @@ BF_MCSE <- function(gamma_mat,
                     smooth_bf = FALSE,
                     return = c("mcse_log", "mcse_bf", "ci"),
                     conf_level = 0.95) {
-
+  
   # Match argument
   return <- match.arg(return)
-
+  
   T_samples <- nrow(gamma_mat)
-
+  
   # Compute raw posterior inclusion probabilities
   p_raw <- apply(gamma_mat, 2, mean)
-
+  
   # Determine p_hat for BF calculation
   if (smooth_bf) {
     pseudo <- c(0.5, 0.5)
@@ -287,12 +291,12 @@ BF_MCSE <- function(gamma_mat,
   } else {
     p_for_bf <- p_raw
   }
-
+  
   # Compute Bayes factors
   #post_odds <- p_for_bf / (1 - p_for_bf)
   #BF_vec <- post_odds / prior_odds
   #BF_vec <- BF_vec[lower.tri(BF_vec)]
-
+  
   # Compute effective sample size
   if (is.null(ess)) {
     ess_vec <- apply(gamma_mat, 2, function(x) {
@@ -306,7 +310,7 @@ BF_MCSE <- function(gamma_mat,
   } else {
     ess_vec <- ess
   }
-
+  
   if (smooth_bf) {
     a <- pseudo[1]
     b <- if (length(pseudo) > 1) pseudo[2] else pseudo[1]
@@ -314,43 +318,43 @@ BF_MCSE <- function(gamma_mat,
   } else {
     p_for_variance <- p_raw
   }
-
+  
   # Variance of p_hat
   var_p <- p_for_variance * (1 - p_for_variance) / ess_vec
-
+  
   # Delta method to log BF scale
   denom <- p_for_variance^2 * (1 - p_for_variance)^2
   var_logBF <- var_p / denom
   se_logBF <- sqrt(var_logBF)
-
+  
   # Set MCSE to NA where calculations are invalid
   se_logBF[!is.finite(se_logBF)] <- NA_real_
-
+  
   # Return based on argument
   if (return == "mcse_log") {
     # Return MCSE on log scale
     return(se_logBF)
-
+    
   } else if (return == "mcse_bf") {
     # Return MCSE on BF scale
     se_BF <- BF_vec * se_logBF
     se_BF[!is.finite(se_BF)] <- NA_real_
-
+    
     return(se_BF)
-
+    
   } else if (return == "ci") {
     # Return confidence intervals as data frame
     z <- stats::qnorm(1 - (1 - conf_level) / 2)
-
+    
     # Compute CI on log scale, then exponentiate
     log_BF <- log(BF_vec)
     ci_lower <- exp(log_BF - z * se_logBF)
     ci_upper <- exp(log_BF + z * se_logBF)
-
+    
     # Set CI to NA where BF or MCSE is invalid
     ci_lower[!is.finite(BF_vec) | is.na(se_logBF)] <- NA_real_
     ci_upper[!is.finite(BF_vec) | is.na(se_logBF)] <- NA_real_
-
+    
     # Return as data frame with two columns
     ci_df <- data.frame(
       lower = ci_lower,

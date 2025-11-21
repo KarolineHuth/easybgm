@@ -6,7 +6,8 @@ Authors@R: c(
   person("Karoline", "Huth", , "k.huth@uva.nl", role = c("aut", "cre"), 
         comment = c(ORCID = "0000-0002-0662-1591")), 
   person("Sara", "Keetelaar", role = c("ctb")), 
-  person("Nikola", "Sekulovski", role = c("ctb"))
+  person("Nikola", "Sekulovski", role = c("ctb")), 
+  person("Gali", "Geller", role = c("ctb"))
   )
 Maintainer: Karoline Huth <k.huth@uva.nl>
 Description: Fit and visualize the results of a Bayesian analysis of networks commonly found in psychology. 
@@ -33,6 +34,6 @@ Imports:
     qgraph,
     coda
 Suggests: 
-    testthat (>= 3.0.0),
+    testthat (>= 3.2.3),
     vdiffr
 Config/testthat/edition: 3

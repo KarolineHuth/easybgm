@@ -239,6 +239,7 @@ easybgm <- function(data, type, package = NULL, not_cont = NULL, iter = 1e4,
                      save = save, not_cont = not_cont,
                      data = data, centrality = centrality,
                      posterior_method = posterior_method,
+                     iter = iter,
                      ...)
 
   # Output results

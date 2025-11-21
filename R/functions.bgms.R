@@ -44,7 +44,7 @@ bgm_fit.package_bgms <- function(fit, type, data, iter, save,
 # 2. Extracting results function
 # --------------------------------------------------------------------------------------------------
 #' @export
-bgm_extract.package_bgms <- function(fit, type, save,
+bgm_extract.package_bgms <- function(fit, type, save, iter, 
                                      not_cont, data, centrality, ...){
   if (packageVersion("bgms") < "0.1.4") {
     stop("easybgm now requires bgms version 0.1.4 or higher.")
