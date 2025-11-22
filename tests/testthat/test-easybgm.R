@@ -1,120 +1,272 @@
-suppressPackageStartupMessages(library(bgms))
-data <- na.omit(Wenchuan)
 
-##--------------------------------
-## Fitting with bgms
-##--------------------------------
-set.seed(123)
-res_bgms <- easybgm(data[1:100, 1:5], type = "ordinal",
-                    package = "bgms", save = T, centrality = T, iter = 1000, edge_selection = T)
-test_that("easybgm works for bgms", {
-  testthat::expect_snapshot(summary(res_bgms))
+### how do i vary the versions of bgms with easybgm 
+##### CROSS-SECTIONAL
+###-------------
+### Estimation checks 
+###-------------
+
+test_that("easybgm returns expected structure across valid type–package combos", {
+  set.seed(123)
+  
+  # Subsample small data to stay fast on CRAN
+  data("Wenchuan", package = "bgms")
+  dat <- na.omit(Wenchuan)[1:20, 1:5]
+  p <- ncol(dat)
+  itr <- 100
+  
+  # Test only core combinations
+  combos <- list(
+    ### BGGM
+    list(type = "continuous", pkg = "BGGM", sv = F, cnt = F),
+    list(type = "continuous", pkg = "BGGM", sv = T, cnt = T),
+    list(type = "mixed", pkg = "BGGM", sv = T, cnt = T),
+    ### BDGRAPH
+    list(type = "mixed",      pkg = "BDgraph", sv = F, cnt = F),
+    list(type = "mixed",      pkg = "BDgraph", sv = T, cnt = T),
+    list(type = "continuous",  pkg = "BDgraph", sv = T, cnt = T),
+    ### bgms
+    list(type = "binary",     pkg = "bgms", sv = F, cnt = F), 
+    list(type = "binary",     pkg = "bgms", sv = T, cnt = T), 
+    list(type = "blume-capel", pkg = "bgms", sv = T, cnt = T), 
+    list(type = "binary", pkg = "bgms", sv = T, cnt = T, sbm = "Stochastic-Block") 
+  )
+  
+  for (cmb in combos) {
+    t <- cmb$type
+    pkg <- cmb$pkg
+    sv <- cmb$sv
+    cnt <- cmb$cnt
+    if(!is.null(cmb$sbm)) {sbm <- cmb$sbm}
+    
+    not_cont <- if (t == "mixed") c(TRUE, TRUE, rep(FALSE, p - 2)) else NULL
+    
+    if(t == "blume-capel"){
+      suppressWarnings({
+        res <- easybgm(
+          data       = dat,
+          type       = t,
+          package    = pkg,
+          iter       = itr,          # tiny for speed
+          save       = sv,
+          centrality = cnt,
+          progress   = FALSE,
+          not_cont   = not_cont, 
+          baseline_category = 2
+        )
+      })} else if(!is.null(cmb$sbm)){
+        suppressWarnings({
+          res <- easybgm(
+            data       = dat,
+            type       = t,
+            package    = pkg,
+            iter       = itr,          # tiny for speed
+            save       = sv,
+            centrality = cnt,
+            progress   = FALSE, 
+            edge_prior = sbm
+          )
+        })
+      } else {
+        suppressWarnings({
+          res <- easybgm(
+            data       = dat,
+            type       = t,
+            package    = pkg,
+            iter       = itr,          # tiny for speed
+            save       = sv,
+            centrality = cnt,
+            progress   = FALSE,
+            not_cont   = not_cont
+          )
+        })
+      }
+    
+    # --- class check ---
+    expect_true(inherits(res, c("easybgm")))
+    expect_true(any(grepl("package_", class(res))))  # backend tag present
+    
+    # --- field presence check ---
+    expect_true(all(c("parameters", "inc_probs", "inc_BF", "structure", "model") %in% names(res)))
+    
+    # --- dimensions check ---
+    expect_equal(dim(res$parameters), c(p, p))
+    expect_equal(dim(res$inc_probs),  c(p, p))
+    expect_equal(dim(res$inc_BF),     c(p, p))
+    expect_equal(dim(res$structure),  c(p, p))
+    
+    # --- sanity check ---
+    expect_false(all(is.na(res$parameters)))
+    expect_false(all(is.na(res$inc_probs))) 
+    
+    if(sv == TRUE && pkg != "bgms") {
+      k <- p*(p-1)/2
+      expect_equal(dim(res$samples_posterior), c(itr, k))
+      expect_equal(dim(res$centrality),  c(itr, p))
+    } 
+    if(sv == TRUE && pkg == "bgms"){
+      k <- p*(p-1)/2
+      expect_equal(dim(res$samples_posterior), c(4*itr, k))
+      expect_equal(dim(res$centrality),  c(4*itr, p))
+    }
+    if(!is.null(cmb$sbm)){
+      expect_equal(length(res$sbm), 4)
+    }
+    print(paste0("Finished easybgm: Package: ", cmb$pkg, "; Type: ", cmb$type, "; Centrality: ", cmb$cnt))
+    
+  }
 })
 
-##--------------------------------
-## Plotting with bgms
-##--------------------------------
+###-------------
+### Plotting functions test
+###-------------
 
-# 1. Network plot
-network_bgms <- plot_network(res_bgms)
-# vdiffr::expect_doppelganger("network plot bgms", network_bgms)
-
-# 2. Evidence plot
-evidence_bgms <- plot_network(res_bgms)
-# vdiffr::expect_doppelganger("evidence plot bgms", evidence_bgms)
-
-# 3. Posterior structure plot
-poststruc_bgms <- plot_structure_probabilities(res_bgms)
-# vdiffr::expect_doppelganger("posterior structure plot bgms", poststruc_bgms)
-
-# 4. Posterior complexity plot
-postcompl_bgms <- plot_complexity_probabilities(res_bgms)
-# vdiffr::expect_doppelganger("posterior complexity plot bgms", postcompl_bgms)
-
-# 5. structure plot
-struc_bgms <- plot_structure(res_bgms)
-# vdiffr::expect_doppelganger("structure plot bgms", struc_bgms)
-
-# 6. HDI plot
-HDI_bgms <-plot_parameterHDI(res_bgms)
-# vdiffr::expect_doppelganger("HDI plot bgms", HDI_bgms)
-
-# 7. centrality plot
-centrality_bgms <-plot_centrality(res_bgms)
-# vdiffr::expect_doppelganger("centrality plot bgms", centrality_bgms)
-
-##--------------------------------
-## Fitting with BDgraph
-##--------------------------------
-set.seed(123)
-res_bdgraph <- suppressWarnings(easybgm(data[1:100, 1:5], type = "continuous",
-                    package = "BDgraph", save = T, centrality = T, iter = 1000))
-test_that("easybgm works for bdgraph", {
-  testthat::expect_snapshot(summary(res_bdgraph))
+test_that("plotting functions work across valid type–package combos", {
+  set.seed(123)
+  
+  data("Wenchuan", package = "bgms")
+  dat <- na.omit(Wenchuan)[1:20, 1:5]
+  p   <- ncol(dat)
+  
+  combos <- list(
+    list(type = "continuous", pkg = "BGGM"),
+    list(type = "mixed",      pkg = "BDgraph"),
+    list(type = "binary",     pkg = "bgms")
+  )
+  
+  for (cmb in combos) {
+    t   <- cmb$type
+    pkg <- cmb$pkg
+    not_cont <- if (t == "mixed") c(TRUE, TRUE, rep(FALSE, p - 2)) else NULL
+    
+    suppressMessages({
+      res <- easybgm(
+        data       = dat,
+        type       = t,
+        package    = pkg,
+        iter       = 10,
+        save       = TRUE,
+        centrality = TRUE,
+        progress   = FALSE,
+        not_cont   = not_cont
+      )
+    })
+    
+    # --- edge evidence ---
+    g1 <- invisible(plot_edgeevidence(res))
+    expect_true(inherits(g1, c("ggplot", "qgraph")))
+    
+    # --- network ---
+    g2 <- invisible(plot_network(res))
+    expect_true(inherits(g2, c("ggplot", "qgraph")))
+    
+    # --- structure plots (skip for BGGM) ---
+    if (pkg != "BGGM") {
+      g3 <- invisible(plot_structure_probabilities(res))
+      expect_s3_class(g3, "ggplot")
+      
+      g4 <- invisible(plot_complexity_probabilities(res))
+      expect_s3_class(g4, "ggplot")
+      
+      g5 <- invisible(plot_structure(res))
+      expect_true(inherits(g5, c("ggplot", "qgraph")))
+    }
+    
+    # --- posterior parameter HDI ---
+    g6 <-    suppressWarnings({invisible(plot_parameterHDI(res))})
+    expect_s3_class(g6, "ggplot")
+    
+    # --- centrality ---
+    g7 <- invisible(plot_centrality(res))
+    expect_s3_class(g7, "ggplot")
+  }
 })
 
-##--------------------------------
-## Plotting with BDgraph
-##--------------------------------
 
-#1. Network plot
-network_bdgraph <- plot_network(res_bdgraph)
-# vdiffr::expect_doppelganger("network plot Bdgraph", network_bdgraph)
-
-# 2. Evidence plot
-evidence_bdgraph <- plot_network(res_bdgraph)
-# vdiffr::expect_doppelganger("evidence plot Bdgraph", evidence_bdgraph)
-
-# 3. Posterior structure plot
-poststruc_bdgraph <- plot_structure_probabilities(res_bdgraph)
-# vdiffr::expect_doppelganger("posterior structure plot Bdgraph", poststruc_bdgraph)
-
-# 4. Posterior complexity plot
-postcompl_bdgraph <- plot_complexity_probabilities(res_bdgraph)
-# vdiffr::expect_doppelganger("posterior complexity plot Bdgraph", postcompl_bdgraph)
-
-# 5. structure plot
-struc_bdgraph <- plot_structure(res_bdgraph)
-# vdiffr::expect_doppelganger("structure plot Bdgraph", struc_bdgraph)
-
-# 6. HDI plot
-HDI_bdgraph <- suppressWarnings(plot_parameterHDI(res_bdgraph))
-# vdiffr::expect_doppelganger("HDI plot Bdgraph", HDI_bdgraph)
-
-# 7. centrality plot
-centrality_bdgraph <-plot_centrality(res_bdgraph)
-# vdiffr::expect_doppelganger("centrality plot Bdgraph", centrality_bdgraph)
-
-##--------------------------------
-## Fitting with BGGM
-##--------------------------------
-# DOES NOT WORK, output keeps changing slightly despite set.seed
-# set.seed(123)
-# res_bggm <- easybgm(data[1:300, 1:5], type = "continuous",
-#                        package = "BGGM")
-# test_that("easybgm works for bggm", {
-#   vdiffr::expect_snapshot(summary(res_bggm))
-# })
-
-
-##--------------------------------
-## Fitting with bgms
-##--------------------------------
-
-
-set.seed(123)
-data <- na.omit(Wenchuan)
-fit_bgms <- bgm(data[1:100, 1:5], iter = 1000)
-network_bgmfit <- plot_network(fit_bgms)
-# vdiffr::expect_doppelganger("network plot using bgm to fit", network_bgmfit)
-
-
-##--------------------------------
-## Sparse vs dense test
-##--------------------------------
-set.seed(123)
-data <- na.omit(Wenchuan)
-sparse_dense <- sparse_or_dense(data[1:100, 1:5], type = "ordinal", iter = 1000)
-test_that("easybgm works for sparse vs dense", {
-  testthat::expect_snapshot(sparse_dense)
+##### NETWORK COMPARISON
+test_that("easybgm_compare returns expected structure across valid type–package combos", {
+  set.seed(123)
+  
+  # Subsample small data to stay fast on CRAN
+  data("Wenchuan", package = "bgms")
+  dat <- as.data.frame(na.omit(Wenchuan)[1:300, 1:5])
+  p <- ncol(dat)
+  itr <- 10
+  
+  # Test only core combinations
+  combos <- list(
+    ### BGGM
+    list(type = "continuous", pkg = "BGGM", sv = F),
+    list(type = "continuous", pkg = "BGGM", sv = T),
+    list(type = "mixed", pkg = "BGGM", sv = T),
+    ### bgms
+    list(type = "binary",     pkg = "bgms", sv = F), 
+    list(type = "binary",     pkg = "bgms", sv = T), 
+    list(type = "binary",     pkg = "bgms", sv = T, multi_group = T)
+  )
+  
+  for (cmb in combos) {
+    t <- cmb$type
+    pkg <- cmb$pkg
+    sv <- cmb$sv
+    
+    if(!is.null(cmb$multi_group)){
+      group <- rep(c(1, 2, 3), each = 100)
+      
+      suppressMessages({
+        res <- easybgm_compare(
+          data       = dat,
+          type       = t,
+          package    = pkg,
+          iter       = itr,          # tiny for speed
+          save       = sv,
+          group_indicator = group, 
+          progress   = FALSE
+        )
+      })
+    } else {
+      group_dat <- list(dat[1:150, ], dat[151:300, ])
+      not_cont <- if (t == "mixed") c(TRUE, TRUE, rep(FALSE, p - 2)) else NULL
+      
+      suppressWarnings({
+        res <- easybgm_compare(
+          data       = group_dat,
+          type       = t,
+          package    = pkg,
+          iter       = itr,          # tiny for speed
+          save       = sv,
+          progress   = FALSE,
+          not_cont   = not_cont
+        )
+      })
+    }
+    # --- class check ---
+    expect_true(inherits(res, c("easybgm_compare")))
+    expect_true(any(grepl("package_", class(res))))  # backend tag present
+    
+    # --- field presence check ---
+    expect_true(all(c("parameters", "inc_probs", "inc_BF", "structure", "model") %in% names(res)))
+    
+    # --- dimensions check ---
+    expect_equal(dim(res$parameters), c(p, p))
+    expect_equal(dim(res$inc_probs),  c(p, p))
+    expect_equal(dim(res$inc_BF),     c(p, p))
+    expect_equal(dim(res$structure),  c(p, p))
+    
+    # --- sanity check ---
+    expect_false(all(is.na(res$parameters)))
+    expect_false(all(is.na(res$inc_probs))) 
+    
+    if(sv == TRUE && pkg != "bgms") {
+      k <- p*(p-1)/2
+      expect_equal(dim(res$samples_posterior), c(itr, k))
+    } 
+    if(sv == TRUE && pkg == "bgms"){
+      k <- p*(p-1)/2
+      expect_equal(dim(res$samples_posterior), c(4*itr, k))
+    }
+    
+    
+    print(paste0("Finished easybgm_compare: Package: ", cmb$pkg, "; Type: ", cmb$type))
+  }
 })
+

@@ -1,15 +1,18 @@
 Package: easybgm
 Type: Package
 Title: Extracting and Visualizing Bayesian Graphical Models
-Version: 0.2.1
+Version: 0.3.1
 Authors@R: c(
   person("Karoline", "Huth", , "k.huth@uva.nl", role = c("aut", "cre"), 
         comment = c(ORCID = "0000-0002-0662-1591")), 
-  person("Sara", "Keetelaar", role = c("ctb"))
+  person("Sara", "Keetelaar", role = c("ctb")), 
+  person("Nikola", "Sekulovski", role = c("ctb")), 
+  person("Gali", "Geller", role = c("ctb"))
   )
 Maintainer: Karoline Huth <k.huth@uva.nl>
 Description: Fit and visualize the results of a Bayesian analysis of networks commonly found in psychology. 
-    The package supports fitting cross-sectional network models fitted using the packages 'BDgraph', 'bgms' and 'BGGM'. 
+    The package supports fitting cross-sectional network models fitted using the packages 'BDgraph', 'bgms' and 'BGGM', 
+    as well as network comparison fitted using the 'bgms' and 'BBGM'. 
     The package provides the parameter estimates, posterior inclusion probabilities, inclusion Bayes factor, and the 
     posterior density of the parameters. In addition, for 'BDgraph' and 'bgms' it allows to assess the posterior 
     structure space. Furthermore, the package comes with an extensive suite for visualizing results.
@@ -19,17 +22,18 @@ BugReports: https://github.com/KarolineHuth/easybgm/issues
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Imports: 
     BDgraph,
     BGGM,
-    bgms (>= 0.1.3),
+    bgms (>= 0.1.4),
     dplyr,
     ggplot2,
     HDInterval,
     igraph,
-    qgraph
+    qgraph,
+    coda
 Suggests: 
-    testthat (>= 3.0.0),
+    testthat (>= 3.2.3),
     vdiffr
 Config/testthat/edition: 3
