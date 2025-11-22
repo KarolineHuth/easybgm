@@ -151,9 +151,8 @@
 #' # and centrality measures
 #'
 #' fit <- easybgm(data, type = "continuous",
-#'                 iter = 1000, # for demonstration only (> 5e4 recommended)
-#'                 save = TRUE,
-#'                 centrality = TRUE)
+#'                 iter = 1000, 
+#'                 centrality = TRUE, save = TRUE)
 #' }
 
 

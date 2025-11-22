@@ -12,12 +12,13 @@ bgm_fit.package_bgms_compare <- function(fit, type, data, group_indicator, iter,
   if(type == "binary") {
     type <- "ordinal"
   }
-  if(is.list(data)){
+  if(!is.data.frame(data)){
     group_indicator <- NULL
   }
+  
   if(packageVersion("bgms") < "0.1.6.0"){
     bgms_fit <- do.call(
-      bgmCompare, c(list(data[[1]], data[[2]], iter = iter, save = TRUE, 
+      bgmCompare, c(list(x = data[[1]], y = data[[2]], iter = iter, save = TRUE, 
                          variable_type = type, 
                          display_progress = progress, 
                          ...))
@@ -50,7 +51,8 @@ bgm_fit.package_bgms_compare <- function(fit, type, data, group_indicator, iter,
     } 
     if(!is.null(group_indicator)){
       bgms_fit <- do.call(
-        bgmCompare, c(list(x = data, group_indicator = group_indicator, iter = iter, 
+        bgmCompare, c(list(x = data, group_indicator = group_indicator, 
+                           iter = iter, 
                            variable_type = type, 
                            display_progress = progress, 
                            ...))
@@ -178,8 +180,7 @@ bgm_extract.package_bgms_compare <- function(fit, type, save, group_indicator,
       bgms_res$structure <- 1*(bgms_res$inc_probs > 0.5)
       
       #Obtain structure information
-      bgms_res$parameters_g1 <- vector2matrix(extract_group_params(fit)$pairwise_effects_groups[, 1], p = p)
-      bgms_res$parameters_g2 <- vector2matrix(extract_group_params(fit)$pairwise_effects_groups[, 2], p = p)
+      bgms_res$group_estimates <- extract_group_params(fit)
       
       structures <- apply(extract_indicators(fit), 1, paste0, collapse="")
       table_structures <- as.data.frame(table(structures))
@@ -221,18 +222,23 @@ bgm_extract.package_bgms_compare <- function(fit, type, save, group_indicator,
       
       p <- args$num_variables
       #Compute average group difference
-      diffs <- fit$posterior_summary_pairwise_differences
-      edges <- unique(sub(" .*", "", diffs$parameter))
-      average_difference <- numeric(length(edges))
-      for (i in seq_along(edges)) {
-        edge_name <- edges[i]
-        idx <- edges == edge_name
-        vals <- diffs$mean[idx]
-        average_difference[i] <- mean(vals, na.rm = TRUE)
-      }
-      bgms_res$parameters <- vector2matrix(average_difference, p = p)
-      colnames(bgms_res$parameters) <- varnames
-      bgms_res$overall_estimate <- vector2matrix(fit$posterior_summary_pairwise_baseline$mean, p = p) #overall group estimate
+      # diffs <- fit$posterior_summary_pairwise_differences
+      # edges <- unique(sub(" .*", "", diffs$parameter))
+      # average_difference <- numeric(length(edges))
+      # for (i in seq_along(edges)) {
+      #   edge_name <- edges[i]
+      #   idx <- edges == edge_name
+      #   vals <- diffs$mean[idx]
+      #   average_difference[i] <- mean(vals, na.rm = TRUE)
+      # }
+      # bgms_res$parameters <- vector2matrix(average_difference, p = p)
+      # colnames(bgms_res$parameters) <- varnames
+      
+      # Store the overvall group estimate
+      # Double-check with @Maarten: 
+      #.  is there a meaningful way to compute group difference estimate
+      #.  Is the indicator the difference indicator or the overall estimator indicator 
+      bgms_res$parameters <- vector2matrix(fit$posterior_summary_pairwise_baseline$mean, p = p) #overall group estimate
       bgms_res$structure <- matrix(1, ncol = ncol(bgms_res$parameters), 
                                    nrow = nrow(bgms_res$parameters))
       indicators <- extract_indicators(fit)

@@ -210,10 +210,8 @@ test_that("easybgm_compare returns expected structure across valid type–packag
     sv <- cmb$sv
     
     if(!is.null(cmb$multi_group)){
-      group <- rep(c("A", "B", "C"), each = 100)
+      group <- rep(c(1, 2, 3), each = 100)
       
-      print("WE ARE HERE")
-      str(dat)
       suppressMessages({
         res <- easybgm_compare(
           data       = dat,

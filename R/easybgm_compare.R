@@ -90,6 +90,16 @@
 #'                 )
 #'
 #' summary(fit)
+#' 
+#' # For multigroup estimation
+#' fit_multi <- easybgm_compare(data[1:200, 1:5], 
+#'                 group_indicator = rep(c("A", "B", "C", "D"), each = 50)
+#'                 type = "binary", save = TRUE, 
+#'                 iter = 1000, # for demonstration only (> 5e4 recommended)
+#'                 )
+#'
+#' summary(fit_multi)
+
 
 easybgm_compare <- function(data, 
                             type, 
@@ -154,7 +164,7 @@ easybgm_compare <- function(data,
     
   }
   
-  if(!is.list(data) &&  package == "package_bggm_compare"){
+  if(is.data.frame(data) &&  package == "package_bggm_compare"){
     stop("Your data can't be read. For continuous data fit with BGGM, you can only provide two datasets in a list.",
          call. = FALSE)
   }
