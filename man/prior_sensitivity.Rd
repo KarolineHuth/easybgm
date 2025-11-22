@@ -23,8 +23,8 @@ plots the percentage of edges that are included, excluded, and inconclusive.
 Prior sensitivity plot
 }
 \examples{
-\donttest{
 
+\donttest{
 library(easybgm)
 library(bgms)
 

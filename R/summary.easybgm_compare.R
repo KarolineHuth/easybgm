@@ -51,7 +51,7 @@ summary.easybgm_compare <- function(object, evidence_thresh = 10, ...) {
   ## ---- 2d. Create results data frame ----
   ## ----  Create results data frame with convergence (newer bgms)----
   if("package_bgms_compare" %in% class(object)&& packageVersion("bgms") > "0.1.4.2" ){
-    if(is.null(object$group_estimates)){
+    if(is.null(object$multi_group)){
       results <-
         data.frame(
           relation = mat_names,
@@ -71,7 +71,7 @@ summary.easybgm_compare <- function(object, evidence_thresh = 10, ...) {
         "Category",
         "Convergence")
     }
-    if(!is.null(object$group_estimates)){
+    if(!is.null(object$multi_group)){
       results <-
         data.frame(
           relation = mat_names,

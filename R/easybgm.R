@@ -157,8 +157,8 @@
 
 
 
-easybgm <- function(data, type, package = NULL, not_cont = NULL, iter = 1e4,
-                    save = FALSE, centrality = FALSE, progress = TRUE, posterior_method = "model-averaged",
+easybgm <- function(data, type, package = NULL, not_cont = NULL, iter = 1e4, save = FALSE,
+                    centrality = FALSE, progress = TRUE, posterior_method = "model-averaged",
                     ...){
 
 

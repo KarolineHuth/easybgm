@@ -290,8 +290,8 @@ plot_parameterHDI <- function(output, ...) {
 #' @export
 #'
 #' @examples
+#' 
 #' \donttest{
-#'
 #' library(easybgm)
 #' library(bgms)
 #'
@@ -327,8 +327,8 @@ plot_centrality <- function(output, group_names = NULL, ...){
 #' @export
 #'
 #' @examples
+#' 
 #' \donttest{
-#'
 #' library(easybgm)
 #' library(bgms)
 #'

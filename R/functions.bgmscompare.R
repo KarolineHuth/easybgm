@@ -181,6 +181,8 @@ bgm_extract.package_bgms_compare <- function(fit, type, save, group_indicator,
       
       #Obtain structure information
       bgms_res$group_estimates <- extract_group_params(fit)
+      bgms_res$parameters_g1 <- vector2matrix(extract_group_params(fit)$pairwise_effects_groups[, 1], p = p) 
+      bgms_res$parameters_g2 <- vector2matrix(extract_group_params(fit)$pairwise_effects_groups[, 2], p = p) 
       
       structures <- apply(extract_indicators(fit), 1, paste0, collapse="")
       table_structures <- as.data.frame(table(structures))
@@ -239,6 +241,7 @@ bgm_extract.package_bgms_compare <- function(fit, type, save, group_indicator,
       #.  is there a meaningful way to compute group difference estimate
       #.  Is the indicator the difference indicator or the overall estimator indicator 
       bgms_res$parameters <- vector2matrix(fit$posterior_summary_pairwise_baseline$mean, p = p) #overall group estimate
+      bgms_res$overall_estimate <-  bgms_res$parameters 
       bgms_res$structure <- matrix(1, ncol = ncol(bgms_res$parameters), 
                                    nrow = nrow(bgms_res$parameters))
       indicators <- extract_indicators(fit)
@@ -254,7 +257,7 @@ bgm_extract.package_bgms_compare <- function(fit, type, save, group_indicator,
       bgms_res$samples_posterior <- extract_pairwise_interactions(fit)
       bgms_res$convergence_parameter <-  fit$posterior_summary_pairwise_baseline$Rhat
       bgms_res$group_estimates <- extract_group_params(fit)$pairwise_effects_groups
-      
+      bgms_res$multi_group <- "Multi-group"
 
     }
   }
