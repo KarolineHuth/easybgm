@@ -79,26 +79,28 @@
 #'
 #' data <- na.omit(ADHD)
 #'
-#' group1 <- data[1:100, 1:5]
-#' group2 <- data[101:200, 1:5]
+#' group1 <- data[1:10, 1:5]
+#' group2 <- data[11:20, 1:5]
 #'
 #' # Fitting the Wenchuan PTSD data
 #'
-#' fit <- easybgm_compare(list(group1, group2), type = "binary",
-#'                 iter = 1000 # for demonstration only (> 5e4 recommended)
-#'                 save = TRUE
+#' fit <- easybgm_compare(list(group1, group2), 
+#'                 type = "binary", save = TRUE,
+#'                 iter = 100 # for demonstration only (> 5e4 recommended)
 #'                 )
 #'
 #' summary(fit)
 #' 
+#' \dontrun{
 #' # For multigroup estimation
 #' fit_multi <- easybgm_compare(data[1:200, 1:5], 
-#'                 group_indicator = rep(c("A", "B", "C", "D"), each = 50)
+#'                 group_indicator = rep(c(1, 2, 3, 4), each = 50),
 #'                 type = "binary", save = TRUE, 
-#'                 iter = 1000, # for demonstration only (> 5e4 recommended)
+#'                 iter = 1000 # for demonstration only (> 5e4 recommended)
 #'                 )
 #'
 #' summary(fit_multi)
+#' }
 
 
 easybgm_compare <- function(data, 

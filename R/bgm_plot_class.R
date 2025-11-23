@@ -253,7 +253,7 @@ plot_structure <- function(output, ...) {
 #' data <- na.omit(Wenchuan)
 #' fit <- easybgm(data, type = "ordinal",
 #'               iter = 1000,  # for demonstration only (> 5e4 recommended)
-#'               save = TRUE, edge_selection = TRUE)
+#'               edge_selection = TRUE, save = TRUE)
 #' plot_parameterHDI(fit)
 #' }
 
@@ -290,15 +290,15 @@ plot_parameterHDI <- function(output, ...) {
 #' @export
 #'
 #' @examples
+#' 
 #' \donttest{
-#'
 #' library(easybgm)
 #' library(bgms)
 #'
 #' data <- na.omit(Wenchuan)
 #' fit <- easybgm(data, type = "ordinal",
 #'                 iter = 1000,  # for demonstration only (> 5e4 recommended)
-#'                 save = TRUE, edge_selection = TRUE,
+#'                 edge_selection = TRUE, save = TRUE, 
 #'                 centrality = TRUE)
 #'
 #' plot_centrality(fit)
@@ -327,8 +327,8 @@ plot_centrality <- function(output, group_names = NULL, ...){
 #' @export
 #'
 #' @examples
+#' 
 #' \donttest{
-#'
 #' library(easybgm)
 #' library(bgms)
 #'
