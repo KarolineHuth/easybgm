@@ -1,5 +1,5 @@
 
-<div style="float:right; margin-left:20px; margin-bottom:20px;">
+<div style="float:right; margin-right:20px; margin-bottom:20px;">
 
 <img src="man/readme_plots/easybgm_sticker.svg" height="200">
 
@@ -278,7 +278,7 @@ plot_centrality(res, measures = "Strength")
 
 ![](man/readme_plots/plot_centrality.png)
 
-### Comparing networks across grouos
+### Comparing networks across groups
 
 All of the functionalities mentioned above can also be used when
 comparing networks across groups. The function `easybgm_compare` allows
