@@ -187,7 +187,7 @@ plot_centrality(res, measures = "Strength")
 
 ![](man/readme_plots/plot_centrality.png)
 
-### Comparing networks across grouos
+### Comparing networks across groups
 
 All of the functionalities mentioned above can also be used when comparing networks across groups. The function `easybgm_compare` allows users to compare networks across two or more groups using Bayesian inference to extract differences in conditional (in)dependence structures. The function supports the packages `BGGM` and `bgms`. 
 
