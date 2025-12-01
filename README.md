@@ -1,23 +1,9 @@
 
-<table>
+<div style="float:right; margin-left:20px; margin-bottom:20px;">
 
-<tr>
+<img src="man/readme_plots/easybgm_sticker.svg" height="200">
 
-<td>
-
-# easybgm: Easy Bayesian Graphical Modeling
-
-</td>
-
-<td width="220">
-
-<img src="man/readme_plots/easybgm_sticker.svg" height="200"/>
-
-</td>
-
-</tr>
-
-</table>
+</div>
 
 # easybgm: Easy Bayesian Graphical Modeling
 
