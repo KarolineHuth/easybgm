@@ -1,5 +1,5 @@
 
-<img src="man/readme_plots/easybgm_sticker.svg" height="100" align="right"/></a>
+<img src="man/readme_plots/easybgm_sticker.svg" height="200" align="right"/></a>
 
 # easybgm: Easy Bayesian Graphical Modeling
 
