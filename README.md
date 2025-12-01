@@ -1,5 +1,23 @@
 
-<img src="man/readme_plots/easybgm_sticker.svg" height="200" align="right"/></a>
+<table>
+
+<tr>
+
+<td>
+
+# easybgm: Easy Bayesian Graphical Modeling
+
+</td>
+
+<td width="220">
+
+<img src="man/readme_plots/easybgm_sticker.svg" height="200"/>
+
+</td>
+
+</tr>
+
+</table>
 
 # easybgm: Easy Bayesian Graphical Modeling
 
