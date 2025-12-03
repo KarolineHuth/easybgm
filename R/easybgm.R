@@ -16,6 +16,11 @@
 #' @param progress Logical. Should a progress bar be shown (default = TRUE)?
 #' @param posterior_method Determines how the posterior samples of the edge weight parameters are obtained for models fit with BDgraph. The argument can be either MAP for the maximum-a-posteriori or model-averaged. If MAP, samples are obtained for the edge weights only for the most likely structure. If model-averaged, samples are obtained for all plausible structures weighted by their posterior probability. Default is model-averaged.
 #' @param ... Additional arguments that are handed to the fitting functions of the packages, e.g., informed prior specifications.
+#' @param reference_category if \code{type} is ``blume-capel'', the reference category in the Blume-Capel model. Should be an integer within the range of integer scores observed for the
+#' 'blume-capel' variable. Can be a single number specifying the reference category for all Blume-Capel variables at once, or a vector of length
+#' \code{p} where the \code{i}-th element contains the reference category for variable \code{i} if it is Blume-Capel, and bgm ignores its elements for
+#' other variable types. The value of the reference category is also recoded when bgm recodes the corresponding observations. Only required if there is at
+#' least one variable of type ``blume-capel''.
 #'
 #'
 #' @return The returned object of \code{easybgm} contains several elements:
@@ -101,6 +106,13 @@
 #' allocation parameters for the Stochastic Block prior on the graph structure.
 #'
 #' \item \code{threshold_alpha} and \code{threshold_beta} the parameters of the beta-prime distribution for the threshold parameters. The defaults are both set to 1.
+#'
+#' \item \code{variable_type} What kind of variables are there in \code{x}? Can be a
+#' single character string specifying the variable type of all \code{p}
+#' variables at once or a vector of character strings of length \code{p}
+#' specifying the type for each variable in \code{x} separately. Currently, bgm
+#' supports ``ordinal'' and ``blume-capel''. Binary variables are automatically
+#' treated as ``ordinal’’. Defaults to \code{variable_type = "ordinal"}.
 #'
 #' }
 #'
@@ -212,7 +224,7 @@ easybgm <- function(data, type, package = NULL, not_cont = NULL, iter = 1e4, sav
   }
 
   if((package == "package_bgms") & (type %in% c("continuous", "mixed"))){
-    warning("bgms can only fit ordinal or binary datatypes. For continuous or mixed data,
+    warning("bgms can only fit ordinal, binary, or blume-capel datatypes. For continuous or mixed data,
            choose either the BDgraph or BGGM package. By default we have changed the package to BDgraph",
             call. = FALSE)
     package <- "package_bdgraph"
