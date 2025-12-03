@@ -22,8 +22,7 @@ test_that("easybgm returns expected structure across valid type–package combos
     list(type = "mixed", pkg = "BGGM", sv = T, cnt = T),
     ### BDGRAPH
     list(type = "mixed",      pkg = "BDgraph", sv = F, cnt = F),
-    list(type = "mixed",      pkg = "BDgraph", sv = T, cnt = T),
-    list(type = "continuous",  pkg = "BDgraph", sv = T, cnt = T),
+    list(type = "continuous",  pkg = "BDgraph", sv = F, cnt = F),
     ### bgms
     list(type = "binary",     pkg = "bgms", sv = F, cnt = F), 
     list(type = "binary",     pkg = "bgms", sv = T, cnt = T), 
@@ -98,7 +97,7 @@ test_that("easybgm returns expected structure across valid type–package combos
     expect_false(all(is.na(res$parameters)))
     expect_false(all(is.na(res$inc_probs))) 
     
-    if(sv == TRUE && pkg != "bgms") {
+    if(sv == TRUE && pkg == "BGGM") {
       k <- p*(p-1)/2
       expect_equal(dim(res$samples_posterior), c(itr, k))
       expect_equal(dim(res$centrality),  c(itr, p))
@@ -172,12 +171,14 @@ test_that("plotting functions work across valid type–package combos", {
     }
     
     # --- posterior parameter HDI ---
-    g6 <-    suppressWarnings({invisible(plot_parameterHDI(res))})
-    expect_s3_class(g6, "ggplot")
-    
-    # --- centrality ---
-    g7 <- invisible(plot_centrality(res))
-    expect_s3_class(g7, "ggplot")
+    if(pkg != "BDgraph"){
+      g6 <-    suppressWarnings({invisible(plot_parameterHDI(res))})
+      expect_s3_class(g6, "ggplot")
+      
+      # --- centrality ---
+      g7 <- invisible(plot_centrality(res))
+      expect_s3_class(g7, "ggplot")
+    }
   }
 })
 

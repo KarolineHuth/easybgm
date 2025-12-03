@@ -384,7 +384,7 @@ plot_parameterHDI.easybgm <- function(output, ...) {
   }
   
   if(any(class(output) == "package_bdgraph")){
-    warning("Posterior samples of the interaction parameters are obtained after the estimation. Especially for ordinal and skewed data, these estimates might be sub-optimal. Please interpret with caution.")
+    stop("Posterior samples of the BDgraph package cannot be obtained with the original package. If you want posterior samples from BDgraph, use this BDgraph version: https://github.com/KarolineHuth/BDgraph.")
   }
   
   if(any(class(output) == "easybgm_compare")){
@@ -453,6 +453,10 @@ plot_centrality.easybgm <- function(output, group_names = group_names, ...){
   
   if(any(class(output) == "easybgm_compare")){
     stop("The centrality plot cannot be obtained for Bayesian network comparison fits.")
+  }
+  
+  if(any(class(output) == "package_bdgraph")){
+    stop("The centrality function requires posterior samples which cannot be obtained with the original BDgraph package. If you want posterior samples from BDgraph, use this BDgraph version: https://github.com/KarolineHuth/BDgraph.")
   }
   
   if(is.null(output$centrality)){
