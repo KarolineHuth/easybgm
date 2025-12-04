@@ -21,7 +21,7 @@
 #'
 #' data <- na.omit(Wenchuan)
 #' fit <- easybgm(data, type = "ordinal", save = TRUE, edge_selection = TRUE,
-#'                 iter = 1000  # for demonstration only (> 5e4 recommended)
+#'                 iter = 100  # for demonstration only (> 5e4 recommended)
 #'                 )
 #'
 #' plot_structure_probabilities(fit)
@@ -62,7 +62,7 @@ plot_structure_probabilities <- function(output, as_BF = FALSE, ...) {
 #'
 #' data <- na.omit(Wenchuan)
 #' fit <- easybgm(data, type = "ordinal", save = TRUE, edge_selection = TRUE,
-#'                 iter = 1000  # for demonstration only (> 5e4 recommended)
+#'                 iter = 100  # for demonstration only (> 5e4 recommended)
 #'                 )
 #'
 #' plot_complexity_probabilities(fit)
@@ -107,7 +107,7 @@ plot_complexity_probabilities <- function(output, ...) {
 #'
 #' data <- na.omit(Wenchuan)
 #' fit <- easybgm(data, type = "continuous",
-#'                 iter = 1000  # for demonstration only (> 5e4 recommended)
+#'                 iter = 100  # for demonstration only (> 5e4 recommended)
 #'                 )
 #'
 #' plot_edgeevidence(fit)
@@ -162,7 +162,7 @@ plot_edgeevidence <- function(output, evidence_thresh = 10, split = FALSE, show 
 #'
 #' data <- na.omit(Wenchuan)
 #' fit <- easybgm(data, type = "continuous",
-#'                 iter = 1000  # for demonstration only (> 5e4 recommended)
+#'                 iter = 100  # for demonstration only (> 5e4 recommended)
 #'                 )
 #'
 #' plot_network(fit)
@@ -210,7 +210,7 @@ plot_network <- function(output, exc_prob = .5, evidence_thresh = 10, dashed = F
 #'
 #' data <- na.omit(Wenchuan)
 #' fit <- easybgm(data, type = "ordinal",
-#'                 iter = 1000  # for demonstration only (> 5e4 recommended)
+#'                 iter = 100  # for demonstration only (> 5e4 recommended)
 #'                )
 #'
 #' plot_structure(fit)
@@ -252,7 +252,7 @@ plot_structure <- function(output, ...) {
 #'
 #' data <- na.omit(Wenchuan)
 #' fit <- easybgm(data, type = "ordinal",
-#'               iter = 1000,  # for demonstration only (> 5e4 recommended)
+#'               iter = 100,  # for demonstration only (> 5e4 recommended)
 #'               edge_selection = TRUE, save = TRUE)
 #' plot_parameterHDI(fit)
 #' }
@@ -297,7 +297,7 @@ plot_parameterHDI <- function(output, ...) {
 #'
 #' data <- na.omit(Wenchuan)
 #' fit <- easybgm(data, type = "ordinal",
-#'                 iter = 1000,  # for demonstration only (> 5e4 recommended)
+#'                 iter = 100,  # for demonstration only (> 5e4 recommended)
 #'                 edge_selection = TRUE, save = TRUE, 
 #'                 centrality = TRUE)
 #'
@@ -334,15 +334,15 @@ plot_centrality <- function(output, group_names = NULL, ...){
 #'
 #' #data <- na.omit(Wenchuan)
 #' #fit1 <- easybgm(data, type = "ordinal",
-#' #               iter = 1000  # for demonstration only (> 5e4 recommended),
+#' #               iter = 100  # for demonstration only (> 5e4 recommended),
 #' #                inclusion_probability = .1
 #' #               )
 #' #fit2 <- easybgm(data, type = "ordinal",
-#' #                  iter = 1000,
+#' #                  iter = 100,
 #' #                  inclusion_probability = .5
 #' #             )
 #' #fit3 <- easybgm(data, type = "ordinal",
-#' #                iter = 1000, inclusion_probability = .9)
+#' #                iter = 100, inclusion_probability = .9)
 #'
 #' #plot_prior_sensitivity(list(fit1, fit2, fit3))
 #' }

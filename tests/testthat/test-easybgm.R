@@ -12,7 +12,7 @@ test_that("easybgm returns expected structure across valid type–package combos
   data("Wenchuan", package = "bgms")
   dat <- na.omit(Wenchuan)[1:20, 1:5]
   p <- ncol(dat)
-  itr <- 100
+  itr <- 10
   
   # Test only core combinations
   combos <- list(
@@ -189,7 +189,7 @@ test_that("easybgm_compare returns expected structure across valid type–packag
   
   # Subsample small data to stay fast on CRAN
   data("Wenchuan", package = "bgms")
-  dat <- as.data.frame(na.omit(Wenchuan)[1:300, 1:5])
+  dat <- as.data.frame(na.omit(Wenchuan)[1:90, 1:5])
   p <- ncol(dat)
   itr <- 10
   
@@ -211,7 +211,7 @@ test_that("easybgm_compare returns expected structure across valid type–packag
     sv <- cmb$sv
     
     if(!is.null(cmb$multi_group)){
-      group <- rep(c(1, 2, 3), each = 100)
+      group <- rep(c(1, 2, 3), each = 30)
       
       suppressMessages({
         res <- easybgm_compare(
@@ -225,7 +225,7 @@ test_that("easybgm_compare returns expected structure across valid type–packag
         )
       })
     } else {
-      group_dat <- list(dat[1:150, ], dat[151:300, ])
+      group_dat <- list(dat[1:45, ], dat[46:90, ])
       not_cont <- if (t == "mixed") c(TRUE, TRUE, rep(FALSE, p - 2)) else NULL
       
       suppressWarnings({

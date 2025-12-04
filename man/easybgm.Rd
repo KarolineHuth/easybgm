@@ -164,7 +164,7 @@ data <- na.omit(Wenchuan)
 # Fitting the Wenchuan PTSD data
 
 fit <- easybgm(data, type = "continuous",
-                iter = 1000 # for demonstration only (> 5e4 recommended)
+                iter = 100 # for demonstration only (> 5e4 recommended)
                 )
 
 summary(fit)
@@ -174,7 +174,7 @@ summary(fit)
 # and centrality measures
 
 fit <- easybgm(data, type = "continuous",
-                iter = 1000, 
+                iter = 100, 
                 centrality = TRUE, save = TRUE)
 }
 }
