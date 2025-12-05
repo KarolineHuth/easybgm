@@ -1,26 +1,33 @@
 
+<div style="float:right; margin-right:20px; margin-bottom:20px;">
+
+<img src="man/readme_plots/easybgm_sticker.svg" height="200">
+
+</div>
+
 # easybgm: Easy Bayesian Graphical Modeling
 
 The `R` package `easybgm` provides a user-friendly package for
 performing a Bayesian analysis of psychometric networks. In particular,
 it helps to fit, extract, and visualize the results of a Bayesian
-graphical model commonly used in the social-behavioral sciences. The
+graphical model commonly used in the social and behavioral sciences. The
 package is a wrapper around existing packages. So far, the package
 supports fitting and extracting results of cross-sectional network
 models using `BDgraph` (Mohammadi & Wit, 2015), `BGGM`(Williams &
-Mulder, 2019), and `bgms` (Marsman & Haslbeck, 2023). As output, the
-package extracts the posterior parameter estimates, the posterior
-inclusion probability, the inclusion Bayes factor, and optionally
-posterior samples of the parameters and the nodes centrality. The
-package comes with an extensive suite of visualization functions.
+Mulder, 2019), and `bgms` (Marsman, van den Bergh & Haslbeck, 2025). As
+output, the package extracts the posterior parameter estimates, the
+posterior inclusion probability, the inclusion Bayes factor, and
+optionally posterior samples of the parameters and the nodes centrality.
+The package comes with an extensive suite of visualization functions.
+The package now also supports comparing networks across groups. This is
+done through Bayesian inference to quantify differences in conditional
+(in)dependence structures, using functionality from `BGGM` (Williams et
+al., 2020) and `bgms` (Marsman et al., 2025). In addition, it allows
+users to incorporate clustering assumptions by specifying a stochastic
+block prior on the network structure and to test hypotheses about the
+presence of such clustering (Sekulovski et al., 2025) via `bgms`.
 
 ## Installation
-
-To install this package from CRAN use:
-
-``` r
-install.packages("easybgm")
-```
 
 To install this package from Github use
 
@@ -53,7 +60,12 @@ specifications, can be passed to `easybgm`. As output, `easybgm` returns
 the posterior parameter estimates, the posterior inclusion probability,
 and the inclusion Bayes factor. In addition, the package extracts the
 posterior samples of the parameters by setting `save = TRUE` and the
-strength centrality samples by setting `centrality = TRUE`.
+strength centrality samples by setting `centrality = TRUE`. When
+`edge_prior = "Stochastic-Block"` is used with `bgms`, the output
+additionally includes the posterior estimates of node- cluster
+memberships, the posterior inclusion probabilities for all possible
+numbers of clusters, and the posterior coclustering matrix which depicts
+the proportion of times each pair of nodes appeared in the same cluster.
 
 ### Visualization
 
@@ -67,7 +79,7 @@ backbone.
 
 The edge evidence plot aids researchers in deciding which edges provide
 robust inferential conclusions. In the edge evidence plot, edges
-represent the inclusion Bayes factor $`\text{BF}_{10}`$. Red edges
+represent the inclusion Bayes factor $`\text{BF}_{10}`$. Yellow edges
 indicate evidence for edge absence (i.e., conditional independence),
 grey edges indicate the absence of evidence, and blue edges indicate
 evidence for edge presence (i.e., conditional dependence). By default, a
@@ -131,12 +143,19 @@ library(easybgm)
 library(BGGM)
 
 data <- na.omit(women_math)
-colnames(women_math) <- c("LCA", "GND", "SCT", "NMF", "SBP", "FTP")
+colnames(data) <- c("LCA", "GND", "SCT", "NMF", "SBP", "FTP")
 
 res <- easybgm(data, type = "binary")
 ```
 
-Having fitted the model, we can now take a look at its results.
+Having fitted the model, we can now take a look at its results. When
+`edge_prior = "Stochastic-Block"`, the summary also includes clustering
+information, such as the estimated node memberships, the posterior
+probabilities for all possible numbers of clusters, and the Bayes factor
+comparing the hypothesis that there are two or more clusters against the
+null of a single cluster. Researchers can additionally use the
+`clusterBayesfactor` function to test hypotheses about specific numbers
+of clusters.
 
 ``` r
 summary(res)
@@ -194,7 +213,7 @@ evidence for exclusion shown as red ($`\text{BF}_{01} > 10`$) and
 inconclusive evidence as grey ($`0.1 < \text{BF}_{10} < 1`$).
 
 ``` r
-plot_edgeevidence(res, edge.width = 2, split = T)
+plot_edgeevidence(res, edge.width = 2, split = F)
 ```
 
 ![](man/readme_plots/plot_edgeevidence.png)
@@ -259,6 +278,37 @@ plot_centrality(res, measures = "Strength")
 
 ![](man/readme_plots/plot_centrality.png)
 
+### Comparing networks across groups
+
+All of the functionalities mentioned above can also be used when
+comparing networks across groups. The function `easybgm_compare` allows
+users to compare networks across two or more groups using Bayesian
+inference to extract differences in conditional (in)dependence
+structures. The function supports the packages `BGGM` and `bgms`.
+
+``` r
+library(easybgm)
+library(bgms)
+
+data <- na.omit(ADHD)
+
+group1 <- data[1:10, 1:5]
+group2 <- data[11:20, 1:5]
+
+# for two groups 
+res <- easybgm_compare(list(group1, group2), 
+                type = "binary", save = TRUE)
+
+# for multiple groups
+
+
+res <- easybgm_compare(data[1:200, 1:5], 
+                group_indicator = rep(c(1, 2, 3, 4), each = 50),
+                type = "binary", 
+                save = TRUE,
+                )
+```
+
 ## Background Information
 
 For more information on the package, the Bayesian background, its
@@ -293,19 +343,31 @@ Holst, R., Wagenmakers, E.J., & Marsman, M. (2023). Bayesian Analysis of
 Cross-sectional Networks: A Tutorial in R and JASP. PsyArXiv
 <https://doi.org/10.31234/osf.io/ub5tc>.
 
-Marsman, M., Haslbeck, J. M. B. (2023). Bayesian Analysis of the Ordinal
-Markov Random Field. PsyArXiv <https://doi.org/10.31234/osf.io/ukwrf>.
+Marsman M, van den Bergh D, Haslbeck J.M.B. Bayesian Analysis of the
+Ordinal Markov Random Field. Psychometrika.
+2025;90(1):146-182.<a href="https://doi:10.1017/psy.2024.4"
+class="uri">https://doi:10.1017/psy.2024.4</a>
 
 Mohammadi, Reza, and Ernst C Wit. (2015). “BDgraph: An R Package for
 Bayesian Structure Learning in Graphical Models.” Journal of Statistical
 Software 89 (3). <https://doi.org/10.18637/jss.v089.i03>.
 
+Sekulovski, N., Arena, G., Haslbeck, J. M. B., Huth, K., Friel, N., &
+Marsman, M. (2025, May 9). A Stochastic Block Prior for Clustering in
+Graphical Models. PsyArXiv <https://doi.org/10.31234/osf.io/29p3m_v1>
+
 Wickham, H. (2016). ggplot2: Elegant graphics for data analysis.
-Springer-Verlag New York. Retrieved from <https://ggplot2.tidyverse.org>
+Springer-Verlag New York. Retrixeved from
+<https://ggplot2.tidyverse.org>
 
 Williams, Donald R, and Joris Mulder. (2019). “Bayesian Hypothesis
 Testing for Gaussian Graphical Models: Conditional Independence and
 Order Constraints.” PsyArXiv. <https://doi.org/10.31234/osf.io/ypxd8>.
+
+Williams DR, Rast P, Pericchi LR, Mulder J (2020). Comparing Gaussian
+graphical models with the posterior predictive distribution and Bayesian
+model selection. Psychological Methods.
+<https://doi.10.1037/met0000254.>
 
 <!-- badges: start -->
 
