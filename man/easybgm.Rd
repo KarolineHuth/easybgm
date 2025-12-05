@@ -126,6 +126,13 @@ allocation parameters for the Stochastic Block prior on the graph structure.
 
 \item \code{threshold_alpha} and \code{threshold_beta} the parameters of the beta-prime distribution for the threshold parameters. The defaults are both set to 1.
 
+\item \code{variable_type} What kind of variables are there in \code{x}? Can be a
+single character string specifying the variable type of all \code{p}
+variables at once or a vector of character strings of length \code{p}
+specifying the type for each variable in \code{x} separately. Currently, bgm
+supports \verb{ordinal'' and }blume-capel''. Binary variables are automatically
+treated as ``ordinal’’. Defaults to \code{variable_type = "ordinal"}.
+
 }
 
 \strong{BDgraph}:
@@ -157,7 +164,7 @@ data <- na.omit(Wenchuan)
 # Fitting the Wenchuan PTSD data
 
 fit <- easybgm(data, type = "continuous",
-                iter = 1000 # for demonstration only (> 5e4 recommended)
+                iter = 100 # for demonstration only (> 5e4 recommended)
                 )
 
 summary(fit)
@@ -167,7 +174,7 @@ summary(fit)
 # and centrality measures
 
 fit <- easybgm(data, type = "continuous",
-                iter = 1000, 
+                iter = 100, 
                 centrality = TRUE, save = TRUE)
 }
 }

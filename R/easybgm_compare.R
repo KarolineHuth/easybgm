@@ -96,7 +96,7 @@
 #' fit_multi <- easybgm_compare(data[1:200, 1:5], 
 #'                 group_indicator = rep(c(1, 2, 3, 4), each = 50),
 #'                 type = "binary", save = TRUE, 
-#'                 iter = 1000 # for demonstration only (> 5e4 recommended)
+#'                 iter = 100 # for demonstration only (> 5e4 recommended)
 #'                 )
 #'
 #' summary(fit_multi)

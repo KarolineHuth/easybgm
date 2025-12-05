@@ -98,11 +98,22 @@ plot_complexity_probabilities.easybgm <- function(output, ...) {
     complexity[i] <- sum(as.numeric(unlist(strsplit(output$sample_graph[i], ""))))
   }
   
-  data_complexity <- data.frame(complexity = complexity, weights = output$graph_weights) |>
-    dplyr::group_by(complexity) |>
-    dplyr::summarise(complexity_weight = sum(.data$weights)) |>
-    dplyr::mutate(complexity_weight = .data$complexity_weight/sum(.data$complexity_weight))
+  data_complexity <- data.frame(
+    complexity = complexity,
+    weights = output$graph_weights
+  )
   
+  data_complexity <- dplyr::group_by(data_complexity, complexity)
+  
+  data_complexity <- dplyr::summarise(
+    data_complexity,
+    complexity_weight = sum(.data$weights)
+  )
+  
+  data_complexity <- dplyr::mutate(
+    data_complexity,
+    complexity_weight = .data$complexity_weight / sum(.data$complexity_weight)
+  )
   ggplot(data_complexity, aes(x = .data$complexity, y = .data$complexity_weight, ...)) +
     geom_point(size = 3) +
     ylab(args$ylab) +
@@ -384,7 +395,7 @@ plot_parameterHDI.easybgm <- function(output, ...) {
   }
   
   if(any(class(output) == "package_bdgraph")){
-    warning("Posterior samples of the interaction parameters are obtained after the estimation. Especially for ordinal and skewed data, these estimates might be sub-optimal. Please interpret with caution.")
+    stop("Posterior samples of the BDgraph package cannot be obtained with the original package. If you want posterior samples from BDgraph, use this BDgraph version: https://github.com/KarolineHuth/BDgraph.")
   }
   
   if(any(class(output) == "easybgm_compare")){
@@ -455,6 +466,10 @@ plot_centrality.easybgm <- function(output, group_names = group_names, ...){
     stop("The centrality plot cannot be obtained for Bayesian network comparison fits.")
   }
   
+  if(any(class(output) == "package_bdgraph")){
+    stop("The centrality function requires posterior samples which cannot be obtained with the original BDgraph package. If you want posterior samples from BDgraph, use this BDgraph version: https://github.com/KarolineHuth/BDgraph.")
+  }
+  
   if(is.null(output$centrality)){
     stop("Centrality results are required. When estimating the model, set \"centrality = TRUE\".")
   }
@@ -491,10 +506,12 @@ plot_centrality.easybgm <- function(output, group_names = group_names, ...){
                                    lower = centrality_hdi[1, ],
                                    upper = centrality_hdi[2, ])
   
-  centrality_summary |>
-    dplyr::arrange(mean) |>
-    dplyr::mutate(node = factor(.data$node, levels = .data$node)) |>
-    ggplot2::ggplot(aes(x = .data$node, y=.data$mean, ...))+
+  centrality_summary <- dplyr::arrange(centrality_summary, mean)
+  centrality_summary <- dplyr::mutate(centrality_summary,
+                                      node = factor(.data$node, levels = .data$node)
+  )
+  
+  ggplot(centrality_summary, aes(x = .data$node, y=.data$mean, ...))+
     args$theme_ +
     geom_point()+
     args$geom_errorbar+
@@ -572,7 +589,7 @@ plot_centrality.list <- function(output, group_names = NULL, ...){
     cent_samples <- output[[i]]$centrality
     p <- ncol(output[[i]]$parameters)
     rownames(cent_samples) <- NULL
-
+    
     if(is.null(group_names)){
       group_i <- paste0("Group ", i)
     } else {
@@ -588,20 +605,23 @@ plot_centrality.list <- function(output, group_names = NULL, ...){
                                        lower = centrality_hdi[1, ],
                                        upper = centrality_hdi[2, ])
     if(i == 1){
-    centrality_summary <- centrality_summary_i
+      centrality_summary <- centrality_summary_i
     } else {
       centrality_summary <- rbind(centrality_summary, centrality_summary_i)
     }
   }
   
-  ordering <- centrality_summary |>
-    filter(.data$group == group_i) |>
-    arrange(.data$mean) |>
-    pull(.data$node)
+  ordering <- centrality_summary
+  ordering <- dplyr::filter(ordering, .data$group == group_i)
+  ordering <- dplyr::arrange(ordering, .data$mean)
+  ordering <- dplyr::pull(ordering, .data$node)
   
-  centrality_summary |>
-    mutate(node = factor(.data$node, levels = ordering)) |>
-    ggplot2::ggplot(aes(x = .data$node, y=.data$mean, color =.data$group, ...))+
+  centrality_summary <- dplyr::mutate(
+    centrality_summary,
+    node = factor(.data$node, levels = ordering)
+  )
+  
+  ggplot2::ggplot(centrality_summary, aes(x = .data$node, y=.data$mean, color =.data$group, ...))+
     args$theme_ +
     geom_point(position = position_dodge(width = 0.6))+
     args$geom_errorbar +

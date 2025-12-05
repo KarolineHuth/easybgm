@@ -9,6 +9,7 @@ bgm_fit.package_bgms <- function(fit, type, data, iter, save,
     save <- TRUE
   }
 
+
   if(type == "binary") {
     type <- "ordinal"
   }
@@ -27,6 +28,7 @@ bgm_fit.package_bgms <- function(fit, type, data, iter, save,
                   display_progress = progress,
                   ...))
     )}
+
 
 
   fit$model <- type

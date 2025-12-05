@@ -9,14 +9,14 @@ plot_structure_probabilities.bgms <- function(output, as_BF = FALSE, ...) {
   
   if(packageVersion("bgms") > "0.1.4.2"){
     fit_args$save <- TRUE
-    }
+  }
   
   # Give error if save is false
   if(fit_args$save == FALSE){
     stop("The plot cannot be obtained for this model fit as the posterior samples weren't stored. Rerun the model fit and set 'save = TRUE'.")
   }
   
-
+  
   # Extract the results from bgms
   res <- bgm_extract.package_bgms(fit = output, save = fit_args$save, centrality = FALSE,
                                   type = NULL, not_cont = NULL, data = NULL,
@@ -131,10 +131,22 @@ plot_complexity_probabilities.bgms <- function(output, ...) {
     complexity[i] <- sum(as.numeric(unlist(strsplit(output$sample_graph[i], ""))))
   }
   
-  data_complexity <- data.frame(complexity = complexity, weights = output$graph_weights) |>
-    dplyr::group_by(complexity) |>
-    dplyr::summarise(complexity_weight = sum(.data$weights)) |>
-    dplyr::mutate(complexity_weight = .data$complexity_weight/sum(.data$complexity_weight))
+  data_complexity <- data.frame(
+    complexity = complexity,
+    weights = output$graph_weights
+  )
+  
+  data_complexity <- dplyr::group_by(data_complexity, complexity)
+  
+  data_complexity <- dplyr::summarise(
+    data_complexity,
+    complexity_weight = sum(.data$weights)
+  )
+  
+  data_complexity <- dplyr::mutate(
+    data_complexity,
+    complexity_weight = .data$complexity_weight / sum(.data$complexity_weight)
+  )
   
   ggplot(data_complexity, aes(x = .data$complexity, y = .data$complexity_weight, ...)) +
     geom_point(size = 3) +
@@ -315,7 +327,7 @@ plot_network.bgms <- function(output, exc_prob = .5, evidence_thresh = 10, dashe
   }
   
   
-
+  
   res <- bgm_extract.package_bgms(fit = output, save = fit_args$save, centrality = FALSE,
                                   type = NULL, not_cont = NULL, data = NULL,
                                   edge_prior = fit_args$edge_prior,
@@ -442,7 +454,7 @@ plot_parameterHDI.bgms <- function(output, ...) {
   }
   
   
-
+  
   res <- bgm_extract.package_bgms(fit = output, save = fit_args$save, centrality = FALSE,
                                   type = NULL, not_cont = NULL, data = NULL,
                                   edge_prior = fit_args$edge_prior,
@@ -520,7 +532,7 @@ plot_centrality.bgms <- function(output, group_names = NULL, ...){
     stop("Samples of the posterior distribution required. When estimating the model with bgm, set \"save = TRUE\".")
   }
   
-
+  
   res <- bgm_extract.package_bgms(fit = output, save = fit_args$save, centrality = TRUE,
                                   type = NULL, not_cont = NULL, data = NULL,
                                   edge_prior = fit_args$edge_prior,
@@ -568,10 +580,12 @@ plot_centrality.bgms <- function(output, group_names = NULL, ...){
                                    lower = centrality_hdi[1, ],
                                    upper = centrality_hdi[2, ])
   
-  centrality_summary |>
-    dplyr::arrange(mean) |>
-    dplyr::mutate(node = factor(.data$node, levels = .data$node)) |>
-    ggplot(aes(x = .data$node, y=.data$mean, ...))+
+  centrality_summary <- dplyr::arrange(centrality_summary, mean)
+  centrality_summary <- dplyr::mutate(centrality_summary,
+                                      node = factor(.data$node, levels = .data$node)
+  )
+  
+  ggplot(centrality_summary, aes(x = .data$node, y=.data$mean, ...))+
     args$theme_ +
     geom_point()+
     args$geom_errorbar+

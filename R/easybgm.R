@@ -17,7 +17,6 @@
 #' @param posterior_method Determines how the posterior samples of the edge weight parameters are obtained for models fit with BDgraph. The argument can be either MAP for the maximum-a-posteriori or model-averaged. If MAP, samples are obtained for the edge weights only for the most likely structure. If model-averaged, samples are obtained for all plausible structures weighted by their posterior probability. Default is model-averaged.
 #' @param ... Additional arguments that are handed to the fitting functions of the packages, e.g., informed prior specifications.
 #'
-#'
 #' @return The returned object of \code{easybgm} contains several elements:
 #'
 #' \itemize{
@@ -102,6 +101,13 @@
 #'
 #' \item \code{threshold_alpha} and \code{threshold_beta} the parameters of the beta-prime distribution for the threshold parameters. The defaults are both set to 1.
 #'
+#' \item \code{variable_type} What kind of variables are there in \code{x}? Can be a
+#' single character string specifying the variable type of all \code{p}
+#' variables at once or a vector of character strings of length \code{p}
+#' specifying the type for each variable in \code{x} separately. Currently, bgm
+#' supports ``ordinal'' and ``blume-capel''. Binary variables are automatically
+#' treated as ``ordinal’’. Defaults to \code{variable_type = "ordinal"}.
+#'
 #' }
 #'
 #' \strong{BDgraph}:
@@ -141,7 +147,7 @@
 #' # Fitting the Wenchuan PTSD data
 #'
 #' fit <- easybgm(data, type = "continuous",
-#'                 iter = 1000 # for demonstration only (> 5e4 recommended)
+#'                 iter = 100 # for demonstration only (> 5e4 recommended)
 #'                 )
 #'
 #' summary(fit)
@@ -151,7 +157,7 @@
 #' # and centrality measures
 #'
 #' fit <- easybgm(data, type = "continuous",
-#'                 iter = 1000, 
+#'                 iter = 100, 
 #'                 centrality = TRUE, save = TRUE)
 #' }
 
@@ -212,7 +218,7 @@ easybgm <- function(data, type, package = NULL, not_cont = NULL, iter = 1e4, sav
   }
 
   if((package == "package_bgms") & (type %in% c("continuous", "mixed"))){
-    warning("bgms can only fit ordinal or binary datatypes. For continuous or mixed data,
+    warning("bgms can only fit ordinal, binary, or blume-capel datatypes. For continuous or mixed data,
            choose either the BDgraph or BGGM package. By default we have changed the package to BDgraph",
             call. = FALSE)
     package <- "package_bdgraph"
