@@ -176,6 +176,7 @@ plot_edgeevidence.bgmCompare <- function(output, evidence_thresh = 10, split = F
 
   output <- res
   
+  output$inc_probs[is.nan(output$inc_probs)] <- .9999999
   
   # Specify default arguments for function
   default_args <- list(

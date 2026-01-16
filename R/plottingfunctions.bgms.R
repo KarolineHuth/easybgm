@@ -189,6 +189,8 @@ plot_edgeevidence.bgms <- function(output, evidence_thresh = 10, split = FALSE, 
   
   output <- res
   
+  # Otherwise one gets into issues when selecting which edges to plot
+  output$inc_probs[is.nan(output$inc_probs)] <- .9999999
   
   # Specify default arguments for function
   default_args <- list(

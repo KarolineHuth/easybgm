@@ -173,6 +173,9 @@ plot_edgeevidence.easybgm <- function(output, evidence_thresh = 10, split = FALS
   }
   
   args <- set_defaults(default_args, ...)
+  # Otherwise one gets into issues when selecting the edges to plot 
+  output$inc_probs[is.nan(output$inc_probs)] <- .9999999
+  
   graph <- output$inc_BF
   diag(graph) <- 1
   
