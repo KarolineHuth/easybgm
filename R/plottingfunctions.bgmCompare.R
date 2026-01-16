@@ -7,12 +7,15 @@ plot_structure_probabilities.bgmCompare <- function(output, as_BF = FALSE, ...) 
   
   fit_args <- bgms::extract_arguments(output)
   
-  if (packageVersion("bgms") < "0.1.6.0" & !(fit_args$save)) {
-    stop("Please run your bgmCompare function with save = T.")
+  if (packageVersion("bgms") < "0.1.6.0" ) {
+    if(!(fit_args$save)){
+      stop("Please run your bgmCompare function with save = T.")
+    }
   }
   
   res <- bgm_extract.package_bgms_compare(fit = output, save = TRUE,
                                           type = NULL, not_cont = NULL, data = NULL,
+                                          group_indicator = NULL,
                                           edge_prior = fit_args$pairwise_difference_prior,
                                           inclusion_probability  = fit_args$inclusion_probability_difference,
                                           beta_bernoulli_alpha = fit_args$pairwise_beta_bernoulli_alpha,
@@ -85,12 +88,15 @@ plot_complexity_probabilities.bgmCompare <- function(output, ...) {
   
   fit_args <- bgms::extract_arguments(output)
   
-  if (packageVersion("bgms") < "0.1.6.0" & !(fit_args$save)) {
-    stop("Please run your bgmCompare function with save = T.")
+  if (packageVersion("bgms") < "0.1.6.0") {
+    if(!(fit_args$save)){
+      stop("Please run your bgmCompare function with save = T.")
+    }
   }
   
   res <- bgm_extract.package_bgms_compare(fit = output, save = TRUE,
                                           type = NULL, not_cont = NULL, data = NULL,
+                                          group_indicator = NULL,
                                           edge_prior = fit_args$pairwise_difference_prior,
                                           inclusion_probability  = fit_args$inclusion_probability_difference,
                                           beta_bernoulli_alpha = fit_args$pairwise_beta_bernoulli_alpha,
@@ -153,16 +159,21 @@ plot_edgeevidence.bgmCompare <- function(output, evidence_thresh = 10, split = F
   
   fit_args <- bgms::extract_arguments(output)
   
-  if (packageVersion("bgms") < "0.1.6.0" & !(fit_args$save)) {
-    stop("Please run your bgmCompare function with save = T.")
+  if (packageVersion("bgms") < "0.1.6.0") {
+    if(!(fit_args$save)){
+      stop("Please run your bgmCompare function with save = T.")
+    }
   }
   
-  res <- bgm_extract.package_bgms_compare(fit = output, save = TRUE,
-                                          type = NULL, not_cont = NULL, data = NULL,
-                                          edge_prior = fit_args$pairwise_difference_prior,
-                                          inclusion_probability  = fit_args$inclusion_probability_difference,
-                                          beta_bernoulli_alpha = fit_args$pairwise_beta_bernoulli_alpha,
-                                          beta_bernoulli_beta = fit_args$pairwise_beta_bernoulli_beta)
+    res <- bgm_extract.package_bgms_compare(fit = output, save = TRUE,
+                                            type = NULL, not_cont = NULL, data = NULL,
+                                            group_indicator = NULL,
+                                            edge_prior = fit_args$pairwise_difference_prior,
+                                            inclusion_probability  = fit_args$inclusion_probability_difference,
+                                            beta_bernoulli_alpha = fit_args$pairwise_beta_bernoulli_alpha,
+                                            beta_bernoulli_beta = fit_args$pairwise_beta_bernoulli_beta)
+  
+
   output <- res
   
   
@@ -301,16 +312,21 @@ plot_network.bgmCompare <- function(output, exc_prob = .5, evidence_thresh = 10,
   
   fit_args <- bgms::extract_arguments(output)
   
-  if (packageVersion("bgms") < "0.1.6.0" & !(fit_args$save)) {
-    stop("Please run your bgmCompare function with save = T.")
+  if (packageVersion("bgms") < "0.1.6.0") {
+    if(!(fit_args$save)){
+      stop("Please run your bgmCompare function with save = T.")
+    }
   }
   
-  res <- bgm_extract.package_bgms_compare(fit = output, save = TRUE,
-                                          type = NULL, not_cont = NULL, data = NULL,
-                                          edge_prior = fit_args$pairwise_difference_prior,
-                                          inclusion_probability  = fit_args$inclusion_probability_difference,
-                                          beta_bernoulli_alpha = fit_args$pairwise_beta_bernoulli_alpha,
-                                          beta_bernoulli_beta = fit_args$pairwise_beta_bernoulli_beta)
+
+    res <- bgm_extract.package_bgms_compare(fit = output, save = TRUE,
+                                            type = NULL, not_cont = NULL, data = NULL,
+                                            group_indicator = NULL,
+                                            edge_prior = fit_args$pairwise_difference_prior,
+                                            inclusion_probability  = fit_args$inclusion_probability_difference,
+                                            beta_bernoulli_alpha = fit_args$pairwise_beta_bernoulli_alpha,
+                                            beta_bernoulli_beta = fit_args$pairwise_beta_bernoulli_beta)
+  
   output <- res
   
   
@@ -372,17 +388,20 @@ plot_structure.bgmCompare <- function(output, ...) {
   
   fit_args <- bgms::extract_arguments(output)
   
-  if (packageVersion("bgms") < "0.1.6.0" & !(fit_args$save)) {
-    stop("Please run your bgmCompare function with save = T.")
+  if (packageVersion("bgms") < "0.1.6.0") {
+    if(!(fit_args$save)){
+      stop("Please run your bgmCompare function with save = T.")
+    }
   }
   
+    res <- bgm_extract.package_bgms_compare(fit = output, save = TRUE,
+                                            type = NULL, not_cont = NULL, data = NULL,
+                                            group_indicator = NULL,
+                                            edge_prior = fit_args$pairwise_difference_prior,
+                                            inclusion_probability  = fit_args$inclusion_probability_difference,
+                                            beta_bernoulli_alpha = fit_args$pairwise_beta_bernoulli_alpha,
+                                            beta_bernoulli_beta = fit_args$pairwise_beta_bernoulli_beta)
   
-  res <- bgm_extract.package_bgms_compare(fit = output, save = TRUE,
-                                          type = NULL, not_cont = NULL, data = NULL,
-                                          edge_prior = fit_args$pairwise_difference_prior,
-                                          inclusion_probability  = fit_args$inclusion_probability_difference,
-                                          beta_bernoulli_alpha = fit_args$pairwise_beta_bernoulli_alpha,
-                                          beta_bernoulli_beta = fit_args$pairwise_beta_bernoulli_beta)
   output <- res
   
   # Specify default arguments for function
@@ -431,17 +450,21 @@ plot_parameterHDI.bgmCompare <- function(output, ...) {
   
   fit_args <- bgms::extract_arguments(output)
   
-  if (packageVersion("bgms") < "0.1.6.0" & !(fit_args$save)) {
-    stop("Please run your bgmCompare function with save = T.")
+  if (packageVersion("bgms") < "0.1.6.0") {
+    if(!(fit_args$save)){
+      stop("Please run your bgmCompare function with save = T.")
+    }
   }
   
+
+    res <- bgm_extract.package_bgms_compare(fit = output, save = TRUE,
+                                            type = NULL, not_cont = NULL, data = NULL,
+                                            group_indicator = NULL,
+                                            edge_prior = fit_args$pairwise_difference_prior,
+                                            inclusion_probability  = fit_args$inclusion_probability_difference,
+                                            beta_bernoulli_alpha = fit_args$pairwise_beta_bernoulli_alpha,
+                                            beta_bernoulli_beta = fit_args$pairwise_beta_bernoulli_beta)
   
-  res <- bgm_extract.package_bgms_compare(fit = output, save = TRUE,
-                                          type = NULL, not_cont = NULL, data = NULL,
-                                          edge_prior = fit_args$pairwise_difference_prior,
-                                          inclusion_probability  = fit_args$inclusion_probability_difference,
-                                          beta_bernoulli_alpha = fit_args$pairwise_beta_bernoulli_alpha,
-                                          beta_bernoulli_beta = fit_args$pairwise_beta_bernoulli_beta)
   output <- res
   
   # Specify default arguments for function
