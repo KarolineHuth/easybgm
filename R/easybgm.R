@@ -1,4 +1,4 @@
-#' @title Fit a Bayesian analysis of networks
+#' @title Bayesian analysis of networks
 #'
 #' @description Easy estimation of a Bayesian analysis of networks to obtain conditional (in)dependence relations between variables in a network.
 #'

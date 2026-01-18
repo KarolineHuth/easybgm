@@ -29,15 +29,15 @@ library(easybgm)
 library(bgms)
 
 #data <- na.omit(Wenchuan)
-#fit1 <- easybgm(data, type = "ordinal",
+#fit1 <- easybgm(data[1:5, 1:50], type = "ordinal",
 #               iter = 100  # for demonstration only (> 5e4 recommended),
 #                inclusion_probability = .1
 #               )
-#fit2 <- easybgm(data, type = "ordinal",
+#fit2 <- easybgm(data[1:5, 1:50], type = "ordinal",
 #                  iter = 100,
 #                  inclusion_probability = .5
 #             )
-#fit3 <- easybgm(data, type = "ordinal",
+#fit3 <- easybgm(data[1:5, 1:50], type = "ordinal",
 #                iter = 100, inclusion_probability = .9)
 
 #plot_prior_sensitivity(list(fit1, fit2, fit3))

@@ -335,39 +335,36 @@ with a pull request; we can review and discuss the proposed changes.
 
 Epskamp, S., Cramer, A. O. J., Waldorp, L. J., Schmittmann, V. D., &
 Borsboom, D. (2012). qgraph: Network Visualizations of Relationships in
-Psychometric Data. Journal of Statistical Software, 48 . doi:
-10.18637/jss.v048.i04
+Psychometric Data. Journal of Statistical Software, 48. <https://doi.org/10.18637/jss.v048.i04>
 
 Huth, K., de Ron, J., Luigjes, J., Goudriaan, A., Mohammadi, R., van
 Holst, R., Wagenmakers, E.J., & Marsman, M. (2023). Bayesian Analysis of
 Cross-sectional Networks: A Tutorial in R and JASP. PsyArXiv
 <https://doi.org/10.31234/osf.io/ub5tc>.
 
-Marsman M, van den Bergh D, Haslbeck J.M.B. Bayesian Analysis of the
-Ordinal Markov Random Field. Psychometrika.
-2025;90(1):146-182.<a href="https://doi:10.1017/psy.2024.4"
-class="uri">https://doi:10.1017/psy.2024.4</a>
+Marsman M, van den Bergh D, Haslbeck J.M.B. (2025) Bayesian Analysis of the
+Ordinal Markov Random Field. Psychometrika, 90(1):146-182. <https://doi.org/10.1017/psy.2024.4>
 
-Mohammadi, Reza, and Ernst C Wit. (2015). “BDgraph: An R Package for
-Bayesian Structure Learning in Graphical Models.” Journal of Statistical
-Software 89 (3). <https://doi.org/10.18637/jss.v089.i03>.
+Mohammadi, Reza, and Ernst C Wit. (2015). BDgraph: An R Package for
+Bayesian Structure Learning in Graphical Models. Journal of Statistical
+Software, 89. <https://doi.org/10.18637/jss.v089.i03>.
 
 Sekulovski, N., Arena, G., Haslbeck, J. M. B., Huth, K., Friel, N., &
-Marsman, M. (2025, May 9). A Stochastic Block Prior for Clustering in
+Marsman, M. (2025). A Stochastic Block Prior for Clustering in
 Graphical Models. PsyArXiv <https://doi.org/10.31234/osf.io/29p3m_v1>
 
 Wickham, H. (2016). ggplot2: Elegant graphics for data analysis.
-Springer-Verlag New York. Retrixeved from
+Springer-Verlag New York. Retrieved from
 <https://ggplot2.tidyverse.org>
 
-Williams, Donald R, and Joris Mulder. (2019). “Bayesian Hypothesis
+Williams, Donald R, and Joris Mulder (2019). Bayesian Hypothesis
 Testing for Gaussian Graphical Models: Conditional Independence and
-Order Constraints.” PsyArXiv. <https://doi.org/10.31234/osf.io/ypxd8>.
+Order Constraints. PsyArXiv. <https://doi.org/10.31234/osf.io/ypxd8>.
 
 Williams DR, Rast P, Pericchi LR, Mulder J (2020). Comparing Gaussian
 graphical models with the posterior predictive distribution and Bayesian
 model selection. Psychological Methods.
-<https://doi.10.1037/met0000254.>
+<https://doi.10.1037/met0000254>.
 
 <!-- badges: start -->
 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/easybgm.R
 \name{easybgm}
 \alias{easybgm}
-\title{Fit a Bayesian analysis of networks}
+\title{Bayesian analysis of networks}
 \usage{
 easybgm(
   data,
