@@ -21,7 +21,7 @@
 #'
 #' data <- na.omit(Wenchuan)
 #' fit <- easybgm(data, type = "ordinal", save = TRUE, edge_selection = TRUE,
-#'                 iter = 100  # for demonstration only (> 5e4 recommended)
+#'                 iter = 100  for demonstration only; more samples required, check the defaults for each sampler
 #'                 )
 #'
 #' plot_structure_probabilities(fit)
@@ -62,7 +62,7 @@ plot_structure_probabilities <- function(output, as_BF = FALSE, ...) {
 #'
 #' data <- na.omit(Wenchuan)
 #' fit <- easybgm(data, type = "ordinal", save = TRUE, edge_selection = TRUE,
-#'                 iter = 100  # for demonstration only (> 5e4 recommended)
+#'                 iter = 100  for demonstration only; more samples required, check the defaults for each sampler
 #'                 )
 #'
 #' plot_complexity_probabilities(fit)
@@ -107,7 +107,7 @@ plot_complexity_probabilities <- function(output, ...) {
 #'
 #' data <- na.omit(Wenchuan)
 #' fit <- easybgm(data, type = "continuous",
-#'                 iter = 100  # for demonstration only (> 5e4 recommended)
+#'                 iter = 100  for demonstration only; more samples required, check the defaults for each sampler
 #'                 )
 #'
 #' plot_edgeevidence(fit)
@@ -162,7 +162,7 @@ plot_edgeevidence <- function(output, evidence_thresh = 10, split = FALSE, show 
 #'
 #' data <- na.omit(Wenchuan)
 #' fit <- easybgm(data, type = "continuous",
-#'                 iter = 100  # for demonstration only (> 5e4 recommended)
+#'                 iter = 100  for demonstration only; more samples required, check the defaults for each sampler
 #'                 )
 #'
 #' plot_network(fit)
@@ -209,8 +209,8 @@ plot_network <- function(output, exc_prob = .5, evidence_thresh = 10, dashed = F
 #' library(bgms)
 #'
 #' data <- na.omit(Wenchuan)
-#' fit <- easybgm(data[1:5, 1:50], type = "ordinal",
-#'                 iter = 100  # for demonstration only (> 5e4 recommended)
+#' fit <- easybgm(data[1:50, 1:5], type = "ordinal",
+#'                 iter = 100  for demonstration only; more samples required, check the defaults for each sampler
 #'                )
 #'
 #' plot_structure(fit)
@@ -251,8 +251,8 @@ plot_structure <- function(output, ...) {
 #'
 #'
 #' data <- na.omit(Wenchuan)
-#' fit <- easybgm(data[1:5, 1:50], type = "ordinal",
-#'               iter = 100,  # for demonstration only (> 5e4 recommended)
+#' fit <- easybgm(data[1:50, 1:5], type = "ordinal",
+#'               iter = 100,  for demonstration only; more samples required, check the defaults for each sampler
 #'               edge_selection = TRUE, save = TRUE)
 #' plot_parameterHDI(fit)
 #' }
@@ -296,8 +296,8 @@ plot_parameterHDI <- function(output, ...) {
 #' library(bgms)
 #'
 #' data <- na.omit(Wenchuan)
-#' fit <- easybgm(data[1:5, 1:50], type = "ordinal",
-#'                 iter = 100,  # for demonstration only (> 5e4 recommended)
+#' fit <- easybgm(data[1:50, 1:5], type = "ordinal",
+#'                 iter = 100,  for demonstration only; more samples required, check the defaults for each sampler
 #'                 edge_selection = TRUE, save = TRUE, 
 #'                 centrality = TRUE)
 #'
@@ -333,15 +333,15 @@ plot_centrality <- function(output, group_names = NULL, ...){
 #' library(bgms)
 #'
 #' #data <- na.omit(Wenchuan)
-#' #fit1 <- easybgm(data[1:5, 1:50], type = "ordinal",
-#' #               iter = 100  # for demonstration only (> 5e4 recommended),
+#' #fit1 <- easybgm(data[1:50, 1:5], type = "ordinal",
+#' #               iter = 100  for demonstration only; more samples required, check the defaults for each sampler
 #' #                inclusion_probability = .1
 #' #               )
-#' #fit2 <- easybgm(data[1:5, 1:50], type = "ordinal",
+#' #fit2 <- easybgm(data[1:50, 1:5], type = "ordinal",
 #' #                  iter = 100,
 #' #                  inclusion_probability = .5
 #' #             )
-#' #fit3 <- easybgm(data[1:5, 1:50], type = "ordinal",
+#' #fit3 <- easybgm(data[1:50, 1:5], type = "ordinal",
 #' #                iter = 100, inclusion_probability = .9)
 #'
 #' #plot_prior_sensitivity(list(fit1, fit2, fit3))

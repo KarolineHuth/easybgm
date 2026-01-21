@@ -10,7 +10,7 @@
 #'     default values are specified depending on the datatype.
 #' @param not_cont If data-type is mixed, a vector of length p, specifying the not-continuous
 #'     variables (1 = not continuous, 0 = continuous).
-#' @param iter number of iterations for the sampler.
+#' @param iter number of iterations for the sampler. Default is set to 1e3 but the recommended number of samples depends on the underlying package and sampler used. For data fit with BDgraph and BGGM, the default is set to 1e4.
 #' @param save Logical. Should the posterior samples be obtained (default = FALSE)?
 #' @param centrality Logical. Should the centrality measures be extracted (default = FALSE)? Note, that it will significantly increase the computation time.
 #' @param progress Logical. Should a progress bar be shown (default = TRUE)?
@@ -163,7 +163,7 @@
 
 
 
-easybgm <- function(data, type, package = NULL, not_cont = NULL, iter = 1e4, save = FALSE,
+easybgm <- function(data, type, package = NULL, not_cont = NULL, iter = 1e3, save = FALSE,
                     centrality = FALSE, progress = TRUE, posterior_method = "model-averaged",
                     ...){
 
@@ -208,6 +208,13 @@ easybgm <- function(data, type, package = NULL, not_cont = NULL, iter = 1e4, sav
     if(package == "BGGM") package <- "package_bggm"
     if(package == "bgms") package <- "package_bgms"
     if(type == "binary") package <- "package_bgms"
+  }
+  
+  # change the default number of iterations depending on the underlying package
+  if(iter == 1e3 && package == "package_bdgraph"){
+    iter <- 1e4
+  } else if (iter == 1e3 && package == "package_bggm"){
+    iter <- 1e4
   }
 
   if(type =="continuous" & package == "package_bdgraph" & any(is.na(data))){

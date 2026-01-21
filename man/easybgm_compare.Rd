@@ -10,7 +10,7 @@ easybgm_compare(
   package = NULL,
   not_cont = NULL,
   group_indicator = NULL,
-  iter = 10000,
+  iter = 1000,
   save = TRUE,
   progress = TRUE,
   ...
@@ -33,7 +33,7 @@ variables (1 = not continuous, 0 = continuous).}
 \item{group_indicator}{Optional integer vector of group memberships for the rows of the dataframe (multi-group comparison),
 when data is a matrix instead of a list of two dataframes.}
 
-\item{iter}{number of iterations for the sampler. Default is 1e4.}
+\item{iter}{number of iterations for the sampler. Default is 1e3 for data fit with bgms and to 1e4 for data with with BGGM.}
 
 \item{save}{Logical. Should the posterior samples be obtained (default = TRUE)?}
 
@@ -101,7 +101,7 @@ group2 <- data[11:20, 1:3]
 
 fit <- easybgm_compare(list(group1, group2), 
                 type = "binary", save = TRUE,
-                iter = 50 # for demonstration only (> 5e4 recommended)
+                iter = 50 # for demonstration only; more samples required, check the defaults for each sampler
                 )
 
 summary(fit)
@@ -110,7 +110,7 @@ summary(fit)
 fit_multi <- easybgm_compare(data[1:200, 1:5], 
                 group_indicator = rep(c(1, 2, 3, 4), each = 50),
                 type = "binary", save = TRUE, 
-                iter = 100 # for demonstration only (> 5e4 recommended)
+                iter = 100 # for demonstration only; more samples required, check the defaults for each sampler
                 )
 
 summary(fit_multi)

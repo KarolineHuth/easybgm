@@ -15,7 +15,7 @@
 #'     variables (1 = not continuous, 0 = continuous).
 #' @param group_indicator Optional integer vector of group memberships for the rows of the dataframe (multi-group comparison), 
 #'      when data is a matrix instead of a list of two dataframes.
-#' @param iter number of iterations for the sampler. Default is 1e4. 
+#' @param iter number of iterations for the sampler. Default is 1e3 for data fit with bgms and to 1e4 for data with with BGGM. 
 #' @param save Logical. Should the posterior samples be obtained (default = TRUE)?
 #' @param progress Logical. Should a progress bar be shown (default = TRUE)?
 #' @param ... Additional arguments that are handed to the fitting functions of the packages, e.g., informed prior specifications.
@@ -86,7 +86,7 @@
 #'
 #' fit <- easybgm_compare(list(group1, group2), 
 #'                 type = "binary", save = TRUE,
-#'                 iter = 50 # for demonstration only (> 5e4 recommended)
+#'                 iter = 50 # for demonstration only; more samples required, check the defaults for each sampler
 #'                 )
 #'
 #' summary(fit)
@@ -95,7 +95,7 @@
 #' fit_multi <- easybgm_compare(data[1:200, 1:5], 
 #'                 group_indicator = rep(c(1, 2, 3, 4), each = 50),
 #'                 type = "binary", save = TRUE, 
-#'                 iter = 100 # for demonstration only (> 5e4 recommended)
+#'                 iter = 100 # for demonstration only; more samples required, check the defaults for each sampler
 #'                 )
 #'
 #' summary(fit_multi)
@@ -107,7 +107,7 @@ easybgm_compare <- function(data,
                             package = NULL, 
                             not_cont = NULL, 
                             group_indicator = NULL, 
-                            iter = 1e4,
+                            iter = 1e3,
                             save = TRUE, 
                             progress = TRUE,
                             ...){
@@ -121,6 +121,7 @@ easybgm_compare <- function(data,
          (1 = not continuous, 0 = continuous).",
          call. = FALSE)
   }
+  
   
   dots <- list(...)
   has_reference <- "reference_category" %in% names(dots)
@@ -156,6 +157,10 @@ easybgm_compare <- function(data,
     if(type == "binary") package <- "package_bgms_compare"
   }
   
+  # change default number of iterations for BGGM fits
+  if (iter == 1e3 && package == "package_bgms_compare"){
+    iter <- 1e4
+  }
   
   if((package == "package_bgms_compare") & (type %in% c("continuous", "mixed"))){
     warning("bgms can only fit ordinal or binary datatypes. For continuous or mixed data,
