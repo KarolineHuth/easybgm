@@ -4,16 +4,16 @@
 #' @export
 bgm_fit.package_bgms <- function(fit, type, data, iter, save,
                                  not_cont, centrality, progress, ...){
-
+  
   if(!save && centrality){
     save <- TRUE
   }
-
-
+  
+  
   if(type == "binary") {
     type <- "ordinal"
   }
-
+  
   if(packageVersion("bgms") > "0.1.4.2"){
     bgms_fit <- do.call(
       bgm, c(list(x = data, iter = iter,
@@ -28,9 +28,9 @@ bgm_fit.package_bgms <- function(fit, type, data, iter, save,
                   display_progress = progress,
                   ...))
     )}
-
-
-
+  
+  
+  
   fit$model <- type
   fit$packagefit <- bgms_fit
   if(is.null(colnames(data))){
@@ -64,66 +64,74 @@ bgm_extract.package_bgms <- function(fit, type, save, iter,
   if(packageVersion("bgms") > "0.1.4.2"){
     class(fit) <- "bgms"
   }
-
+  
   # --- Extract model arguments and edge priors ---
   args <- bgms::extract_arguments(fit)
   args$save <- save
   # extract SBM information
   bgms_res <- list()
+  dots <- list(...)
+  if("edge_selection" %in% names(dots)){
+    if(dots$edge_selection == F){
+      args$edge_prior <- "None"
+    }
+  }
   if (args$edge_prior[1] == "Stochastic-Block" && packageVersion("bgms") > "0.1.6") {
     bgms_res$sbm <- extract_sbm(fit)
   }
   # extract the prior inclusion probabilities
   if (args$edge_prior[1] == "Bernoulli") {
-
+    
     # Single global inclusion probability
     edge.prior <- args$inclusion_probability
-
+    
   } else if (args$edge_prior[1] == "Beta-Bernoulli") {
-
+    
     # Single global Beta–Bernoulli inclusion probability
     edge.prior <- args$beta_bernoulli_alpha /
       (args$beta_bernoulli_alpha + args$beta_bernoulli_beta)
-
+    
     args$inclusion_probability <- edge.prior
-
+    
   } else if (args$edge_prior[1] == "Stochastic-Block") {
-
+    
     # Cluster assignments: a length-p vector like c(1,1,1,2,2)
     cl <-bgms_res$sbm$posterior_mean_allocations
     p  <- length(cl)
-
+    
     # --- WITHIN-cluster inclusion probability ---
     pi_within <- args$beta_bernoulli_alpha /
       (args$beta_bernoulli_alpha + args$beta_bernoulli_beta)
-
+    
     # --- BETWEEN-cluster inclusion probability ---
     # If no separate "between" hyperparameters given, fall back to within-cluster value
     if (is.null(args$beta_bernoulli_alpha_between) ||
         is.null(args$beta_bernoulli_beta_between)) {
-
+      
       pi_between <- pi_within
-
+      
     } else {
-
+      
       pi_between <- args$beta_bernoulli_alpha_between /
         (args$beta_bernoulli_alpha_between + args$beta_bernoulli_beta_between)
-
+      
     }
-
+    
     # Matrix indicating whether node pairs share the same cluster
     same_cluster <- outer(cl, cl, "==")
-
+    
     # Edge-specific prior inclusion probabilities (p × p matrix)
     prior_mat <- ifelse(same_cluster, pi_within, pi_between)
-
+    
     # Vectorize consistent with bgms edge ordering (lower triangle)
     edge.prior <- prior_mat[lower.tri(prior_mat)]
-
+    
     args$inclusion_probability <- edge.prior
-
+    
+  } else if(args$edge_prior[1] == "None"){
+    # Does nothing but we just need to include it to avoid it running into the following else statement
   } else {
-
+    
     stop("Unknown edge prior type in args$edge_prior[1].")
   }
   # --- Main extraction ---
@@ -228,8 +236,10 @@ bgm_extract.package_bgms <- function(fit, type, save, iter,
   if (centrality) {
     bgms_res$centrality <- centrality(bgms_res)
   }
+      
   # --- For newer version compute convergence ---
-  if (packageVersion("bgms") > "0.1.4.2") {
+  if (packageVersion("bgms") > "0.1.4.2" && args$edge_selection == T) {
+
     # extract the Rhat
     bgms_res$convergence_parameter <-  fit$posterior_summary_pairwise$Rhat
     # calculate MC uncertainty

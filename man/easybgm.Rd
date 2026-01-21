@@ -9,7 +9,7 @@ easybgm(
   type,
   package = NULL,
   not_cont = NULL,
-  iter = 10000,
+  iter = 1000,
   save = FALSE,
   centrality = FALSE,
   progress = TRUE,
@@ -28,7 +28,7 @@ default values are specified depending on the datatype.}
 \item{not_cont}{If data-type is mixed, a vector of length p, specifying the not-continuous
 variables (1 = not continuous, 0 = continuous).}
 
-\item{iter}{number of iterations for the sampler.}
+\item{iter}{number of iterations for the sampler. Default is set to 1e3 but the recommended number of samples depends on the underlying package and sampler used. For data fit with BDgraph and BGGM, the default is set to 1e4.}
 
 \item{save}{Logical. Should the posterior samples be obtained (default = FALSE)?}
 

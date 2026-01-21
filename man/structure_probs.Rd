@@ -28,7 +28,7 @@ library(bgms)
 
 data <- na.omit(Wenchuan)
 fit <- easybgm(data, type = "ordinal", save = TRUE, edge_selection = TRUE,
-                iter = 100  # for demonstration only (> 5e4 recommended)
+                iter = 100  for demonstration only; more samples required, check the defaults for each sampler
                 )
 
 plot_structure_probabilities(fit)
