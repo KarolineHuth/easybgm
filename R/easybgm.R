@@ -147,7 +147,7 @@
 #' # Fitting the Wenchuan PTSD data
 #'
 #' fit <- easybgm(data, type = "continuous",
-#'                 iter = 100 # for demonstration only (> 5e4 recommended)
+#'                 iter = 100 # for demonstration only
 #'                 )
 #'
 #' summary(fit)
@@ -157,7 +157,7 @@
 #' # and centrality measures
 #'
 #' fit <- easybgm(data, type = "continuous",
-#'                 iter = 100, 
+#'                 iter = 100, # for demonstration only
 #'                 centrality = TRUE, save = TRUE)
 #' }
 
