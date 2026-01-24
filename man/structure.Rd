@@ -26,7 +26,7 @@ library(bgms)
 
 data <- na.omit(Wenchuan)
 fit <- easybgm(data[1:50, 1:5], type = "ordinal",
-                iter = 100  for demonstration only; more samples required, check the defaults for each sampler
+                iter = 100  # for demonstration only
                )
 
 plot_structure(fit)

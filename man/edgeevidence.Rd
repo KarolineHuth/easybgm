@@ -42,7 +42,7 @@ library(bgms)
 
 data <- na.omit(Wenchuan)
 fit <- easybgm(data, type = "continuous",
-                iter = 100  for demonstration only; more samples required, check the defaults for each sampler
+                iter = 100  # for demonstration only
                 )
 
 plot_edgeevidence(fit)

@@ -30,7 +30,7 @@ library(bgms)
 
 #data <- na.omit(Wenchuan)
 #fit1 <- easybgm(data[1:50, 1:5], type = "ordinal",
-#               iter = 100  for demonstration only; more samples required, check the defaults for each sampler
+#               iter = 100  # for demonstration only
 #                inclusion_probability = .1
 #               )
 #fit2 <- easybgm(data[1:50, 1:5], type = "ordinal",
