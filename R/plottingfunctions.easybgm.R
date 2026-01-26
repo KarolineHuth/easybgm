@@ -398,7 +398,7 @@ plot_parameterHDI.easybgm <- function(output, ...) {
   }
   
   if(any(class(output) == "package_bdgraph")){
-    stop("Posterior samples of the BDgraph package cannot be obtained with the original package. If you want posterior samples from BDgraph, use this BDgraph version: https://github.com/KarolineHuth/BDgraph.")
+    stop("Posterior samples of the BDgraph package cannot be obtained with the original package. If you want posterior samples from BDgraph, use this BDgraph version: https://github.com/KarolineHuth/BDgraph. Note that this version does not have an easybgm-wrapper." )
   }
   
   if(any(class(output) == "easybgm_compare")){
@@ -470,7 +470,7 @@ plot_centrality.easybgm <- function(output, group_names = group_names, ...){
   }
   
   if(any(class(output) == "package_bdgraph")){
-    stop("The centrality function requires posterior samples which cannot be obtained with the original BDgraph package. If you want posterior samples from BDgraph, use this BDgraph version: https://github.com/KarolineHuth/BDgraph.")
+    stop("The centrality function requires posterior samples which cannot be obtained with the original BDgraph package. If you want posterior samples from BDgraph, fit the model using this BDgraph version: https://github.com/KarolineHuth/BDgraph. Note that this version does not have an easybgm-wrapper.")
   }
   
   if(is.null(output$centrality)){
