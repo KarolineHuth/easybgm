@@ -14,19 +14,26 @@ bgm_fit.package_bgms <- function(fit, type, data, iter, save,
     type <- "ordinal"
   }
   
+  # Capture ... and remove variable_type to avoid duplicate argument error
+  dots <- list(...)
+  if ("variable_type" %in% names(dots)) {
+    type <- dots$variable_type
+    dots$variable_type <- NULL
+  }
+  
   if(packageVersion("bgms") > "0.1.4.2"){
     bgms_fit <- do.call(
       bgm, c(list(x = data, iter = iter,
                   variable_type = type,
-                  display_progress = progress,
-                  ...))
+                  display_progress = progress),
+             dots)
     )}
   if(packageVersion("bgms") < "0.1.6"){
     bgms_fit <- do.call(
       bgm, c(list(x = data, iter = iter, save = T,
                   variable_type = type,
-                  display_progress = progress,
-                  ...))
+                  display_progress = progress),
+             dots)
     )}
   
   
