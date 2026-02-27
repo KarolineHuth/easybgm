@@ -435,7 +435,12 @@ plot_parameterHDI.easybgm <- function(output, ...) {
   names_bycol <- matrix(rep(names, each = ncol(output$parameters)), ncol = ncol(output$parameters))
   names_byrow <- matrix(rep(names, each = ncol(output$parameters)), ncol = ncol(output$parameters), byrow = T)
   names_comb <- matrix(paste0(names_byrow, "-", names_bycol), ncol = ncol(output$parameters))
-  index <- names_comb[upper.tri(names_comb)]
+  # bgms uses row-major upper triangle order
+  if(any(c("package_bgms", "package_bgms_compare") %in% class(output))){
+    index <- t(names_comb)[lower.tri(t(names_comb))]
+  } else {
+    index <- names_comb[upper.tri(names_comb)]
+  }
   
   posterior <- cbind(data.frame(posterior_medians, row.names = NULL),
                      data.frame(t(hdi_intervals), row.names = NULL), index)

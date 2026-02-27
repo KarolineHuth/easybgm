@@ -102,9 +102,11 @@ gwish_samples <- function(G, S, nsamples=1000) {
 centrality <- function(res){
   Nsamples <- nrow(res$samples_posterior)
   p <- nrow(res$parameters)
+  # bgms uses row-major upper triangle order (bycolumn=FALSE)
+  use_colmajor <- !any(c("package_bgms", "package_bgms_compare") %in% class(res))
   strength_samples <- matrix(0, nrow = Nsamples, ncol = p)
   for(i in 1:Nsamples){
-    strength_samples[i, ] <- rowSums(abs(vector2matrix(res$samples_posterior[i,], p, bycolumn = T)))
+    strength_samples[i, ] <- rowSums(abs(vector2matrix(res$samples_posterior[i,], p, bycolumn = use_colmajor)))
   }
   return(strength_samples)
 }
@@ -114,14 +116,16 @@ centrality_all <- function(res){
   Nsamples <- nrow(res$samples_posterior)
   p <- as.numeric(nrow(res$parameters))
   samples <- res$samples_posterior
+  # bgms uses row-major upper triangle order (bycolumn=FALSE)
+  use_colmajor <- !any(c("package_bgms", "package_bgms_compare") %in% class(res))
   for(i in 1:Nsamples){
     
     #Strength
-    strength_samples <- rowSums(abs(vector2matrix(samples[i, ], p, bycolumn = TRUE)))
+    strength_samples <- rowSums(abs(vector2matrix(samples[i, ], p, bycolumn = use_colmajor)))
     #EI
-    influence_samples <- rowSums(vector2matrix(samples[i, ], p, bycolumn = TRUE))
+    influence_samples <- rowSums(vector2matrix(samples[i, ], p, bycolumn = use_colmajor))
     
-    DistMat <- 1/(ifelse(abs(vector2matrix(samples[i, ], p, bycolumn = TRUE))==0,0,abs(vector2matrix(samples[i, ], p, bycolumn = T))))
+    DistMat <- 1/(ifelse(abs(vector2matrix(samples[i, ], p, bycolumn = use_colmajor))==0,0,abs(vector2matrix(samples[i, ], p, bycolumn = use_colmajor))))
     igraphObject <- igraph::graph.adjacency(DistMat, weighted = TRUE, mode = "undirected")
     # Closeness
     closeness_samples <- igraph::closeness(igraphObject)
