@@ -72,8 +72,9 @@ bgm_extract.package_bgms <- function(fit, type, save, iter,
   bgms_res <- list()
   dots <- list(...)
   if("edge_selection" %in% names(dots)){
-    if(dots$edge_selection == F){
+    if(dots$edge_selection == FALSE){
       args$edge_prior <- "None"
+      args$edge_selection <- FALSE
     }
   }
   if (args$edge_prior[1] == "Stochastic-Block" && packageVersion("bgms") > "0.1.6") {
