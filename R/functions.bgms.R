@@ -55,6 +55,10 @@ bgm_extract.package_bgms <- function(fit, type, save, iter,
   if (packageVersion("bgms") < "0.1.4") {
     stop("easybgm now requires bgms version 0.1.4 or higher.")
   }
+  # If centrality is requested, we need saved samples
+  if (!save && centrality) {
+    save <- TRUE
+  }
   # --- Ensure proper bgms object and variable names ---
   if (!inherits(fit, "bgms")) {
     varnames <- fit$var_names
