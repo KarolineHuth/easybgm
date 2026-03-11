@@ -132,7 +132,12 @@ plot_complexity_probabilities.easybgm <- function(output, ...) {
 
 # ---------------------------------------------------------------------------------------------------------------
 #' @export
-plot_edgeevidence.easybgm <- function(output, evidence_thresh = 10, split = FALSE, show = "all", ...) {
+plot_edgeevidence.easybgm <- function(output, 
+                                      evidence_thresh_strong = 10, 
+                                      evidence_thresh_weak = 3, 
+                                      split = FALSE, show = "all", 
+                                      edge_legend = TRUE, 
+                                      ...) {
   if(!any(class(output) == "easybgm")){
     stop("Wrong input provided. The function requires as input the output of the easybgm function.")
   }
@@ -179,18 +184,23 @@ plot_edgeevidence.easybgm <- function(output, evidence_thresh = 10, split = FALS
   graph <- output$inc_BF
   diag(graph) <- 1
   
-  # assign a color to each edge (inclusion - blue, exclusion - red, no conclusion - grey)
+  # assign a color to each edge (inclusion - blue, exclusion - yellow, no conclusion - grey)
   graph_color <- graph
   # 1. Most evidence for inclusion
-  graph_color[graph > evidence_thresh] <- args$edge.color[1]
-  # 2. Moderate inclusion (BF > 3 but ≤ evidence_thresh)
-  graph_color[graph > 3 & graph <= evidence_thresh] <- args$edge.color[2]
-  # 3. Inconclusive (BF between 1/3 and 3)
-  graph_color[graph >= 1/3 & graph <= 3] <- args$edge.color[3]
-  # 4. Moderate exclusion (BF < 1/3 but > 1/evidence_thresh)
-  graph_color[graph < 1/3 & graph > 1/evidence_thresh] <- args$edge.color[4]
-  # 5. Strong evidence for exclusion (BF ≤ 1/evidence_thresh)
-  graph_color[graph <= 1/evidence_thresh] <- args$edge.color[5]
+  graph_color[graph > evidence_thresh_strong] <- args$edge.color[1]
+  # 2. Moderate inclusion (BF > evidence_thresh_weak but ≤ evidence_thresh_strong)
+  graph_color[graph > evidence_thresh_weak & graph <= evidence_thresh_strong] <- args$edge.color[2]
+  # 3. Inconclusive (BF between 1/evidence_thresh_weak and evidence_thresh_weak)
+  graph_color[graph >= 1/evidence_thresh_weak & graph <= evidence_thresh_weak] <- args$edge.color[3]
+  # 4. Moderate exclusion (BF < 1/evidence_thresh_weak but > 1/evidence_thresh_strong)
+  graph_color[graph < 1/evidence_thresh_weak & graph > 1/evidence_thresh_strong] <- args$edge.color[4]
+  # 5. Strong evidence for exclusion (BF ≤ 1/evidence_thresh_strong)
+  graph_color[graph <= 1/evidence_thresh_strong] <- args$edge.color[5]
+  
+  # change to dashed lines when not conclusive evidence
+  graph_dashed <- matrix(2, nrow(graph), ncol(graph))
+  graph_dashed[(graph > evidence_thresh_strong | graph <=  1/evidence_thresh_strong)] <- 1 
+  
   
   if (show == "all") {
     if (!split) {
@@ -199,6 +209,7 @@ plot_edgeevidence.easybgm <- function(output, evidence_thresh = 10, split = FALS
       colnames(graph) <- args$colnames
       qgraph_plot <- qgraph::qgraph(graph,
                                     edge.color = graph_color,
+                                    lty = graph_dashed,
                                     layout = args$layout,# specifies the color of the edges
                                     theme = args$theme,
                                     vsize = args$vsize,
@@ -207,8 +218,31 @@ plot_edgeevidence.easybgm <- function(output, evidence_thresh = 10, split = FALS
                                     edge.width = args$edge.width,
                                     label.cex = args$label.cex,
                                     legend.cex = args$legend.cex,
+                                    layoutScale = c(1, 0.85),
                                     ...
       )
+      
+      if(edge_legend){
+        # Add edge legend
+        par(xpd = TRUE)   # allows drawing outside plot region
+        legend(       
+          "bottom",
+          legend = c(
+            "Included",
+            "Weakly incl.",
+            "Inconclusive",
+            "Weakly excl.",
+            "Excluded"
+          ),
+          col = args$edge.color,
+          lty = c(1,2,2,2,1),
+          lwd = 0.6*args$edge.width,
+          bty = "n",
+          horiz = T,
+          cex = args$legend.cex*1.2
+        )
+        par(xpd = FALSE)
+      }
     }
     
     if (split) {
@@ -221,6 +255,7 @@ plot_edgeevidence.easybgm <- function(output, evidence_thresh = 10, split = FALS
       colnames(graph_inc) <- colnames(output$parameters)
       qgraph_plot1 <- qgraph::qgraph(graph_inc,
                                      edge.color = graph_color,
+                                     lty = graph_dashed,
                                      layout = args$layout,# specifies the color of the edges
                                      theme = args$theme,
                                      vsize = args$vsize,
@@ -229,8 +264,32 @@ plot_edgeevidence.easybgm <- function(output, evidence_thresh = 10, split = FALS
                                      edge.width = args$edge.width,
                                      label.cex = args$label.cex,
                                      legend.cex = args$legend.cex, # specifies the color of the edges
+                                     layoutScale = c(1, 0.85),
                                      ...
       )
+      
+      if(edge_legend){
+        # Add edge legend
+        par(xpd = TRUE)   # allows drawing outside plot region
+        legend(
+          "bottom",
+          legend = c(
+            "Included",
+            "Weakly incl.",
+            "Inconclusive",
+            "Weakly excl.",
+            "Excluded"
+          ),
+          col = args$edge.color,
+          lty = c(1,2,2,2,1),
+          lwd = 0.6*args$edge.width,
+          bty = "n",
+          horiz = T,
+          cex = args$legend.cex*1.2
+        )
+        par(xpd = FALSE)
+      }
+      
       # Plot excluded graph
       graph_exc[output$inc_probs >= .5] <- 0
       graph_exc[output$inc_probs < .5] <- 1
@@ -238,6 +297,7 @@ plot_edgeevidence.easybgm <- function(output, evidence_thresh = 10, split = FALS
       colnames(graph_exc) <- colnames(output$parameters)
       qgraph_plot2 <- qgraph::qgraph(graph_exc,
                                      edge.color = graph_color,
+                                     lty = graph_dashed,
                                      # specifies the color of the edges
                                      layout = args$layout,# specifies the color of the edges
                                      theme = args$theme,
@@ -247,35 +307,84 @@ plot_edgeevidence.easybgm <- function(output, evidence_thresh = 10, split = FALS
                                      edge.width = args$edge.width,
                                      label.cex = args$label.cex,
                                      legend.cex = args$legend.cex,
+                                     layoutScale = c(1, 0.85),
                                      ...
       )
+      
+      if(edge_legend){
+        # Add edge legend
+        par(xpd = TRUE)   # allows drawing outside plot region
+        legend(
+          "bottom",
+          legend = c(
+            "Included",
+            "Weakly incl.",
+            "Inconclusive",
+            "Weakly excl.",
+            "Excluded"
+          ),
+          col = args$edge.color,
+          lty = c(1,2,2,2,1),
+          lwd = 0.6*args$edge.width,
+          bty = "n",
+          horiz = T,
+          cex = args$legend.cex*1.2
+        )
+        par(xpd = FALSE)
+      }
     }
   }
   if(show != "all"){
     graph_show <- matrix(0, ncol = ncol(graph), nrow = nrow(graph))
     if("included" %in% show){
-      graph_show[output$inc_BF > evidence_thresh] <- 1
+      graph_show[output$inc_BF > evidence_thresh_weak] <- 1
     }
     if("excluded" %in% show){
-      graph_show[output$inc_BF < (1/evidence_thresh)] <- 1
+      graph_show[output$inc_BF < (1/evidence_thresh_weak)] <- 1
     }
     if("inconclusive" %in% show){
-      graph_show[(output$inc_BF > (1/evidence_thresh)) & (output$BF < evidence_thresh)] <- 1
+      graph_show[(output$inc_BF > (1/evidence_thresh_weak)) & (output$inc_BF < evidence_thresh_weak)] <- 1
     }
     
     diag(graph_show) <- 1
     colnames(graph_show) <- colnames(output$parameters)
     qgraph_plot <- qgraph::qgraph(graph_show,
+                                  lty = graph_dashed,
                                   edge.color = graph_color,
                                   layout = args$layout,# specifies the color of the edges
                                   theme = args$theme,
                                   vsize = args$vsize,
                                   nodeNames = args$nodeNames,
                                   legend = args$legend,
+                                  edge.width = args$edge.width,
                                   label.cex = args$label.cex,
                                   legend.cex = args$legend.cex,# specifies the color of the edges
+                                  layoutScale = c(1, 0.85),
                                   ...
     )
+    
+    # Add edge legend
+    if(edge_legend){
+      par(xpd = TRUE)   # allows drawing outside plot region
+      legend(
+        "bottom",
+        legend = c(
+          "Included",
+          "Weakly incl.",
+          "Inconclusive",
+          "Weakly excl.",
+          "Excluded"
+        ),
+        col = args$edge.color,
+        lty = c(1,2,2,2,1),
+        lwd = 0.6*args$edge.width,
+        bty = "n",
+        horiz = T,
+        cex = args$legend.cex*1.2
+      )
+      
+      par(xpd = FALSE)
+    }
   }
   
   if (split == TRUE) {
@@ -289,7 +398,7 @@ plot_edgeevidence.easybgm <- function(output, evidence_thresh = 10, split = FALS
 
 
 #' @export
-plot_network.easybgm <- function(output, exc_prob = 0.5, evidence_thresh = 10,  dashed = FALSE, ...) {
+plot_network.easybgm <- function(output, exc_prob = 0.5, evidence_thresh_weak = 10,  dashed = FALSE, ...) {
   
   if(!any(class(output) == "easybgm")){
     stop("Wrong input provided. The function requires as input the output of the easybgm function.")
@@ -312,7 +421,7 @@ plot_network.easybgm <- function(output, exc_prob = 0.5, evidence_thresh = 10,  
   graph <- output$parameters
   default_args <- list(
     layout = qgraph::averageLayout(as.matrix(output$parameters*output$structure)),
-    evidence_thresh = 10,
+    evidence_thresh_weak = 3,
     theme = "TeamFortress",
     vsize = 10,
     nodeNames = colnames(output$parameters),
@@ -330,7 +439,7 @@ plot_network.easybgm <- function(output, exc_prob = 0.5, evidence_thresh = 10,  
   
   # Plot
   if(dashed){
-    graph_dashed <- ifelse(output$inc_BF < args$evidence_thresh, 2, 1)
+    graph_dashed <- ifelse(output$inc_BF < args$evidence_thresh_weak, 2, 1)
     
     
     qgraph_plot <- qgraph::qgraph(graph, layout = args$layout, 
@@ -440,24 +549,24 @@ plot_parameterHDI.easybgm <- function(output, ...) {
     names_comb <- matrix(paste0(names_byrow, "-", names_bycol), ncol = ncol(output$parameters))
     index <- names_comb[upper.tri(names_comb)]
   }
-
-posterior <- cbind(data.frame(posterior_medians, row.names = NULL),
-                   data.frame(t(hdi_intervals), row.names = NULL), index)
-colnames(posterior) <- c("posterior_medians", "lower", "upper", "names")
-posterior <- posterior[order(posterior$posterior_medians, decreasing = F),]
-posterior$names <- factor(posterior$names, levels = posterior$names)
-
-
-ggplot2::ggplot(data = posterior, aes(x = .data$names, y = .data$posterior_medians, ymin = .data$lower,
-                                      ymax = .data$upper, ...)) +
-  args$geom_pointrange +
-  args$theme_ +
-  coord_flip() +
-  ylab(args$ylab)+
-  xlab(args$xlab) +
-  args$geom_hline +
-  args$theme
-
+  
+  posterior <- cbind(data.frame(posterior_medians, row.names = NULL),
+                     data.frame(t(hdi_intervals), row.names = NULL), index)
+  colnames(posterior) <- c("posterior_medians", "lower", "upper", "names")
+  posterior <- posterior[order(posterior$posterior_medians, decreasing = F),]
+  posterior$names <- factor(posterior$names, levels = posterior$names)
+  
+  
+  ggplot2::ggplot(data = posterior, aes(x = .data$names, y = .data$posterior_medians, ymin = .data$lower,
+                                        ymax = .data$upper, ...)) +
+    args$geom_pointrange +
+    args$theme_ +
+    coord_flip() +
+    ylab(args$ylab)+
+    xlab(args$xlab) +
+    args$geom_hline +
+    args$theme
+  
 }
 
 
@@ -642,7 +751,7 @@ plot_centrality.list <- function(output, group_names = NULL, ...){
 # -------------------------------------------------------------------------------
 #' @export
 plot_prior_sensitivity.list <- function(output,
-                                        evidence_thres = 10, ...) {
+                                        evidence_thresh_weak = 3, ...) {
   
   if(any(class(output[[1]]) == "easybgm_compare")){
     stop("The centrality plot cannot be obtained for Bayesian network comparison fits.")

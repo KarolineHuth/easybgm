@@ -4,7 +4,9 @@
 #' @description Used to create a object of easybgm results and in turn print it
 #'
 #' @param object easybgm object
-#' @param evidence_thresh Bayes Factor which will be considered sufficient evidence for in-/exclusion, default is 10.
+#' @param evidence_thresh_weak Bayes Factor which will be considered sufficient for weak in-/exclusion evidence, default is 3
+#' @param evidence_thresh_strong Bayes Factor which will be considered sufficient for strong in-/exclusion evidence, default is 10.
+#' @param evidence_thresh (depreceated) Bayes Factor which will be considered sufficient evidence for in-/exclusion, default is 10.
 #' @param BF_uncertainty Whether the MC uncertainty estimates for the Bayes factors should be included in the output (only for bgms package)
 #' @param ... unused argument
 #'
@@ -12,13 +14,23 @@
 #'
 #' @export
 
-summary.easybgm <- function(object, evidence_thresh = 10, BF_uncertainty = FALSE, ...) {
+summary.easybgm <- function(object, 
+                            evidence_thresh_weak = 3,
+                            evidence_thresh_strong = 10, 
+                            BF_uncertainty = FALSE, ...) {
+  
   ## -----------------------------
   ## 0. Check arguments
   ## -----------------------------
 
   dots_check(...)
-
+  dots <- list(...)
+  if("evidence_thresh" %in% names(dots)){
+    warning("The argument 'evidence_thresh' is deprecated. ",
+            "Please use 'evidence_thresh_weak' and/or 'evidence_thresh_strong' instead. ",
+            call. = FALSE)
+  }
+  
   ## -----------------------------
   ## 1. Determine number of nodes
   ## -----------------------------
@@ -44,11 +56,19 @@ summary.easybgm <- function(object, evidence_thresh = 10, BF_uncertainty = FALSE
     inc_probs  <- round(object$inc_probs, 3)[lower.tri(object$inc_probs)]
     BF <- round(object$inc_BF, 3)[lower.tri(object$inc_BF)]
 
-    ## ---- 2c. Classify edges based on Bayes Factor ----(i.e., included, excluded, inconclusive)
+    ## ---- 2c. Classify edges based on Bayes Factor ----(i.e., included, excluded, inconclusive, or weakly incl./excl.)
+
     category <- character(length(BF))
-    category[(BF < evidence_thresh) & (BF > 1/evidence_thresh)] <- "inconclusive"
-    category[BF > evidence_thresh] <- "included"
-    category[BF < 1/evidence_thresh] <- "excluded"
+    # 1. Most evidence for inclusion
+    category[BF > evidence_thresh_strong] <- "included"
+    # 2. Moderate inclusion (BF > 3 but ≤ evidence_thresh)
+    category[BF > evidence_thresh_weak & BF <= evidence_thresh_strong] <- "weakly incl."
+    # 3. Inconclusive (BF between 1/3 and 3)
+    category[BF >= 1/evidence_thresh_weak & BF <= evidence_thresh_weak] <- "inconclusive"
+    # 4. Moderate exclusion (BF < 1/3 but > 1/evidence_thresh)
+    category[BF < 1/evidence_thresh_weak & BF > 1/evidence_thresh_strong] <- "weakly excl."
+    # 5. Strong evidence for exclusion (BF ≤ 1/evidence_thresh)
+    category[BF <= 1/evidence_thresh_strong] <- "excluded"
 
     ## ---- 2d. Create results data frame ----
     results <-
@@ -100,10 +120,17 @@ summary.easybgm <- function(object, evidence_thresh = 10, BF_uncertainty = FALSE
 
     ## ---- 2h. Classify edges ---- (i.e., included, excluded, inconclusive)
     category <- character(length(BF))
-    category[(BF < evidence_thresh) & (BF > 1/evidence_thresh)] <- "inconclusive"
-    category[BF > evidence_thresh] <- "included"
-    category[BF < 1/evidence_thresh] <- "excluded"
-
+    # 1. Most evidence for inclusion
+    category[BF > evidence_thresh_strong] <- "included"
+    # 2. Moderate inclusion (BF > 3 but ≤ evidence_thresh)
+    category[BF > evidence_thresh_weak & BF <= evidence_thresh_strong] <- "weakly incl."
+    # 3. Inconclusive (BF between 1/3 and 3)
+    category[BF >= 1/evidence_thresh_weak & BF <= evidence_thresh_weak] <- "inconclusive"
+    # 4. Moderate exclusion (BF < 1/3 but > 1/evidence_thresh)
+    category[BF < 1/evidence_thresh_weak & BF > 1/evidence_thresh_strong] <- "weakly excl."
+    # 5. Strong evidence for exclusion (BF ≤ 1/evidence_thresh)
+    category[BF <= 1/evidence_thresh_strong] <- "excluded"
+    
     ## ---- 2i. Create results data frame ----
     ## ----  Create results data frame with convergence (newer bgms)----
     if("package_bgms" %in% class(object) && packageVersion("bgms") > "0.1.4.2"){
@@ -185,9 +212,11 @@ summary.easybgm <- function(object, evidence_thresh = 10, BF_uncertainty = FALSE
 
   ## ---- 3a. Aggregate edge counts ----
   if(!is.null(object$inc_probs)){
-    out$n_inclu_edges <- sum(BF > evidence_thresh)
-    out$n_incon_edges <- sum((BF < evidence_thresh) & (BF > 1/evidence_thresh))
-    out$n_exclu_edges <- sum(BF < 1/evidence_thresh)
+    out$n_inclu_edges <- sum(BF > evidence_thresh_strong)
+    out$n_weakinclu_edges <- sum((BF > evidence_thresh_weak & BF <= evidence_thresh_strong))
+    out$n_incon_edges <- sum((BF < evidence_thresh_weak) & (BF > 1/evidence_thresh_weak))
+    out$n_weakexclu_edges <- sum((BF < 1/evidence_thresh_weak & BF > 1/evidence_thresh_strong))
+    out$n_exclu_edges <- sum(BF < 1/evidence_thresh_strong)
   }
 
   ## ---- 3b. Structure uncertainty (only for BDgraph/bgms) ----
@@ -214,7 +243,8 @@ summary.easybgm <- function(object, evidence_thresh = 10, BF_uncertainty = FALSE
   ## 4. Save call and BF threshold info
   ## -----------------------------
   out$fit_object <- object
-  out$evidence_thresh <- evidence_thresh
+  out$evidence_thresh_weak <- evidence_thresh_weak
+  out$evidence_thresh_strong <- evidence_thresh_strong
   out$BF_uncertainty <- BF_uncertainty
   ## -----------------------------
   ## 5. Return summary object
@@ -253,12 +283,15 @@ print.easybgm <- function(x, ...){
         "\n EDGE SPECIFIC OVERVIEW",
         "\n")
     print(x$parameters, quote = FALSE, right = TRUE, row.names=F)
-    cat("\n Bayes factors larger than", x$evidence_thresh, "were considered sufficient evidence for the classification.",
+    cat("\n Bayes factors larger than", x$evidence_thresh_strong, "were considered sufficient evidence.",
+        "\n Bayes factors larger than", x$evidence_thresh_weak, "were considered weak evidence.",
         "\n Bayes factors were obtained via single-model comparison.",
         "\n ---",
         "\n AGGREGATED EDGE OVERVIEW",
         "\n Number of edges with sufficient evidence for inclusion:", x$n_inclu_edges,
+        "\n Number of edges with weak evidence for inclusion:", x$n_weakinclu_edges,
         "\n Number of edges with insufficient evidence:", x$n_incon_edges,
+        "\n Number of edges with weak evidence for exclusion:", x$n_weakexclu_edges,
         "\n Number of edges with sufficient evidence for exclusion:", x$n_exclu_edges,
         "\n Number of possible edges:", x$n_possible_edges,
         "\n")
@@ -280,12 +313,15 @@ print.easybgm <- function(x, ...){
         "\n EDGE SPECIFIC OVERVIEW",
         "\n")
     print(x$parameters, quote = FALSE, right = TRUE, row.names=F)
-    cat("\n Bayes Factors larger than", x$evidence_thresh, "were considered sufficient evidence for the classification",
+    cat("\n Bayes factors larger than", x$evidence_thresh_strong, "were considered sufficient evidence.",
+        "\n Bayes factors larger than", x$evidence_thresh_weak, "were considered weak evidence.",
         "\n Bayes factors were obtained using Bayesian model-averaging.",
         "\n ---",
         "\n AGGREGATED EDGE OVERVIEW",
         "\n Number of edges with sufficient evidence for inclusion:", x$n_inclu_edges,
+        "\n Number of edges with weak evidence for inclusion:", x$n_weakinclu_edges,
         "\n Number of edges with insufficient evidence:", x$n_incon_edges,
+        "\n Number of edges with weak evidence for exclusion:", x$n_weakexclu_edges,
         "\n Number of edges with sufficient evidence for exclusion:", x$n_exclu_edges,
         "\n Number of possible edges:", x$n_possible_edges,
         "\n")
@@ -312,7 +348,8 @@ print.easybgm <- function(x, ...){
         "\n EDGE SPECIFIC OVERVIEW",
         "\n")
     print(x$parameters, quote = FALSE, right = TRUE, row.names=F)
-    cat("\n Bayes Factors larger than", x$evidence_thresh, "were considered sufficient evidence for the classification",
+    cat("\n Bayes factors larger than", x$evidence_thresh_strong, "were considered sufficient evidence.",
+        "\n Bayes factors larger than", x$evidence_thresh_weak, "were considered weak evidence.",
         "\n Bayes factors were obtained using Bayesian model-averaging.",
         "\n ")
     if("package_bgms" %in% class(x) && packageVersion("bgms") > "0.1.4.2" && isTRUE(x$BF_uncertainty)){
@@ -336,7 +373,9 @@ print.easybgm <- function(x, ...){
     }
     cat("\n AGGREGATED EDGE OVERVIEW",
         "\n Number of edges with sufficient evidence for inclusion:", x$n_inclu_edges,
+        "\n Number of edges with weak evidence for inclusion:", x$n_weakinclu_edges,
         "\n Number of edges with insufficient evidence:", x$n_incon_edges,
+        "\n Number of edges with weak evidence for exclusion:", x$n_weakexclu_edges,
         "\n Number of edges with sufficient evidence for exclusion:", x$n_exclu_edges,
         "\n Number of possible edges:", x$n_possible_edges,
         "\n")

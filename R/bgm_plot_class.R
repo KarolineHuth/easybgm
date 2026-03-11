@@ -82,18 +82,19 @@ plot_complexity_probabilities <- function(output, ...) {
 #' @title Edge evidence plot
 #'
 #' @description The edge evidence plot colors edges according to their hypothesis testing results: blue for included,
-#'    light blue for weakly included, gray for inconclusive, light yellow for weakly excluded, and yellow for excluded.
+#'    dashed + light blue for weakly included, dashed + gray for inconclusive, dashed + light yellow for weakly excluded, and yellow for excluded.
 #'    This plot can be used to visualize the hypothesis testing results whether edge presence or absence. The edge evidence
-#'    plot can aid researchers in deciding which edges provide robust inferential conclusions
+#'    plot can aid researchers in deciding which edges provide robust inferential conclusions. 
 #'
 #' @name edgeevidence
 #'
 #' @param output Output object from the easybgm function. Supports also objects from the bgm function of the `bgms` package.
-#' @param evidence_thresh Bayes Factor which will be considered sufficient evidence for in-/exclusion, default is 10. Note that
-#'    this parameter defines when edges provide sufficient evidence, thus when the edge color will turn saturated blue or yellow.
-#'    All edges with a BF between 3 and the evidence threshold will receive a light saturated edge color.
+#' @param evidence_thresh_weak Bayes Factor which will be considered sufficient for weak in-/exclusion evidence, default is 3
+#' @param evidence_thresh_strong Bayes Factor which will be considered sufficient for strong in-/exclusion evidence, default is 10.
+#' @param evidence_thresh (depreceated) Bayes Factor which will be considered sufficient evidence for in-/exclusion, default is 10.
 #' @param split if TRUE, plot is split in included and excluded edges. Note that by default separate plots are shown and appear after each other in the plot window. To show the plots side-by-side specify par(mfrow = c(1, 2)).
-#' @param show specifies which edges should be shown, indicated by "all", "included", "inconclusive", "excluded".
+#' @param show specifies which edges should be shown, indicated by "all", "included" for included and weakly included edges, "inconclusive", and "excluded" for excluded and weakly excluded edges.
+#' @param edge_legend binary indicator specifying whether edge legend should be plotted. Default is TRUE.
 #' @param ... Additional arguments passed onto `qgraph`.
 #'
 #' @return Returns a plot
@@ -126,7 +127,12 @@ plot_complexity_probabilities <- function(output, ...) {
 #' }
 
 
-plot_edgeevidence <- function(output, evidence_thresh = 10, split = FALSE, show = "all",...) {
+plot_edgeevidence <- function(output, 
+                              evidence_thresh_strong = 10, 
+                              evidence_thresh_weak = 3, 
+                              split = FALSE, show = "all",
+                              edge_legend = TRUE, 
+                              ...) {
   if(any(any(class(output) == "easybgm"), any(class(output) == "bgms"), any(class(output) == "bgmCompare")) == FALSE){
     stop("Wrong input provided. The function requires as input the output of the easybgm or bgm function.")
   }
@@ -148,7 +154,7 @@ plot_edgeevidence <- function(output, evidence_thresh = 10, split = FALSE, show 
 #' @param exc_prob The threshold for excluding edges. All edges with a lower inclusion probability will not be shown. The default is set to 0.5 in line with the median probability plot.
 
 #' @param dashed A binary parameter indicating whether edges with inconclusive evidence should be dashed. Default is FALSE
-#' @param evidence_thresh If dashed = TRUE, users can specify the threshold for sufficient evidence for inclusion. All edges with evidence lower than `evidence_tresh` are dashed.
+#' @param evidence_thresh_weak If dashed = TRUE, users can specify the threshold for evidence for inclusion. All edges with evidence lower than `evidence_thresh_weak` are dashed.
 #' @param ... Additional arguments passed onto `qgraph`.
 #'
 #' @return Returns a plot
@@ -171,10 +177,10 @@ plot_edgeevidence <- function(output, evidence_thresh = 10, split = FALSE, show 
 #' plot_network(fit, exc_prob = 0.1)
 #'
 #' # Indicate which edges have insufficient evidence for inclusion through a dashed line
-#' plot_network(fit, dashed = TRUE, evidence_thresh = 10)
+#' plot_network(fit, dashed = TRUE, evidence_thresh_weak = 10)
 #'
 
-plot_network <- function(output, exc_prob = .5, evidence_thresh = 10, dashed = FALSE, ...) {
+plot_network <- function(output, exc_prob = .5, evidence_thresh_weak = 3, dashed = FALSE, ...) {
 
   if(any(any(class(output) == "easybgm"), any(class(output) == "bgms"), any(class(output) == "bgmCompare")) == FALSE){
     stop("Wrong input provided. The function requires as input the output of the easybgm or bgm function.")

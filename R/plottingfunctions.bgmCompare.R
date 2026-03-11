@@ -159,7 +159,11 @@ plot_complexity_probabilities.bgmCompare <- function(output, ...) {
 
 #' @export
 
-plot_edgeevidence.bgmCompare <- function(output, evidence_thresh = 10, split = FALSE, show = "all", ...) {
+plot_edgeevidence.bgmCompare <- function(output, 
+                                         evidence_thresh_strong = 10, 
+                                         evidence_thresh_weak = 3,
+                                         edge_legend = TRUE, 
+                                         split = FALSE, show = "all", ...) {
   
   if(packageVersion("bgms") < "0.1.4"){
     stop("Your version of the package bgms is not supported anymore. Please update.")
@@ -214,15 +218,19 @@ plot_edgeevidence.bgmCompare <- function(output, evidence_thresh = 10, split = F
   # assign a color to each edge (inclusion - blue, exclusion - red, no conclusion - grey)
   graph_color <- graph
   # 1. Most evidence for inclusion
-  graph_color[graph > evidence_thresh] <- args$edge.color[1]
-  # 2. Moderate inclusion (BF > 3 but ≤ evidence_thresh)
-  graph_color[graph > 3 & graph <= evidence_thresh] <- args$edge.color[2]
-  # 3. Inconclusive (BF between 1/3 and 3)
-  graph_color[graph >= 1/3 & graph <= 3] <- args$edge.color[3]
-  # 4. Moderate exclusion (BF < 1/3 but > 1/evidence_thresh)
-  graph_color[graph < 1/3 & graph > 1/evidence_thresh] <- args$edge.color[4]
-  # 5. Strong evidence for exclusion (BF ≤ 1/evidence_thresh)
-  graph_color[graph <= 1/evidence_thresh] <- args$edge.color[5]
+  graph_color[graph > evidence_thresh_strong] <- args$edge.color[1]
+  # 2. Moderate inclusion (BF > evidence_thresh_weak but ≤ evidence_thresh_strong)
+  graph_color[graph > evidence_thresh_weak & graph <= evidence_thresh_strong] <- args$edge.color[2]
+  # 3. Inconclusive (BF between 1/evidence_thresh_weak and evidence_thresh_weak)
+  graph_color[graph >= 1/evidence_thresh_weak & graph <= evidence_thresh_weak] <- args$edge.color[3]
+  # 4. Moderate exclusion (BF < 1/evidence_thresh_weak but > 1/evidence_thresh_strong)
+  graph_color[graph < 1/evidence_thresh_weak & graph > 1/evidence_thresh_strong] <- args$edge.color[4]
+  # 5. Strong evidence for exclusion (BF ≤ 1/evidence_thresh_strong)
+  graph_color[graph <= 1/evidence_thresh_strong] <- args$edge.color[5]
+  
+  # change to dashed lines when not conclusive evidence
+  graph_dashed <- matrix(2, nrow(graph), ncol(graph))
+  graph_dashed[(graph > evidence_thresh_strong | graph <=  1/evidence_thresh_strong)] <- 1 
   
   if (show == "all") {
     if (!split) {
@@ -231,6 +239,7 @@ plot_edgeevidence.bgmCompare <- function(output, evidence_thresh = 10, split = F
       colnames(graph) <- args$colnames
       qgraph_plot <- qgraph::qgraph(graph,
                                     edge.color = graph_color,
+                                    lty = graph_dashed,
                                     layout = args$layout,# specifies the color of the edges
                                     theme = args$theme,
                                     vsize = args$vsize,
@@ -239,8 +248,30 @@ plot_edgeevidence.bgmCompare <- function(output, evidence_thresh = 10, split = F
                                     edge.width = args$edge.width,
                                     label.cex = args$label.cex,
                                     legend.cex = args$legend.cex,
+                                    layoutScale = c(1, 0.85),
                                     ...
       )
+      if(edge_legend){
+        # Add edge legend
+        par(xpd = TRUE)   # allows drawing outside plot region
+        legend(       
+          "bottom",
+          legend = c(
+            "Included",
+            "Weakly incl.",
+            "Inconclusive",
+            "Weakly excl.",
+            "Excluded"
+          ),
+          col = args$edge.color,
+          lty = c(1,2,2,2,1),
+          lwd = 0.6*args$edge.width,
+          bty = "n",
+          horiz = T,
+          cex = args$legend.cex*1.2
+        )
+        par(xpd = FALSE)
+      }
     }
     
     if (split) {
@@ -253,6 +284,7 @@ plot_edgeevidence.bgmCompare <- function(output, evidence_thresh = 10, split = F
       colnames(graph_inc) <- colnames(output$parameters)
       qgraph_plot1 <- qgraph::qgraph(graph_inc,
                                      edge.color = graph_color,
+                                     lty = graph_dashed,
                                      layout = args$layout,# specifies the color of the edges
                                      theme = args$theme,
                                      vsize = args$vsize,
@@ -261,8 +293,30 @@ plot_edgeevidence.bgmCompare <- function(output, evidence_thresh = 10, split = F
                                      edge.width = args$edge.width,
                                      label.cex = args$label.cex,
                                      legend.cex = args$legend.cex, # specifies the color of the edges
+                                     layoutScale = c(1, 0.85),
                                      ...
       )
+      if(edge_legend){
+        # Add edge legend
+        par(xpd = TRUE)   # allows drawing outside plot region
+        legend(       
+          "bottom",
+          legend = c(
+            "Included",
+            "Weakly incl.",
+            "Inconclusive",
+            "Weakly excl.",
+            "Excluded"
+          ),
+          col = args$edge.color,
+          lty = c(1,2,2,2,1),
+          lwd = 0.6*args$edge.width,
+          bty = "n",
+          horiz = T,
+          cex = args$legend.cex*1.2
+        )
+        par(xpd = FALSE)
+      }
       # Plot excluded graph
       graph_exc[output$inc_probs >= .5] <- 0
       graph_exc[output$inc_probs < .5] <- 1
@@ -270,6 +324,7 @@ plot_edgeevidence.bgmCompare <- function(output, evidence_thresh = 10, split = F
       colnames(graph_exc) <- colnames(output$parameters)
       qgraph_plot2 <- qgraph::qgraph(graph_exc,
                                      edge.color = graph_color,
+                                     lty = graph_dashed,
                                      # specifies the color of the edges
                                      layout = args$layout,# specifies the color of the edges
                                      theme = args$theme,
@@ -279,8 +334,30 @@ plot_edgeevidence.bgmCompare <- function(output, evidence_thresh = 10, split = F
                                      edge.width = args$edge.width,
                                      label.cex = args$label.cex,
                                      legend.cex = args$legend.cex,
+                                     layoutScale = c(1, 0.85),
                                      ...
       )
+      if(edge_legend){
+        # Add edge legend
+        par(xpd = TRUE)   # allows drawing outside plot region
+        legend(       
+          "bottom",
+          legend = c(
+            "Included",
+            "Weakly incl.",
+            "Inconclusive",
+            "Weakly excl.",
+            "Excluded"
+          ),
+          col = args$edge.color,
+          lty = c(1,2,2,2,1),
+          lwd = 0.6*args$edge.width,
+          bty = "n",
+          horiz = T,
+          cex = args$legend.cex*1.2
+        )
+        par(xpd = FALSE)
+      }
     }
   }
   if(show != "all"){
@@ -298,6 +375,7 @@ plot_edgeevidence.bgmCompare <- function(output, evidence_thresh = 10, split = F
     colnames(graph_show) <- colnames(output$parameters)
     qgraph_plot <- qgraph::qgraph(graph_show,
                                   edge.color = graph_color,
+                                  lty = graph_dashed,
                                   layout = args$layout,# specifies the color of the edges
                                   theme = args$theme,
                                   vsize = args$vsize,
@@ -305,8 +383,30 @@ plot_edgeevidence.bgmCompare <- function(output, evidence_thresh = 10, split = F
                                   legend = args$legend,
                                   label.cex = args$label.cex,
                                   legend.cex = args$legend.cex,# specifies the color of the edges
+                                  layoutScale = c(1, 0.85),
                                   ...
     )
+    if(edge_legend){
+      # Add edge legend
+      par(xpd = TRUE)   # allows drawing outside plot region
+      legend(       
+        "bottom",
+        legend = c(
+          "Included",
+          "Weakly incl.",
+          "Inconclusive",
+          "Weakly excl.",
+          "Excluded"
+        ),
+        col = args$edge.color,
+        lty = c(1,2,2,2,1),
+        lwd = 0.6*args$edge.width,
+        bty = "n",
+        horiz = T,
+        cex = args$legend.cex*1.2
+      )
+      par(xpd = FALSE)
+    }
   }
   if (split == TRUE) {
     return(invisible(list(qgraph_plot1, qgraph_plot2)))
@@ -355,7 +455,7 @@ plot_network.bgmCompare <- function(output, exc_prob = .5, evidence_thresh = 10,
   graph <- output$parameters
   default_args <- list(
     layout = qgraph::averageLayout(as.matrix(output$parameters*output$structure)),
-    evidence_thres = 10,
+    evidence_thresh_weak = 3,
     theme = "TeamFortress",
     vsize = 10,
     nodeNames = colnames(output$parameters),

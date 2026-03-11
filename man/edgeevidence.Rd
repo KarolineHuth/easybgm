@@ -7,33 +7,39 @@
 \usage{
 plot_edgeevidence(
   output,
-  evidence_thresh = 10,
+  evidence_thresh_strong = 10,
+  evidence_thresh_weak = 3,
   split = FALSE,
   show = "all",
+  edge_legend = TRUE,
   ...
 )
 }
 \arguments{
 \item{output}{Output object from the easybgm function. Supports also objects from the bgm function of the \code{bgms} package.}
 
-\item{evidence_thresh}{Bayes Factor which will be considered sufficient evidence for in-/exclusion, default is 10. Note that
-this parameter defines when edges provide sufficient evidence, thus when the edge color will turn saturated blue or yellow.
-All edges with a BF between 3 and the evidence threshold will receive a light saturated edge color.}
+\item{evidence_thresh_strong}{Bayes Factor which will be considered sufficient for strong in-/exclusion evidence, default is 10.}
+
+\item{evidence_thresh_weak}{Bayes Factor which will be considered sufficient for weak in-/exclusion evidence, default is 3}
 
 \item{split}{if TRUE, plot is split in included and excluded edges. Note that by default separate plots are shown and appear after each other in the plot window. To show the plots side-by-side specify par(mfrow = c(1, 2)).}
 
-\item{show}{specifies which edges should be shown, indicated by "all", "included", "inconclusive", "excluded".}
+\item{show}{specifies which edges should be shown, indicated by "all", "included" for included and weakly included edges, "inconclusive", and "excluded" for excluded and weakly excluded edges.}
+
+\item{edge_legend}{binary indicator specifying whether edge legend should be plotted. Default is TRUE.}
 
 \item{...}{Additional arguments passed onto \code{qgraph}.}
+
+\item{evidence_thresh}{(depreceated) Bayes Factor which will be considered sufficient evidence for in-/exclusion, default is 10.}
 }
 \value{
 Returns a plot
 }
 \description{
 The edge evidence plot colors edges according to their hypothesis testing results: blue for included,
-light blue for weakly included, gray for inconclusive, light yellow for weakly excluded, and yellow for excluded.
+dashed + light blue for weakly included, dashed + gray for inconclusive, dashed + light yellow for weakly excluded, and yellow for excluded.
 This plot can be used to visualize the hypothesis testing results whether edge presence or absence. The edge evidence
-plot can aid researchers in deciding which edges provide robust inferential conclusions
+plot can aid researchers in deciding which edges provide robust inferential conclusions.
 }
 \examples{
 \donttest{
