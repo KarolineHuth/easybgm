@@ -93,7 +93,7 @@ bgm_extract.package_bgms <- function(fit, type, save, iter,
   } else if (args$edge_prior[1] == "Stochastic-Block") {
     
     # Cluster assignments: a length-p vector like c(1,1,1,2,2)
-    cl <-bgms_res$sbm$posterior_mean_allocations
+    cl <- bgms_res$sbm$posterior_mean_allocations
     p  <- length(cl)
     
     # --- WITHIN-cluster inclusion probability ---
