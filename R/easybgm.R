@@ -235,6 +235,10 @@ easybgm <- function(data, type, package = NULL, not_cont = NULL, iter = 1e3, sav
 
   fit <- list()
   class(fit) <- c(package, "easybgm")
+  
+  if(!save && centrality){
+    save <- TRUE
+  }
 
   # Fit the model
   tryCatch(

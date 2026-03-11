@@ -5,10 +5,6 @@
 bgm_fit.package_bgms <- function(fit, type, data, iter, save,
                                  not_cont, centrality, progress, ...){
   
-  if(!save && centrality){
-    save <- TRUE
-  }
-  
   
   if(type == "binary") {
     type <- "ordinal"
