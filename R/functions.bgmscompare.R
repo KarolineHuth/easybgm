@@ -131,12 +131,12 @@ bgm_extract.package_bgms_compare <- function(fit, type, save, group_indicator,
     p <- args$no_variables
     pars <- fit$pairwise_difference
     bgms_res$parameters <- vector2matrix(colMeans(pars), p = p)
-    colnames(bgms_res$parameters) <- varnames
+    rownames(bgms_res$parameters) <- colnames(bgms_res$parameters) <- varnames
+    bgms_res$structure <- matrix(1, ncol = ncol(bgms_res$parameters), 
+                                 nrow = nrow(bgms_res$parameters))
     
     # extract difference parameters only if difference_selection is selected
     if (args$difference_selection) {
-      bgms_res$structure <- matrix(1, ncol = ncol(bgms_res$parameters), 
-                                   nrow = nrow(bgms_res$parameters))
       bgms_res$inc_probs <- vector2matrix(colMeans(fit$pairwise_difference_indicator), p = p) 
       bgms_res$inc_BF <- (bgms_res$inc_probs/(1-bgms_res$inc_probs))/(edge.prior /(1 - edge.prior))
       bgms_res$structure <- 1*(bgms_res$inc_probs > 0.5)
@@ -205,10 +205,10 @@ bgm_extract.package_bgms_compare <- function(fit, type, save, group_indicator,
       p <- args$num_variables
       pars <- fit$posterior_summary_pairwise_differences$mean
       bgms_res$parameters <- vector2matrix(pars, p = p)
-      colnames(bgms_res$parameters) <- varnames
+      rownames(bgms_res$parameters) <- colnames(bgms_res$parameters) <- varnames
+      bgms_res$structure <- matrix(1, ncol = ncol(bgms_res$parameters), 
+                                   nrow = nrow(bgms_res$parameters))
       if (args$difference_selection) {
-        bgms_res$structure <- matrix(1, ncol = ncol(bgms_res$parameters), 
-                                     nrow = nrow(bgms_res$parameters))
         indicators <- extract_indicators(fit)
         bgms_res$inc_probs <- vector2matrix(colMeans(indicators[, grep("\\(pairwise\\)", colnames(indicators))]), p = p) 
         bgms_res$inc_BF <- (bgms_res$inc_probs/(1-bgms_res$inc_probs))/(edge.prior /(1 - edge.prior))
@@ -280,11 +280,13 @@ bgm_extract.package_bgms_compare <- function(fit, type, save, group_indicator,
         average_difference[i] <- mean(vals, na.rm = TRUE)
       }
       bgms_res$parameters <- vector2matrix(average_difference, p = p)
-      colnames(bgms_res$parameters) <- varnames
+      rownames(bgms_res$parameters) <- colnames(bgms_res$parameters) <- varnames
       bgms_res$overall_estimate <-  vector2matrix(fit$posterior_summary_pairwise_baseline$mean, p = p) #overall group estimate
+      bgms_res$structure <- matrix(1, ncol = ncol(bgms_res$parameters), 
+                                   nrow = nrow(bgms_res$parameters))
+      
       if (args$difference_selection) {
-        bgms_res$structure <- matrix(1, ncol = ncol(bgms_res$parameters), 
-                                     nrow = nrow(bgms_res$parameters))
+
         indicators <- extract_indicators(fit)
         bgms_res$inc_probs <- vector2matrix(colMeans(indicators[, grep("\\(pairwise\\)", colnames(indicators))]), p = p) 
         bgms_res$inc_BF <- (bgms_res$inc_probs/(1-bgms_res$inc_probs))/(edge.prior /(1 - edge.prior))

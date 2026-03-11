@@ -8,7 +8,7 @@ plot_structure_probabilities.easybgm <- function(output, as_BF = FALSE, ...) {
          call. = FALSE)
   }
   if(is.null(output$structure_probabilities)){
-    stop("The model was fitted without structure selection or saving the posterior samples. Therefore, the plot cannot be obtained. Make sure the model is fitted with edge_selection and save set to TRUE.",
+    stop("The model was fitted without structure selection or saving the posterior samples. Therefore, the plot cannot be obtained. Make sure the model is fitted with edge_selection for easybgm and difference_selection for easybgm_compare and save set to TRUE.",
          call. = FALSE)
   }
   
@@ -74,7 +74,7 @@ plot_complexity_probabilities.easybgm <- function(output, ...) {
          call. = FALSE)
   }
   if(is.null(output$structure_probabilities)){
-    stop("The model was fitted without structure selection or saving the posterior samples. Therefore, the plot cannot be obtained. Make sure the model is fitted with edge_selection and save set to TRUE.",
+    stop("The model was fitted without structure selection or saving the posterior samples. Therefore, the plot cannot be obtained. Make sure the model is fitted with edge_selection for easybgm and difference_selection for easybgm_compare and save set to TRUE.",
          call. = FALSE)
   }
   
@@ -137,7 +137,7 @@ plot_edgeevidence.easybgm <- function(output, evidence_thresh = 10, split = FALS
     stop("Wrong input provided. The function requires as input the output of the easybgm function.")
   }
   if(is.null(output$inc_probs)){
-    stop("The model was fitted without edge selection and no inclusion probabilities were obtained. Therefore, the plot cannot be obtained. Run the model with edge_selection set to TRUE.",
+    stop("The model was fitted without edge selection and no inclusion probabilities were obtained. Therefore, the plot cannot be obtained. Run the model with edge_selection set to TRUE for easybgm and with difference_selection set to TRUE for easybgm_compare.",
          call. = FALSE)
   }
   

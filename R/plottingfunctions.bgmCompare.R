@@ -5,6 +5,11 @@ plot_structure_probabilities.bgmCompare <- function(output, as_BF = FALSE, ...) 
     stop("Your version of the package bgms is not supported anymore. Please update.")
   }
   
+  if(is.null(output$structure_probabilities)){
+    stop("The model was fitted without structure selection or saving the posterior samples. Therefore, the plot cannot be obtained. Make sure the model is fitted with difference_selection and save set to TRUE.",
+         call. = FALSE)
+  }
+  
   fit_args <- bgms::extract_arguments(output)
   
   if (packageVersion("bgms") < "0.1.6.0" ) {
@@ -88,6 +93,11 @@ plot_complexity_probabilities.bgmCompare <- function(output, ...) {
   
   fit_args <- bgms::extract_arguments(output)
   
+  if(is.null(output$structure_probabilities)){
+    stop("The model was fitted without structure selection or saving the posterior samples. Therefore, the plot cannot be obtained. Make sure the model is fitted with difference_selection and save set to TRUE.",
+         call. = FALSE)
+  }
+  
   if (packageVersion("bgms") < "0.1.6.0") {
     if(!(fit_args$save)){
       stop("Please run your bgmCompare function with save = T.")
@@ -153,6 +163,11 @@ plot_edgeevidence.bgmCompare <- function(output, evidence_thresh = 10, split = F
   
   if(packageVersion("bgms") < "0.1.4"){
     stop("Your version of the package bgms is not supported anymore. Please update.")
+  }
+  
+  if(is.null(output$inc_probs)){
+    stop("The model was fitted without edge selection and no inclusion probabilities were obtained. Therefore, the plot cannot be obtained. Run the model with difference_selection set to TRUE.",
+         call. = FALSE)
   }
   
   warning("Note, the plot indicates the edge evidence for the pairwise difference between the groups.")
@@ -385,6 +400,7 @@ plot_structure.bgmCompare <- function(output, ...) {
     stop("Your version of the package bgms is not supported anymore. Please update.")
   }
   
+
   warning("Note, the plot indicates the structure of the pairwise difference between the groups.")
   
   fit_args <- bgms::extract_arguments(output)
