@@ -101,10 +101,6 @@ bgm_extract.package_bdgraph <- function(fit, type, save, iter,
     # bdgraph_res$package <- "bdgraph"
     bdgraph_res$model <- "ggm"
 
-    if(centrality == TRUE){
-      save <- TRUE
-    }
-    
     if(save == TRUE){
       warning("Posterior samples of the BDgraph package cannot be obtained with the original package. If you want posterior samples from BDgraph, fit the model within BDgraph using this version: https://github.com/KarolineHuth/BDgraph. Note that this version does not have an easybgm-wrapper.")
       

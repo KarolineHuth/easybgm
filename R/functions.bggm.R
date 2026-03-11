@@ -50,9 +50,6 @@ bgm_extract.package_bggm <- function(fit, type, save, iter,
   colnames(bggm_res$inc_probs) <- colnames(bggm_res$parameters)
   colnames(bggm_res$inc_BF) <- colnames(bggm_res$parameters)
 
-  if(centrality){
-    save <- TRUE
-  }
   if(save){
     p <- ncol(bggm_res$parameters)
     samples <- matrix(0, ncol = p*(p-1)/2, nrow = fit$iter)
