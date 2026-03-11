@@ -489,11 +489,7 @@ plot_parameterHDI.bgms <- function(output, ...) {
   hdi_intervals <- as.data.frame(apply(output$samples_posterior, MARGIN = 2, FUN = hdi))
   posterior_medians <- apply(output$samples_posterior, MARGIN = 2, FUN = median)
   
-  names <- colnames(output$parameters)
-  names_bycol <- matrix(rep(names, each = ncol(output$parameters)), ncol = ncol(output$parameters))
-  names_byrow <- matrix(rep(names, each = ncol(output$parameters)), ncol = ncol(output$parameters), byrow = T)
-  names_comb <- matrix(paste0(names_byrow, "-", names_bycol), ncol = ncol(output$parameters))
-  index <- names_comb[upper.tri(names_comb)]
+  index <- colnames(output$samples_posterior)
   
   posterior <- cbind(data.frame(posterior_medians, row.names = NULL),
                      data.frame(t(hdi_intervals), row.names = NULL), index)

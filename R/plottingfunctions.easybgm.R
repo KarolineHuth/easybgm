@@ -431,29 +431,33 @@ plot_parameterHDI.easybgm <- function(output, ...) {
   hdi_intervals <- as.data.frame(apply(output$samples_posterior, MARGIN = 2, FUN = hdi))
   posterior_medians <- apply(output$samples_posterior, MARGIN = 2, FUN = median)
   
-  names <- colnames(output$parameters)
-  names_bycol <- matrix(rep(names, each = ncol(output$parameters)), ncol = ncol(output$parameters))
-  names_byrow <- matrix(rep(names, each = ncol(output$parameters)), ncol = ncol(output$parameters), byrow = T)
-  names_comb <- matrix(paste0(names_byrow, "-", names_bycol), ncol = ncol(output$parameters))
-  index <- names_comb[upper.tri(names_comb)]
-  
-  posterior <- cbind(data.frame(posterior_medians, row.names = NULL),
-                     data.frame(t(hdi_intervals), row.names = NULL), index)
-  colnames(posterior) <- c("posterior_medians", "lower", "upper", "names")
-  posterior <- posterior[order(posterior$posterior_medians, decreasing = F),]
-  posterior$names <- factor(posterior$names, levels = posterior$names)
-  
-  
-  ggplot2::ggplot(data = posterior, aes(x = .data$names, y = .data$posterior_medians, ymin = .data$lower,
-                                        ymax = .data$upper, ...)) +
-    args$geom_pointrange +
-    args$theme_ +
-    coord_flip() +
-    ylab(args$ylab)+
-    xlab(args$xlab) +
-    args$geom_hline +
-    args$theme
-  
+  if(strsplit(class(output)[1], "_")[[1]][2] == "bgms"){
+    index <- colnames(output$samples_posterior)
+  } else {
+    names <- colnames(output$parameters)
+    names_bycol <- matrix(rep(names, each = ncol(output$parameters)), ncol = ncol(output$parameters))
+    names_byrow <- matrix(rep(names, each = ncol(output$parameters)), ncol = ncol(output$parameters), byrow = T)
+    names_comb <- matrix(paste0(names_byrow, "-", names_bycol), ncol = ncol(output$parameters))
+    index <- names_comb[upper.tri(names_comb)]
+  }
+
+posterior <- cbind(data.frame(posterior_medians, row.names = NULL),
+                   data.frame(t(hdi_intervals), row.names = NULL), index)
+colnames(posterior) <- c("posterior_medians", "lower", "upper", "names")
+posterior <- posterior[order(posterior$posterior_medians, decreasing = F),]
+posterior$names <- factor(posterior$names, levels = posterior$names)
+
+
+ggplot2::ggplot(data = posterior, aes(x = .data$names, y = .data$posterior_medians, ymin = .data$lower,
+                                      ymax = .data$upper, ...)) +
+  args$geom_pointrange +
+  args$theme_ +
+  coord_flip() +
+  ylab(args$ylab)+
+  xlab(args$xlab) +
+  args$geom_hline +
+  args$theme
+
 }
 
 

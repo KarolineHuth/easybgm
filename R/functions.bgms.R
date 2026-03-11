@@ -138,7 +138,7 @@ bgm_extract.package_bgms <- function(fit, type, save, iter,
     bgms_res$parameters <- vector2matrix(colMeans(pars), p = p)
     bgms_res$samples_posterior <- extract_pairwise_interactions(fit)
     bgms_res$thresholds <- extract_category_thresholds(fit)
-    colnames(bgms_res$parameters) <- varnames
+    rownames(bgms_res$parameters) <- colnames(bgms_res$parameters) <- varnames
     bgms_res$structure <- matrix(1, ncol = p, nrow = p)
     if (args$edge_selection) {
       bgms_res$inc_probs <- extract_posterior_inclusion_probabilities(fit)
@@ -185,7 +185,7 @@ bgm_extract.package_bgms <- function(fit, type, save, iter,
     pars <- extract_pairwise_interactions(fit)
     bgms_res$parameters <- vector2matrix(colMeans(pars), p = p)
     bgms_res$thresholds <- extract_category_thresholds(fit)
-    colnames(bgms_res$parameters) <- varnames
+    rownames(bgms_res$parameters) <- colnames(bgms_res$parameters) <- varnames
     bgms_res$structure <- matrix(1, ncol = ncol(bgms_res$parameters),
                                  nrow = nrow(bgms_res$parameters))
     if (args$edge_selection) {
@@ -225,8 +225,8 @@ bgm_extract.package_bgms <- function(fit, type, save, iter,
       bgms_res$graph_weights <- table_structures[, 2]
       bgms_res$sample_graph <- as.character(table_structures[, 1])
       # finalize output
-      colnames(bgms_res$inc_probs) <- colnames(bgms_res$parameters)
-      colnames(bgms_res$inc_BF) <- colnames(bgms_res$parameters)
+      rownames(bgms_res$inc_probs) <- colnames(bgms_res$inc_probs) <- colnames(bgms_res$parameters)
+      rownames(bgms_res$inc_BF) <- colnames(bgms_res$inc_BF) <- colnames(bgms_res$parameters)
     }
   }
   # --- Optionally compute centrality ---
