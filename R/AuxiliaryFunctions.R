@@ -103,45 +103,48 @@ centrality <- function(res){
   Nsamples <- nrow(res$samples_posterior)
   p <- nrow(res$parameters)
   strength_samples <- matrix(0, nrow = Nsamples, ncol = p)
+  use_colmajor <- !any(c("package_bgms", "package_bgms_compare", "bgms") %in% class(res))
   for(i in 1:Nsamples){
-    strength_samples[i, ] <- rowSums(abs(vector2matrix(res$samples_posterior[i,], p, bycolumn = T)))
+    strength_samples[i, ] <- rowSums(abs(vector2matrix(res$samples_posterior[i,], 
+                                                       p, bycolumn = use_colmajor)))
   }
   return(strength_samples)
 }
 
+## NOTE NOT USED
 # Strength, betweenness and closeness centrality ## SLOWER CODE
-centrality_all <- function(res){
-  Nsamples <- nrow(res$samples_posterior)
-  p <- as.numeric(nrow(res$parameters))
-  samples <- res$samples_posterior
-  for(i in 1:Nsamples){
-    
-    #Strength
-    strength_samples <- rowSums(abs(vector2matrix(samples[i, ], p, bycolumn = TRUE)))
-    #EI
-    influence_samples <- rowSums(vector2matrix(samples[i, ], p, bycolumn = TRUE))
-    
-    DistMat <- 1/(ifelse(abs(vector2matrix(samples[i, ], p, bycolumn = TRUE))==0,0,abs(vector2matrix(samples[i, ], p, bycolumn = T))))
-    igraphObject <- igraph::graph.adjacency(DistMat, weighted = TRUE, mode = "undirected")
-    # Closeness
-    closeness_samples <- igraph::closeness(igraphObject)
-    # Betweenness
-    betweenness_samples <- igraph::estimate_betweenness(igraphObject,cutoff = 1/1e-10)
-    
-    if(i > 1){
-      centrality_samples <- rbind(centrality_samples, cbind(c("Strength", "Closeness", "Betweenness", "ExpectedInfluence"),
-                                                            rbind(strength_samples, closeness_samples, betweenness_samples, influence_samples)))
-    } else {
-      centrality_samples <- cbind(c("Strength", "Closeness", "Betweenness", "ExpectedInfluence"),
-                                  rbind(strength_samples, closeness_samples, betweenness_samples, influence_samples))
-    }
-  }
-  colnames(centrality_samples) <- c("Centrality", colnames(res$parameters))
-  centrality_samples <- as.data.frame(centrality_samples)
-  centrality_samples[, 2:(p+1)] <- sapply(centrality_samples[, 2:(p+1)], as.numeric)
-  return(centrality_samples)
-}
-
+# centrality_all <- function(res){
+#   Nsamples <- nrow(res$samples_posterior)
+#   p <- as.numeric(nrow(res$parameters))
+#   samples <- res$samples_posterior
+#   for(i in 1:Nsamples){
+#     
+#     #Strength
+#     strength_samples <- rowSums(abs(vector2matrix(samples[i, ], p, bycolumn = TRUE)))
+#     #EI
+#     influence_samples <- rowSums(vector2matrix(samples[i, ], p, bycolumn = TRUE))
+#     
+#     DistMat <- 1/(ifelse(abs(vector2matrix(samples[i, ], p, bycolumn = TRUE))==0,0,abs(vector2matrix(samples[i, ], p, bycolumn = T))))
+#     igraphObject <- igraph::graph.adjacency(DistMat, weighted = TRUE, mode = "undirected")
+#     # Closeness
+#     closeness_samples <- igraph::closeness(igraphObject)
+#     # Betweenness
+#     betweenness_samples <- igraph::estimate_betweenness(igraphObject,cutoff = 1/1e-10)
+#     
+#     if(i > 1){
+#       centrality_samples <- rbind(centrality_samples, cbind(c("Strength", "Closeness", "Betweenness", "ExpectedInfluence"),
+#                                                             rbind(strength_samples, closeness_samples, betweenness_samples, influence_samples)))
+#     } else {
+#       centrality_samples <- cbind(c("Strength", "Closeness", "Betweenness", "ExpectedInfluence"),
+#                                   rbind(strength_samples, closeness_samples, betweenness_samples, influence_samples))
+#     }
+#   }
+#   colnames(centrality_samples) <- c("Centrality", colnames(res$parameters))
+#   centrality_samples <- as.data.frame(centrality_samples)
+#   centrality_samples[, 2:(p+1)] <- sapply(centrality_samples[, 2:(p+1)], as.numeric)
+#   return(centrality_samples)
+# }
+# 
 
 # 7. turn list into matrix
 list2matrix <- function(obj, p, convert = FALSE) {

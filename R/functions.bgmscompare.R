@@ -70,7 +70,7 @@ bgm_fit.package_bgms_compare <- function(fit, type, data, group_indicator, iter,
   }
   
   
-
+  
   class(fit) <- c("package_bgms_compare", "easybgm")
   return(fit)
 }
@@ -94,6 +94,8 @@ bgm_extract.package_bgms_compare <- function(fit, type, save, group_indicator,
     }
   }
   
+  dots <- list(...)
+
   ######--------------------
   ## Old package two group estimation
   ######--------------------
@@ -101,16 +103,27 @@ bgm_extract.package_bgms_compare <- function(fit, type, save, group_indicator,
   if(packageVersion("bgms") < "0.1.6.0"){
     args <- fit$arguments
     
+    if("difference_selection" %in% names(dots)){
+      if(dots$difference_selection == FALSE){
+        args$pairwise_difference_prior <- "None"
+        args$difference_selection <- FALSE
+      }
+    }
+    
     if (args$pairwise_difference_prior[1] == "Bernoulli") {
       edge.prior <- args$inclusion_probability_difference
-    } else { # if BB or SBM
+    } else if (args$pairwise_difference_prior[1] == "Beta-Bernoulli") {
       edge.prior <- args$beta_bernoulli_alpha /
         (args$beta_bernoulli_alpha + args$beta_bernoulli_beta)
       
       # otherwise it saves the wrong values (could be done more elegantly)
       args$inclusion_probability_difference <- edge.prior
+    } else if(args$pairwise_difference_prior[1] == "None"){
+      # Does nothing but we just need to include it to avoid it running into the following else statement
+    } else {
+      
+      stop("Unknown edge prior type in args$pairwise_difference_prior")
     }
-    
     
     bgms_res <- list()
     
@@ -118,21 +131,30 @@ bgm_extract.package_bgms_compare <- function(fit, type, save, group_indicator,
     p <- args$no_variables
     pars <- fit$pairwise_difference
     bgms_res$parameters <- vector2matrix(colMeans(pars), p = p)
-    colnames(bgms_res$parameters) <- varnames
+    rownames(bgms_res$parameters) <- colnames(bgms_res$parameters) <- varnames
     bgms_res$structure <- matrix(1, ncol = ncol(bgms_res$parameters), 
                                  nrow = nrow(bgms_res$parameters))
-    bgms_res$inc_probs <- vector2matrix(colMeans(fit$pairwise_difference_indicator), p = p) 
-    bgms_res$inc_BF <- (bgms_res$inc_probs/(1-bgms_res$inc_probs))/(edge.prior /(1 - edge.prior))
-    bgms_res$structure <- 1*(bgms_res$inc_probs > 0.5)
+    
+    # extract difference parameters only if difference_selection is selected
+    if (args$difference_selection) {
+      bgms_res$inc_probs <- vector2matrix(colMeans(fit$pairwise_difference_indicator), p = p) 
+      bgms_res$inc_BF <- (bgms_res$inc_probs/(1-bgms_res$inc_probs))/(edge.prior /(1 - edge.prior))
+      bgms_res$structure <- 1*(bgms_res$inc_probs > 0.5)
+      
+      structures <- apply(fit$pairwise_difference_indicator, 1, paste0, collapse="")
+      table_structures <- as.data.frame(table(structures))
+      bgms_res$structure_probabilities <- table_structures[,2]/nrow(fit$pairwise_difference_indicator)
+      bgms_res$graph_weights <- table_structures[,2]
+      bgms_res$sample_graph <- as.character(table_structures[, 1])
+      # Adapt column names of output
+      rownames(bgms_res$inc_probs) <- colnames(bgms_res$inc_probs) <- colnames(bgms_res$parameters)
+      rownames(bgms_res$inc_BF) <- colnames(bgms_res$inc_BF) <- colnames(bgms_res$parameters) 
+      
+      bgms_res$edge.prior <- edge.prior # otherwise it stores a whole matrix 
+    }
     
     bgms_res$parameters_g1 <- vector2matrix(colMeans(fit$interactions), p = p) + bgms_res$parameters/2
     bgms_res$parameters_g2 <- vector2matrix(colMeans(fit$interactions), p = p) - bgms_res$parameters/2
-    
-    structures <- apply(fit$pairwise_difference_indicator, 1, paste0, collapse="")
-    table_structures <- as.data.frame(table(structures))
-    bgms_res$structure_probabilities <- table_structures[,2]/nrow(fit$pairwise_difference_indicator)
-    bgms_res$graph_weights <- table_structures[,2]
-    bgms_res$sample_graph <- as.character(table_structures[, 1])
     bgms_res$samples_posterior <- fit$pairwise_difference
   }
   
@@ -148,21 +170,33 @@ bgm_extract.package_bgms_compare <- function(fit, type, save, group_indicator,
       
       args <- extract_arguments(fit)
       args$save <- TRUE
-      dots <- list(...)
+      
+      if("difference_selection" %in% names(dots)){
+        if(dots$difference_selection == FALSE){
+          args$difference_prior <- "None"
+          args$difference_selection <- FALSE
+        }
+      }
+      
       if (args$difference_prior[1] == "Bernoulli") {
-        if("difference_probability" %in% dots){
+        if("difference_probability" %in% names(dots)){
           edge.prior <- args$difference_probability
           args$inclusion_probability_difference <- edge.prior 
         } else {
           edge.prior <- 0.5
           args$inclusion_probability_difference <- edge.prior 
         }
-      } else { # if BB or SBM
+      } else if (args$difference_prior[1] == "Beta-Bernoulli") {
         edge.prior <- args$beta_bernoulli_alpha /
           (args$beta_bernoulli_alpha + args$beta_bernoulli_beta)
         
         # otherwise it saves the wrong values (could be done more elegantly)
         args$inclusion_probability_difference <- edge.prior
+      } else if(args$difference_prior[1] == "None"){
+        # Does nothing but we just need to include it to avoid it running into the following else statement
+      } else {
+        
+        stop("Unknown edge prior type in args$difference_prior")
       }
       
       bgms_res <- list()
@@ -171,24 +205,31 @@ bgm_extract.package_bgms_compare <- function(fit, type, save, group_indicator,
       p <- args$num_variables
       pars <- fit$posterior_summary_pairwise_differences$mean
       bgms_res$parameters <- vector2matrix(pars, p = p)
-      colnames(bgms_res$parameters) <- varnames
+      rownames(bgms_res$parameters) <- colnames(bgms_res$parameters) <- varnames
       bgms_res$structure <- matrix(1, ncol = ncol(bgms_res$parameters), 
                                    nrow = nrow(bgms_res$parameters))
-      indicators <- extract_indicators(fit)
-      bgms_res$inc_probs <- vector2matrix(colMeans(indicators[, grep("\\(pairwise\\)", colnames(indicators))]), p = p) 
-      bgms_res$inc_BF <- (bgms_res$inc_probs/(1-bgms_res$inc_probs))/(edge.prior /(1 - edge.prior))
-      bgms_res$structure <- 1*(bgms_res$inc_probs > 0.5)
+      if (args$difference_selection) {
+        indicators <- extract_indicators(fit)
+        bgms_res$inc_probs <- vector2matrix(colMeans(indicators[, grep("\\(pairwise\\)", colnames(indicators))]), p = p) 
+        bgms_res$inc_BF <- (bgms_res$inc_probs/(1-bgms_res$inc_probs))/(edge.prior /(1 - edge.prior))
+        bgms_res$structure <- 1*(bgms_res$inc_probs > 0.5)
+        structures <- apply(extract_indicators(fit), 1, paste0, collapse="")
+        table_structures <- as.data.frame(table(structures))
+        bgms_res$structure_probabilities <- table_structures[,2]/nrow(extract_indicators(fit))
+        bgms_res$graph_weights <- table_structures[,2]
+        bgms_res$sample_graph <- as.character(table_structures[, 1])
+        # Adapt column names of output
+        rownames(bgms_res$inc_probs) <- colnames(bgms_res$inc_probs) <- colnames(bgms_res$parameters)
+        rownames(bgms_res$inc_BF) <- colnames(bgms_res$inc_BF) <- colnames(bgms_res$parameters) 
+        
+        bgms_res$edge.prior <- edge.prior # otherwise it stores a whole matrix 
+      }
       
       #Obtain structure information
       bgms_res$group_estimates <- extract_group_params(fit)$pairwise_effects_groups
       bgms_res$parameters_g1 <- vector2matrix(extract_group_params(fit)$pairwise_effects_groups[, 1], p = p) 
       bgms_res$parameters_g2 <- vector2matrix(extract_group_params(fit)$pairwise_effects_groups[, 2], p = p) 
       
-      structures <- apply(extract_indicators(fit), 1, paste0, collapse="")
-      table_structures <- as.data.frame(table(structures))
-      bgms_res$structure_probabilities <- table_structures[,2]/nrow(extract_indicators(fit))
-      bgms_res$graph_weights <- table_structures[,2]
-      bgms_res$sample_graph <- as.character(table_structures[, 1])
       bgms_res$samples_posterior <- extract_pairwise_interactions(fit)
       
       bgms_res$convergence_parameter <-  fit$posterior_summary_pairwise_differences$Rhat
@@ -202,21 +243,25 @@ bgm_extract.package_bgms_compare <- function(fit, type, save, group_indicator,
       
       args <- extract_arguments(fit)
       args$save <- TRUE
-      dots <- list(...)
       if (args$difference_prior[1] == "Bernoulli") {
-        if("difference_probability" %in% dots){
+        if("difference_probability" %in% names(dots)){
           edge.prior <-  args$difference_probability
           args$inclusion_probability_difference <- edge.prior 
         } else {
           edge.prior <- 0.5
           args$inclusion_probability_difference <- edge.prior 
         }
-      } else { # if BB or SBM
+      } else if (args$difference_prior[1] == "Beta-Bernoulli") {
         edge.prior <- args$difference_selection_alpha /
           (args$difference_selection_alpha + args$difference_selection_beta)
         
         # otherwise it saves the wrong values (could be done more elegantly)
         args$inclusion_probability_difference <- edge.prior
+      } else if(args$difference_prior[1] == "None"){
+        # Does nothing but we just need to include it to avoid it running into the following else statement
+      } else {
+        
+        stop("Unknown edge prior type in args$difference_prior")
       }
       
       bgms_res <- list()
@@ -235,36 +280,43 @@ bgm_extract.package_bgms_compare <- function(fit, type, save, group_indicator,
         average_difference[i] <- mean(vals, na.rm = TRUE)
       }
       bgms_res$parameters <- vector2matrix(average_difference, p = p)
-      colnames(bgms_res$parameters) <- varnames
+      rownames(bgms_res$parameters) <- colnames(bgms_res$parameters) <- varnames
       bgms_res$overall_estimate <-  vector2matrix(fit$posterior_summary_pairwise_baseline$mean, p = p) #overall group estimate
       bgms_res$structure <- matrix(1, ncol = ncol(bgms_res$parameters), 
                                    nrow = nrow(bgms_res$parameters))
-      indicators <- extract_indicators(fit)
-      bgms_res$inc_probs <- vector2matrix(colMeans(indicators[, grep("\\(pairwise\\)", colnames(indicators))]), p = p) 
-      bgms_res$inc_BF <- (bgms_res$inc_probs/(1-bgms_res$inc_probs))/(edge.prior /(1 - edge.prior))
-      bgms_res$structure <- 1*(bgms_res$inc_probs > 0.5)
       
-      structures <- apply(extract_indicators(fit), 1, paste0, collapse="")
-      table_structures <- as.data.frame(table(structures))
-      bgms_res$structure_probabilities <- table_structures[,2]/nrow(extract_indicators(fit))
-      bgms_res$graph_weights <- table_structures[,2]
-      bgms_res$sample_graph <- as.character(table_structures[, 1])
-      bgms_res$samples_posterior <- extract_pairwise_interactions(fit)
+      if (args$difference_selection) {
+
+        indicators <- extract_indicators(fit)
+        bgms_res$inc_probs <- vector2matrix(colMeans(indicators[, grep("\\(pairwise\\)", colnames(indicators))]), p = p) 
+        bgms_res$inc_BF <- (bgms_res$inc_probs/(1-bgms_res$inc_probs))/(edge.prior /(1 - edge.prior))
+        bgms_res$structure <- 1*(bgms_res$inc_probs > 0.5)
+        
+        structures <- apply(extract_indicators(fit), 1, paste0, collapse="")
+        table_structures <- as.data.frame(table(structures))
+        bgms_res$structure_probabilities <- table_structures[,2]/nrow(extract_indicators(fit))
+        bgms_res$graph_weights <- table_structures[,2]
+        bgms_res$sample_graph <- as.character(table_structures[, 1])
+        bgms_res$samples_posterior <- extract_pairwise_interactions(fit)
+        # Adapt column names of output
+        rownames(bgms_res$inc_probs) <- colnames(bgms_res$inc_probs) <- colnames(bgms_res$parameters)
+        rownames(bgms_res$inc_BF) <- colnames(bgms_res$inc_BF) <- colnames(bgms_res$parameters) 
+        
+        bgms_res$edge.prior <- edge.prior # otherwise it stores a whole matrix 
+      } 
+      
       bgms_res$convergence_parameter <-  fit$posterior_summary_pairwise_baseline$Rhat
       bgms_res$group_estimates <- extract_group_params(fit)$pairwise_effects_groups
       bgms_res$multi_group <- "Multi-group"
-
+      
     }
   }
+  
+  
 
-  
-  # Adapt column names of output
-  colnames(bgms_res$inc_probs) <- colnames(bgms_res$parameters)
-  colnames(bgms_res$inc_BF) <- colnames(bgms_res$parameters) 
-  
   bgms_res$model <- type
   bgms_res$fit_arguments <- args
-  bgms_res$edge.prior <- edge.prior # otherwise it stores a whole matrix 
+
   #bgms_res$n <- c(args$no_cases_gr1, args$no_cases_gr2)
   
   output <- bgms_res

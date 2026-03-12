@@ -14,7 +14,6 @@
 #' @param save Logical. Should the posterior samples be obtained (default = FALSE)?
 #' @param centrality Logical. Should the centrality measures be extracted (default = FALSE)? Note, that it will significantly increase the computation time.
 #' @param progress Logical. Should a progress bar be shown (default = TRUE)?
-#' @param posterior_method Determines how the posterior samples of the edge weight parameters are obtained for models fit with BDgraph. The argument can be either MAP for the maximum-a-posteriori or model-averaged. If MAP, samples are obtained for the edge weights only for the most likely structure. If model-averaged, samples are obtained for all plausible structures weighted by their posterior probability. Default is model-averaged.
 #' @param ... Additional arguments that are handed to the fitting functions of the packages, e.g., informed prior specifications.
 #'
 #' @return The returned object of \code{easybgm} contains several elements:
@@ -164,7 +163,7 @@
 
 
 easybgm <- function(data, type, package = NULL, not_cont = NULL, iter = 1e3, save = FALSE,
-                    centrality = FALSE, progress = TRUE, posterior_method = "model-averaged",
+                    centrality = FALSE, progress = TRUE,
                     ...){
 
 
@@ -253,8 +252,7 @@ easybgm <- function(data, type, package = NULL, not_cont = NULL, iter = 1e3, sav
   # Extract the results
   res <- bgm_extract(fit, type = type,
                      save = save, not_cont = not_cont,
-                     data = data, centrality = centrality,
-                     posterior_method = posterior_method,
+                     data = data, centrality = centrality, 
                      iter = iter,
                      ...)
 

@@ -4,12 +4,22 @@
 \alias{summary.easybgm_compare}
 \title{Summary method for \code{easybgm_compare} objects}
 \usage{
-\method{summary}{easybgm_compare}(object, evidence_thresh = 10, ...)
+\method{summary}{easybgm_compare}(
+  object,
+  evidence_thresh = NULL,
+  evidence_thresh_weak = 3,
+  evidence_thresh_strong = 10,
+  ...
+)
 }
 \arguments{
 \item{object}{easybgm_compare object}
 
-\item{evidence_thresh}{Bayes Factor which will be considered sufficient evidence for in-/exclusion, default is 10.}
+\item{evidence_thresh}{Deprecated. Use \code{evidence_thresh_weak} and \code{evidence_thresh_strong}.}
+
+\item{evidence_thresh_weak}{Bayes Factor which will be considered sufficient for weak in-/exclusion evidence, default is 3}
+
+\item{evidence_thresh_strong}{Bayes Factor which will be considered sufficient for strong in-/exclusion evidence, default is 10.}
 
 \item{...}{unused argument}
 }

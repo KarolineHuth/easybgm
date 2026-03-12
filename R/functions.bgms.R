@@ -82,6 +82,9 @@ bgm_extract.package_bgms <- function(fit, type, save, iter,
     # Single global inclusion probability
     edge.prior <- args$inclusion_probability
     
+    # needed for prior sensitivity check plot
+    bgms_res$edge.prior <- edge.prior
+    
   } else if (args$edge_prior[1] == "Beta-Bernoulli") {
     
     # Single global Beta–Bernoulli inclusion probability
@@ -90,10 +93,13 @@ bgm_extract.package_bgms <- function(fit, type, save, iter,
     
     args$inclusion_probability <- edge.prior
     
+    # needed for prior sensitivity check plot
+    bgms_res$edge.prior <- edge.prior
+    
   } else if (args$edge_prior[1] == "Stochastic-Block") {
     
     # Cluster assignments: a length-p vector like c(1,1,1,2,2)
-    cl <-bgms_res$sbm$posterior_mean_allocations
+    cl <- bgms_res$sbm$posterior_mean_allocations
     p  <- length(cl)
     
     # --- WITHIN-cluster inclusion probability ---
@@ -125,6 +131,9 @@ bgm_extract.package_bgms <- function(fit, type, save, iter,
     
     args$inclusion_probability <- edge.prior
     
+    # needed for prior sensitivity check plot
+    bgms_res$edge.prior <- edge.prior
+    
   } else if(args$edge_prior[1] == "None"){
     # Does nothing but we just need to include it to avoid it running into the following else statement
   } else {
@@ -138,7 +147,7 @@ bgm_extract.package_bgms <- function(fit, type, save, iter,
     bgms_res$parameters <- vector2matrix(colMeans(pars), p = p)
     bgms_res$samples_posterior <- extract_pairwise_interactions(fit)
     bgms_res$thresholds <- extract_category_thresholds(fit)
-    colnames(bgms_res$parameters) <- varnames
+    rownames(bgms_res$parameters) <- colnames(bgms_res$parameters) <- varnames
     bgms_res$structure <- matrix(1, ncol = p, nrow = p)
     if (args$edge_selection) {
       bgms_res$inc_probs <- extract_posterior_inclusion_probabilities(fit)
@@ -185,7 +194,7 @@ bgm_extract.package_bgms <- function(fit, type, save, iter,
     pars <- extract_pairwise_interactions(fit)
     bgms_res$parameters <- vector2matrix(colMeans(pars), p = p)
     bgms_res$thresholds <- extract_category_thresholds(fit)
-    colnames(bgms_res$parameters) <- varnames
+    rownames(bgms_res$parameters) <- colnames(bgms_res$parameters) <- varnames
     bgms_res$structure <- matrix(1, ncol = ncol(bgms_res$parameters),
                                  nrow = nrow(bgms_res$parameters))
     if (args$edge_selection) {
@@ -225,8 +234,8 @@ bgm_extract.package_bgms <- function(fit, type, save, iter,
       bgms_res$graph_weights <- table_structures[, 2]
       bgms_res$sample_graph <- as.character(table_structures[, 1])
       # finalize output
-      colnames(bgms_res$inc_probs) <- colnames(bgms_res$parameters)
-      colnames(bgms_res$inc_BF) <- colnames(bgms_res$parameters)
+      rownames(bgms_res$inc_probs) <- colnames(bgms_res$inc_probs) <- colnames(bgms_res$parameters)
+      rownames(bgms_res$inc_BF) <- colnames(bgms_res$inc_BF) <- colnames(bgms_res$parameters)
     }
   }
   # --- Optionally compute centrality ---
