@@ -6,7 +6,7 @@
 #' @param object easybgm object
 #' @param evidence_thresh_weak Bayes Factor which will be considered sufficient for weak in-/exclusion evidence, default is 3
 #' @param evidence_thresh_strong Bayes Factor which will be considered sufficient for strong in-/exclusion evidence, default is 10.
-#' @param evidence_thresh (depreceated) Bayes Factor which will be considered sufficient evidence for in-/exclusion, default is 10.
+#' @param evidence_thresh Deprecated. Use `evidence_thresh_weak` and `evidence_thresh_strong`.
 #' @param BF_uncertainty Whether the MC uncertainty estimates for the Bayes factors should be included in the output (only for bgms package)
 #' @param ... unused argument
 #'
@@ -15,9 +15,15 @@
 #' @export
 
 summary.easybgm <- function(object, 
+                            evidence_thresh = NULL,
                             evidence_thresh_weak = 3,
                             evidence_thresh_strong = 10, 
                             BF_uncertainty = FALSE, ...) {
+  
+  if (!is.null(evidence_thresh)) {
+    warning("The argument evidence_thresh is deprecated. Use evidence_thresh_weak and evidence_thresh_strong instead.")
+    evidence_thresh_strong <- evidence_thresh
+  }
   
   ## -----------------------------
   ## 0. Check arguments
@@ -25,11 +31,6 @@ summary.easybgm <- function(object,
 
   dots_check(...)
   dots <- list(...)
-  if("evidence_thresh" %in% names(dots)){
-    warning("The argument 'evidence_thresh' is deprecated. ",
-            "Please use 'evidence_thresh_weak' and/or 'evidence_thresh_strong' instead. ",
-            call. = FALSE)
-  }
   
   ## -----------------------------
   ## 1. Determine number of nodes

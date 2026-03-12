@@ -7,30 +7,31 @@
 \usage{
 plot_edgeevidence(
   output,
+  evidence_thresh = NULL,
   evidence_thresh_strong = 10,
   evidence_thresh_weak = 3,
+  edge_legend = TRUE,
   split = FALSE,
   show = "all",
-  edge_legend = TRUE,
   ...
 )
 }
 \arguments{
 \item{output}{Output object from the easybgm function. Supports also objects from the bgm function of the \code{bgms} package.}
 
+\item{evidence_thresh}{Deprecated. Use \code{evidence_thresh_weak} and \code{evidence_thresh_strong}.}
+
 \item{evidence_thresh_strong}{Bayes Factor which will be considered sufficient for strong in-/exclusion evidence, default is 10.}
 
 \item{evidence_thresh_weak}{Bayes Factor which will be considered sufficient for weak in-/exclusion evidence, default is 3}
+
+\item{edge_legend}{binary indicator specifying whether edge legend should be plotted. Default is TRUE.}
 
 \item{split}{if TRUE, plot is split in included and excluded edges. Note that by default separate plots are shown and appear after each other in the plot window. To show the plots side-by-side specify par(mfrow = c(1, 2)).}
 
 \item{show}{specifies which edges should be shown, indicated by "all", "included" for included and weakly included edges, "inconclusive", and "excluded" for excluded and weakly excluded edges.}
 
-\item{edge_legend}{binary indicator specifying whether edge legend should be plotted. Default is TRUE.}
-
 \item{...}{Additional arguments passed onto \code{qgraph}.}
-
-\item{evidence_thresh}{(depreceated) Bayes Factor which will be considered sufficient evidence for in-/exclusion, default is 10.}
 }
 \value{
 Returns a plot

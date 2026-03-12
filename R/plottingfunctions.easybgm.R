@@ -133,11 +133,13 @@ plot_complexity_probabilities.easybgm <- function(output, ...) {
 # ---------------------------------------------------------------------------------------------------------------
 #' @export
 plot_edgeevidence.easybgm <- function(output, 
+                                      evidence_thresh = NULL,
                                       evidence_thresh_strong = 10, 
                                       evidence_thresh_weak = 3, 
-                                      split = FALSE, show = "all", 
                                       edge_legend = TRUE, 
+                                      split = FALSE, show = "all", 
                                       ...) {
+  
   if(!any(class(output) == "easybgm")){
     stop("Wrong input provided. The function requires as input the output of the easybgm function.")
   }
@@ -398,7 +400,10 @@ plot_edgeevidence.easybgm <- function(output,
 
 
 #' @export
-plot_network.easybgm <- function(output, exc_prob = 0.5, evidence_thresh_weak = 10,  dashed = FALSE, ...) {
+plot_network.easybgm <- function(output, exc_prob = 0.5, 
+                                 evidence_thresh = NULL, 
+                                 evidence_thresh_strong = 10, 
+                                 dashed = FALSE, ...) {
   
   if(!any(class(output) == "easybgm")){
     stop("Wrong input provided. The function requires as input the output of the easybgm function.")
@@ -421,7 +426,6 @@ plot_network.easybgm <- function(output, exc_prob = 0.5, evidence_thresh_weak = 
   graph <- output$parameters
   default_args <- list(
     layout = qgraph::averageLayout(as.matrix(output$parameters*output$structure)),
-    evidence_thresh_weak = 3,
     theme = "TeamFortress",
     vsize = 10,
     nodeNames = colnames(output$parameters),
@@ -439,7 +443,7 @@ plot_network.easybgm <- function(output, exc_prob = 0.5, evidence_thresh_weak = 
   
   # Plot
   if(dashed){
-    graph_dashed <- ifelse(output$inc_BF < args$evidence_thresh_weak, 2, 1)
+    graph_dashed <- ifelse(output$inc_BF < evidence_thresh_strong, "dashed", "solid")
     
     
     qgraph_plot <- qgraph::qgraph(graph, layout = args$layout, 

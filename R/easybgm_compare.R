@@ -86,7 +86,8 @@
 #'
 #' fit <- easybgm_compare(list(group1, group2), 
 #'                 type = "binary", save = TRUE,
-#'                 iter = 50 # for demonstration only; more samples required, check the defaults for each sampler
+#'                 iter = 50 # for demonstration only; more samples required, 
+#'                           # check the defaults for each sampler
 #'                 )
 #'
 #' summary(fit)
@@ -95,7 +96,8 @@
 #' fit_multi <- easybgm_compare(data[1:200, 1:5], 
 #'                 group_indicator = rep(c(1, 2, 3, 4), each = 50),
 #'                 type = "binary", save = TRUE, 
-#'                 iter = 100 # for demonstration only; more samples required, check the defaults for each sampler
+#'                 iter = 100 # for demonstration only; more samples required, 
+#'                            # check the defaults for each sampler
 #'                 )
 #'
 #' summary(fit_multi)

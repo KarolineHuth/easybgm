@@ -169,6 +169,7 @@ plot_complexity_probabilities.bgms <- function(output, ...) {
 #' @export
 
 plot_edgeevidence.bgms <- function(output,    
+                                   evidence_thresh = NULL,
                                    evidence_thresh_strong = 10, 
                                    evidence_thresh_weak = 3, 
                                    edge_legend = TRUE, 
@@ -364,13 +365,13 @@ plot_edgeevidence.bgms <- function(output,
   if(show != "all"){
     graph_show <- matrix(0, ncol = ncol(graph), nrow = nrow(graph))
     if("included" %in% show){
-      graph_show[output$inc_BF > evidence_thresh] <- 1
+      graph_show[output$inc_BF > evidence_thresh_weak] <- 1
     }
     if("excluded" %in% show){
-      graph_show[output$inc_BF < (1/evidence_thresh)] <- 1
+      graph_show[output$inc_BF < (1/evidence_thresh_weak)] <- 1
     }
     if("inconclusive" %in% show){
-      graph_show[(output$inc_BF > (1/evidence_thresh)) & (output$inc_BF < evidence_thresh)] <- 1
+      graph_show[(output$inc_BF > (1/evidence_thresh_weak)) & (output$inc_BF < evidence_thresh_weak)] <- 1
     }
     diag(graph_show) <- 1
     colnames(graph_show) <- colnames(output$parameters)
@@ -419,7 +420,10 @@ plot_edgeevidence.bgms <- function(output,
 # ---------------------------------------------------------------------------------------------------------------
 #' @export
 
-plot_network.bgms <- function(output, exc_prob = .5, evidence_thresh = 10, dashed = TRUE, ...) {
+plot_network.bgms <- function(output, exc_prob = .5, 
+                              evidence_thresh = NULL, 
+                              evidence_thresh_strong = 10, 
+                              dashed = TRUE, ...) {
   
   if(packageVersion("bgms") < "0.1.4"){
     stop("Your version of the package bgms is not supported anymore. Please update.")
@@ -451,7 +455,6 @@ plot_network.bgms <- function(output, exc_prob = .5, evidence_thresh = 10, dashe
   graph <- output$parameters
   default_args <- list(
     layout = qgraph::averageLayout(as.matrix(output$parameters*output$structure)),
-    evidence_thres = 10,
     theme = "TeamFortress",
     vsize = 10,
     nodeNames = colnames(output$parameters),
@@ -468,7 +471,7 @@ plot_network.bgms <- function(output, exc_prob = .5, evidence_thresh = 10, dashe
   
   # Plot
   if(dashed){
-    graph_dashed <- ifelse(output$inc_BF < args$evidence_thres, "dashed", "solid")
+    graph_dashed <- ifelse(output$inc_BF < evidence_thresh_strong, "dashed", "solid")
     qgraph_plot <- qgraph::qgraph(graph, layout = args$layout, lty = graph_dashed,
                                   theme = args$theme, vsize = args$vsize,
                                   nodeNames = args$nodeNames,
