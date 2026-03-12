@@ -542,7 +542,7 @@ plot_parameterHDI.easybgm <- function(output, ...) {
   
   args <- set_defaults(def_args, ...)
   hdi_intervals <- as.data.frame(apply(output$samples_posterior, MARGIN = 2, FUN = hdi))
-  posterior_medians <- apply(output$samples_posterior, MARGIN = 2, FUN = median)
+  posterior_medians <- apply(output$samples_posterior, MARGIN = 2, FUN = mean)
   
   if(strsplit(class(output)[1], "_")[[1]][2] == "bgms"){
     index <- colnames(output$samples_posterior)
@@ -755,7 +755,9 @@ plot_centrality.list <- function(output, group_names = NULL, ...){
 # -------------------------------------------------------------------------------
 #' @export
 plot_prior_sensitivity.list <- function(output,
-                                        evidence_thresh_weak = 3, ...) {
+                                        evidence_thresh_strong = 10, 
+                                        evidence_thresh_weak = 3, 
+                                        ...) {
   
   if(any(class(output[[1]]) == "easybgm_compare")){
     stop("The centrality plot cannot be obtained for Bayesian network comparison fits.")
@@ -773,7 +775,8 @@ plot_prior_sensitivity.list <- function(output,
     for(i in 1:length(output)) {
       fit_args <- bgms::extract_arguments(output[[i]])
       
-      res[[i]] <- bgm_extract.package_bgms(fit = output[[i]], save = fit_args$save, centrality = TRUE,
+      res[[i]] <- bgm_extract.package_bgms(fit = output[[i]], save = fit_args$save, 
+                                           centrality = TRUE,
                                            type = NULL, not_cont = NULL, data = NULL,
                                            edge_prior = fit_args$edge_prior,
                                            inclusion_probability  = fit_args$inclusion_probability,
@@ -803,7 +806,7 @@ plot_prior_sensitivity.list <- function(output,
       legend.text = element_text(size = 12),
       
     ),
-    colors = c("#36648b", "#eeb004", "#bfbfbf"),
+    colors = c("#36648b", "#86a2b9", "#bfbfbf","#f9d183", "#eeb004"),
     size = 1
   )
   
@@ -818,7 +821,7 @@ plot_prior_sensitivity.list <- function(output,
     }
   }
   
-  incl_edges = excl_edges = inconcl_edges <- rep(NA, no_priors)
+  wexcl_edges = wincl_edges = incl_edges = excl_edges = inconcl_edges <- rep(NA, no_priors)
   
   for (i in 1:no_priors) {
     res <- output[[i]]
@@ -828,7 +831,7 @@ plot_prior_sensitivity.list <- function(output,
            function does not include a specification of the edge prior. Please note that this 
            plot cannot be obtained with the package BGGM.")
     }
-    edge_priors[i] <- res$edge.prior
+    edge_priors[i] <- res$edge.prior[1]
     
     
     incl_bf <- res$inc_BF
@@ -836,24 +839,35 @@ plot_prior_sensitivity.list <- function(output,
     
     k <- length(incl_bf)
     
-    incl_edges[i] <- length(which(incl_bf > evidence_thres)) / k
-    excl_edges[i] <- length(which(incl_bf < (1 / evidence_thres))) / k
+    incl_edges[i] <- length(which(incl_bf > evidence_thresh_strong)) / k
+    wincl_edges[i] <- length(which(incl_bf > evidence_thresh_weak & incl_bf < evidence_thresh_strong)) / k
+    wexcl_edges[i] <- length(which(incl_bf > (1 / evidence_thresh_strong) & incl_bf < (1 / evidence_thresh_weak) )) / k
+    excl_edges[i] <- length(which(incl_bf < (1 / evidence_thresh_strong))) / k
     
   }
   
-  inconcl_edges <- 1 - incl_edges - excl_edges
+  inconcl_edges <- 1 - incl_edges - excl_edges - wincl_edges - wexcl_edges
   
-  data <- data.frame(cbind(edge_priors, incl_edges, excl_edges, inconcl_edges))
+  data <- data.frame(cbind(edge_priors, incl_edges, wincl_edges, wexcl_edges, excl_edges, inconcl_edges))
   
   ggplot2::ggplot(data, aes(x = edge_priors, ...)) +
-    geom_line(aes(y = incl_edges, color = "included"), size = args$size) + 
+    geom_line(aes(y = incl_edges, color = "included"), linewidth = args$size) + 
     geom_point(aes(y = incl_edges, color = "included"), size = args$size+ 0.5) +
-    geom_line(aes(y = excl_edges, color = "excluded"), size = args$size) +
-    geom_point(aes(y = excl_edges, color = "excluded"), size = args$size + 0.5) +
-    geom_line(aes(y = inconcl_edges, color = "inconclusive"), size = args$size) +
+    geom_line(aes(y = wincl_edges, color = "weak included"), linewidth = args$size) + 
+    geom_point(aes(y = wincl_edges, color = "weak included"), size = args$size+ 0.5) +
+    geom_line(aes(y = inconcl_edges, color = "inconclusive"), linewidth = args$size) +
     geom_point(aes(y = inconcl_edges, color = "inconclusive"), size = args$size + 0.5) +
-    args$theme_ + args$xlab + args$ylab + scale_color_manual(values = args$colors, name = "")  +
-    args$xlim + args$ylim
+    geom_line(aes(y = wexcl_edges, color = "weak excluded"), linewidth = args$size) +
+    geom_point(aes(y = wexcl_edges, color = "weak excluded"), size = args$size + 0.5) +
+    geom_line(aes(y = excl_edges, color = "excluded"), linewidth = args$size) +
+    geom_point(aes(y = excl_edges, color = "excluded"), size = args$size + 0.5) +
+    args$theme_ + 
+    args$xlab + 
+    args$ylab + 
+    scale_color_manual(values = args$colors, breaks = c("included", "weak included", "inconclusive", "weak excluded", "excluded"),
+                       name = "")  +
+    args$xlim + 
+    args$ylim
   
   
 }

@@ -141,7 +141,9 @@ bgm_extract.package_bdgraph <- function(fit, type, save, iter,
     # bdgraph_res$package <- "bdgraph"
     bdgraph_res$model <- "gcgm"
 
-    # if(save){
+    if(save == TRUE){
+      warning("Posterior samples of the BDgraph package cannot be obtained with the original package. If you want posterior samples from BDgraph, fit the model within BDgraph using this version: https://github.com/KarolineHuth/BDgraph. Note that this version does not have an easybgm-wrapper.")
+      
     #   if(posterior_method == "MAP"){
     #     
     #     warning("Posterior samples of the BDgraph package are obtained after the fit. 
@@ -167,7 +169,7 @@ bgm_extract.package_bdgraph <- function(fit, type, save, iter,
     #     # bdgraph_res$centrality_strength <- centrality_strength(bdgraph_res)
     #     bdgraph_res$centrality <- centrality(bdgraph_res)
     #   }
-    # }
+    }
     rownames(bdgraph_res$inc_probs) <- colnames(bdgraph_res$inc_probs) <- colnames(bdgraph_res$parameters)
     rownames(bdgraph_res$inc_BF) <- colnames(bdgraph_res$inc_BF) <- colnames(bdgraph_res$parameters)
     

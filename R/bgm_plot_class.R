@@ -160,7 +160,7 @@ plot_edgeevidence <- function(output,
 #'
 #' @param output Output object from the easybgm function. Supports also objects from the bgm function of the `bgms` package.
 #' @param exc_prob The threshold for excluding edges. All edges with a lower inclusion probability will not be shown. The default is set to 0.5 in line with the median probability plot.
-#' @param evidence_thresh_weak If dashed = TRUE, users can specify the threshold for evidence for inclusion. All edges with evidence lower than `evidence_thresh_weak` are dashed.
+#' @param evidence_thresh_strong If dashed = TRUE, users can specify the threshold for evidence for inclusion. All edges with evidence lower than `evidence_thresh_strong` are dashed. Default is 10.
 #' @param evidence_thresh Deprecated. Use `evidence_thresh_weak` and `evidence_thresh_strong`.
 #' @param dashed A binary parameter indicating whether edges with inconclusive evidence should be dashed. Default is FALSE
 #' @param ... Additional arguments passed onto `qgraph`.
@@ -344,6 +344,8 @@ plot_centrality <- function(output, group_names = NULL, ...){
 #'  plots the percentage of edges that are included, excluded, and inconclusive.
 #' @name prior_sensitivity
 #' @param output A list of easybgm outputs with different prior edge inclusion probabilities
+#' @param evidence_thresh_weak Bayes Factor which will be considered sufficient for weak in-/exclusion evidence, default is 3
+#' @param evidence_thresh_strong Bayes Factor which will be considered sufficient for strong in-/exclusion evidence, default is 10.
 #' @param ... Additional arguments passed onto ggplot2.
 #'
 #' @return Returns a plot
@@ -358,7 +360,7 @@ plot_centrality <- function(output, group_names = NULL, ...){
 #'
 #' #data <- na.omit(Wenchuan)
 #' #fit1 <- easybgm(data[1:50, 1:5], type = "ordinal",
-#' #               iter = 100  # for demonstration only
+#' #               iter = 100,  # for demonstration only
 #' #                inclusion_probability = .1
 #' #               )
 #' #fit2 <- easybgm(data[1:50, 1:5], type = "ordinal",
@@ -371,7 +373,10 @@ plot_centrality <- function(output, group_names = NULL, ...){
 #' #plot_prior_sensitivity(list(fit1, fit2, fit3))
 #' }
 
-plot_prior_sensitivity <- function(output, ...) {
+plot_prior_sensitivity <- function(output, 
+                                   evidence_thresh_strong = 10, 
+                                   evidence_thresh_weak = 3, 
+                                   ...) {
   if (!is.list(output))
     stop("Wrong input provided. Please provide a list of outputs of the easybgm or bgms function.")
   if(any(any(class(output[[1]]) == "easybgm"), any(class(output[[1]]) == "bgms")) == FALSE){

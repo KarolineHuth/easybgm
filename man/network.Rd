@@ -21,11 +21,11 @@ plot_network(
 
 \item{evidence_thresh}{Deprecated. Use \code{evidence_thresh_weak} and \code{evidence_thresh_strong}.}
 
+\item{evidence_thresh_strong}{If dashed = TRUE, users can specify the threshold for evidence for inclusion. All edges with evidence lower than \code{evidence_thresh_strong} are dashed. Default is 10.}
+
 \item{dashed}{A binary parameter indicating whether edges with inconclusive evidence should be dashed. Default is FALSE}
 
 \item{...}{Additional arguments passed onto \code{qgraph}.}
-
-\item{evidence_thresh_weak}{If dashed = TRUE, users can specify the threshold for evidence for inclusion. All edges with evidence lower than \code{evidence_thresh_weak} are dashed.}
 }
 \value{
 Returns a plot
