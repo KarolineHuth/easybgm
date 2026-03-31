@@ -5,10 +5,19 @@
 \alias{plot_prior_sensitivity}
 \title{Plot sensitivity to edge inclusion prior setting}
 \usage{
-plot_prior_sensitivity(output, ...)
+plot_prior_sensitivity(
+  output,
+  evidence_thresh_strong = 10,
+  evidence_thresh_weak = 3,
+  ...
+)
 }
 \arguments{
 \item{output}{A list of easybgm outputs with different prior edge inclusion probabilities}
+
+\item{evidence_thresh_strong}{Bayes Factor which will be considered sufficient for strong in-/exclusion evidence, default is 10.}
+
+\item{evidence_thresh_weak}{Bayes Factor which will be considered sufficient for weak in-/exclusion evidence, default is 3}
 
 \item{...}{Additional arguments passed onto ggplot2.}
 }
@@ -30,7 +39,7 @@ library(bgms)
 
 #data <- na.omit(Wenchuan)
 #fit1 <- easybgm(data[1:50, 1:5], type = "ordinal",
-#               iter = 100  # for demonstration only
+#               iter = 100,  # for demonstration only
 #                inclusion_probability = .1
 #               )
 #fit2 <- easybgm(data[1:50, 1:5], type = "ordinal",

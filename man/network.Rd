@@ -5,14 +5,23 @@
 \alias{plot_network}
 \title{Network plot}
 \usage{
-plot_network(output, exc_prob = 0.5, evidence_thresh = 10, dashed = FALSE, ...)
+plot_network(
+  output,
+  exc_prob = 0.5,
+  evidence_thresh = NULL,
+  evidence_thresh_strong = 10,
+  dashed = FALSE,
+  ...
+)
 }
 \arguments{
 \item{output}{Output object from the easybgm function. Supports also objects from the bgm function of the \code{bgms} package.}
 
 \item{exc_prob}{The threshold for excluding edges. All edges with a lower inclusion probability will not be shown. The default is set to 0.5 in line with the median probability plot.}
 
-\item{evidence_thresh}{If dashed = TRUE, users can specify the threshold for sufficient evidence for inclusion. All edges with evidence lower than \code{evidence_tresh} are dashed.}
+\item{evidence_thresh}{Deprecated. Use \code{evidence_thresh_weak} and \code{evidence_thresh_strong}.}
+
+\item{evidence_thresh_strong}{If dashed = TRUE, users can specify the threshold for evidence for inclusion. All edges with evidence lower than \code{evidence_thresh_strong} are dashed. Default is 10.}
 
 \item{dashed}{A binary parameter indicating whether edges with inconclusive evidence should be dashed. Default is FALSE}
 
@@ -41,6 +50,6 @@ plot_network(fit)
 plot_network(fit, exc_prob = 0.1)
 
 # Indicate which edges have insufficient evidence for inclusion through a dashed line
-plot_network(fit, dashed = TRUE, evidence_thresh = 10)
+plot_network(fit, dashed = TRUE, evidence_thresh_strong = 10)
 
 }
