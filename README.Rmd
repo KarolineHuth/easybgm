@@ -52,7 +52,7 @@ The package comes with an extensive suite of functions to visualize the results 
 
 #### Edge Evidence Plot
 
-The edge evidence plot aids researchers in deciding which edges provide robust inferential conclusions. In the edge evidence plot, edges represent the inclusion Bayes factor $`\text{BF}_{10}`$. Yellow edges indicate evidence for edge absence (i.e., conditional independence), grey edges indicate the absence of evidence, and blue edges indicate evidence for edge presence (i.e., conditional dependence). By default, a $`\text{BF}_{10} > 10`$ is considered strong evidence for inclusion and $`\text{BF}_{01} > 10`$ for exclusion. Users can specify the threshold for Bayes factors.
+The edge evidence plot aids researchers in deciding which edges provide robust inferential conclusions. In the edge evidence plot, edges represent the inclusion Bayes factor $`\text{BF}_{10}`$. Yellow edges indicate evidence for edge absence (i.e., conditional independence), grey edges indicate the absence of evidence, and blue edges indicate evidence for edge presence (i.e., conditional dependence).  Blue edges represent evidence for inclusion, light blue, dashed edges represent weak evidence for inclusion, grey edges represent absence of evidence, light yellow, dashed edges represent some evidence for exclusion, and dark yellow edges represent strong evidence for exclusion. By default, a $`\text{BF}_{10} > 10`$ is considered strong evidence for inclusion and $`\text{BF}_{01} > 10`$ for exclusion, and a $`\text{BF}_{10} > 3`$ is considered weak evidence for inclusion and $`\text{BF}_{01} > 3`$ for exclusion. Users can specify the threshold for Bayes factors.
 
 #### Network Plot
 
@@ -87,7 +87,8 @@ res <- easybgm(data, type = "binary")
 
 ```
 
-Having fitted the model, we can now take a look at its results. When `edge_prior = "Stochastic-Block"`, the summary also includes clustering information, such as the estimated node memberships, the posterior probabilities for all possible numbers of clusters, and the Bayes factor comparing the hypothesis that there are two or more clusters against the null of a single cluster. Researchers can additionally use the `clusterBayesfactor` function to test hypotheses about specific numbers of clusters.
+Having fitted the model, we can now take a look at its results. 
+<!-- When `edge_prior = "Stochastic-Block"`, the summary also includes clustering information, such as the estimated node memberships, the posterior probabilities for all possible numbers of clusters, and the Bayes factor comparing the hypothesis that there are two or more clusters against the null of a single cluster. Researchers can additionally use the `clusterBayesfactor` function to test hypotheses about specific numbers of clusters. -->
 
 ```{r, eval=FALSE}
 summary(res)
@@ -131,10 +132,10 @@ summary(res)
 #> ---
 ```
 
-Furthermore, we can visualize the results with plots. In a first step, we assess the edge evidence plot in which edges represent the inclusion Bayes factor $`\text{BF}_{10}`$. Especially in a large network like ours, it is useful to split the edge evidence plot in two parts by setting the `split` argument to `TRUE`. As such, the left plot shows edges with some evidence for inclusion (i.e., $`\text{BF}_{10} > 1`$), where blue edges represent evidence for inclusion ($`\text{BF}_{10} > 10`$) and grey edges absence of evidence ($`1 < \text{BF}_{10} < 10`$). The right edge evidence plot shows edges with some evidence for exclusion (i.e., $`\text{BF}_{10} < 1`$) with evidence for exclusion shown as red ($`\text{BF}_{01} > 10`$) and inconclusive evidence as grey ($`0.1 < \text{BF}_{10} < 1`$).
+Furthermore, we can visualize the results with plots. In a first step, we assess the edge evidence plot in which edges represent the inclusion Bayes factor $`\text{BF}_{10}`$. In the plot, blue edges represent evidence for inclusion (default values: $`\text{BF}_{10} > 10`$), light blue, dashed edges represent weak evidence for inclusion ($`3 < \text{BF}_{10} < 10`$), grey edges represent absence of evidence ($`1/3 < \text{BF}_{10} < 3`$), light yellow, dashed edges represent some evidence for exclusion ($`1/10 < \text{BF}_{10} < 1/3`$), and dark yellow edges represent strong evidence for exclusion ($`\text{BF}_{10} < 1/10`$). Especially in a large network, it can be useful to split the edge evidence plot in two parts by setting the `split` argument to `TRUE`, which splits the plot into the edges with some evidence for inclusion (i.e., $`\text{BF}_{10} > 1`$) and those with some evidence for exclusion (i.e., $`\text{BF}_{10} < 1`$). 
 
 ```{r, eval=FALSE}
-plot_edgeevidence(res, edge.width = 2, split = F)
+plot_edgeevidence(res, edge.width = 2, split = F, legend = F)
 ```
 
 ![](man/readme_plots/plot_edgeevidence.png)
