@@ -166,6 +166,7 @@ plot_edgeevidence <- function(output,
 #' @param evidence_thresh_strong If dashed = TRUE, users can specify the threshold for evidence for inclusion. All edges with evidence lower than `evidence_thresh_strong` are dashed. Default is 10.
 #' @param evidence_thresh Deprecated. Use `evidence_thresh_weak` and `evidence_thresh_strong`.
 #' @param dashed A binary parameter indicating whether edges with inconclusive evidence should be dashed. Default is FALSE
+#' @param partial_correlations A binary parameter indicating whether edges should show partial correlations instead of partial associations for continuous models fit with bgms. Default is FALSE.
 #' @param ... Additional arguments passed onto `qgraph`.
 #'
 #' @return Returns a plot
@@ -195,7 +196,8 @@ plot_edgeevidence <- function(output,
 plot_network <- function(output, exc_prob = .5, 
                          evidence_thresh = NULL,
                          evidence_thresh_strong = 10, 
-                         dashed = FALSE, ...) {
+                         dashed = FALSE, 
+                         partial_correlations = FALSE, ...) {
 
   if(any(any(class(output) == "easybgm"), any(class(output) == "bgms"), any(class(output) == "bgmCompare")) == FALSE){
     stop("Wrong input provided. The function requires as input the output of the easybgm or bgm function.")

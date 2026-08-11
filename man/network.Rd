@@ -11,6 +11,7 @@ plot_network(
   evidence_thresh = NULL,
   evidence_thresh_strong = 10,
   dashed = FALSE,
+  partial_correlations = FALSE,
   ...
 )
 }
@@ -24,6 +25,8 @@ plot_network(
 \item{evidence_thresh_strong}{If dashed = TRUE, users can specify the threshold for evidence for inclusion. All edges with evidence lower than \code{evidence_thresh_strong} are dashed. Default is 10.}
 
 \item{dashed}{A binary parameter indicating whether edges with inconclusive evidence should be dashed. Default is FALSE}
+
+\item{partial_correlations}{A binary parameter indicating whether edges should show partial correlations instead of partial associations for continuous models fit with bgms. Default is FALSE.}
 
 \item{...}{Additional arguments passed onto \code{qgraph}.}
 }
