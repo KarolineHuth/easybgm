@@ -2,37 +2,35 @@
 % Please edit documentation in R/AuxiliaryFunctions.R
 \name{clusterBayesfactor}
 \alias{clusterBayesfactor}
-\title{Calculate Clustering Bayes Factors for when using the Stochastic Block Model
-as an edge prior}
+\title{Bayes factors for the number of available SBM components}
 \usage{
 clusterBayesfactor(fit, type = "complement", b1 = NULL, b2 = NULL)
 }
 \arguments{
-\item{fit}{A fitted object of class \code{easybgm} or \code{bgms} containing
-the clustering results.}
+\item{fit}{An easybgm or raw bgms fit with SBM output and stored lambda and
+dirichlet_alpha. Raw allocation draws are used when available; otherwise
+occupied-count probabilities are recovered from the full-precision summary.}
 
-\item{type}{A character string specifying the type of Bayes factor to calculate.
-Options are \code{"point"} or \code{"complement"}. Defaults to \code{"complement"}.}
+\item{type}{"complement" for B > 1 versus B = 1, or "point" for B = b1
+versus B = b2. Default: "complement".}
 
-\item{b1}{Indicates the number of clusters according to the first point hypothesis,
-required for \code{type = "point"}.}
-
-\item{b2}{Indicates the number of clusters according to the second point hypothesis,
-required for \code{type = "point"}.}
+\item{b1, b2}{Integer component counts between 1 and p, required for "point".}
 }
 \value{
-A numeric value representing the Bayes factor. When type is \code{"point"},
-the Bayes factor represents evidence in favor of \code{b1} clusters against \code{b2}
-clusters. When type is \code{"complement"}, the Bayes factor represents evidence
-in favor of clustering (i.e., more than one cluster) against no clustering.
+An unrounded numeric Bayes factor, in the stated direction. Zero or
+infinity can occur when one hypothesis receives no mass in the saved MCMC
+output. If both point hypotheses have zero mass, returns NA with a warning.
+A numerical Bayes factor is not a check of MCMC convergence.
 }
 \description{
-This function calculates Bayes factors to evaluate evidence in favor of
-clustering for models fitted with the \code{bgms} package (i.e., with arguments
-\code{package = "bgms"} and \code{edge_prior = "Stochastic-Block"} within
-the \code{easybgm} function). The function supports two types of Bayes factors:
-Bayes factors between two point hypothesized number of clusters (\code{b1} and \code{b2}),
-and Bayes factor of the hypothesis of clustering (i.e., the complement hypothesis)
-against the hypothesis of no clustering (i.e., the null, which simply means
-that the network exibits one global cluster).
+Calculates Bayes factors for the shifted-Poisson prior used by bgms 0.2.0.0:
+B - 1 ~ Poisson(lambda). B counts available components, including unoccupied
+components; it is not the occupied item-cluster count or latent dimensionality.
+}
+\details{
+This replacement accounts for bgms 0.2.0.0 normalizing P(B | T) over 1:p
+separately for each occupied count T. It reconstructs probabilities under
+the fitted unbounded prior rather than truncating the prior to 1:p.
+Use it for fits with this prior and summary convention, not indiscriminately
+for historical fits or a future version with a different summary convention.
 }
