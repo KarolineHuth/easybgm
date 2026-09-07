@@ -2,35 +2,37 @@
 % Please edit documentation in R/AuxiliaryFunctions.R
 \name{clusterBayesfactor}
 \alias{clusterBayesfactor}
-\title{Bayes factors for the number of available SBM components}
+\title{Test whether a network splits into clusters}
 \usage{
 clusterBayesfactor(fit, type = "complement", b1 = NULL, b2 = NULL)
 }
 \arguments{
-\item{fit}{An easybgm or raw bgms fit with SBM output and stored lambda and
-dirichlet_alpha. Raw allocation draws are used when available; otherwise
-occupied-count probabilities are recovered from the full-precision summary.}
+\item{fit}{A fit of class \code{easybgm} or \code{bgms}, fitted with
+\code{edge_prior = bgms::sbm_prior()}. Raw draws are used when the fit carries
+them, otherwise the stored summary, which must be at full precision.}
 
-\item{type}{"complement" for B > 1 versus B = 1, or "point" for B = b1
-versus B = b2. Default: "complement".}
+\item{type}{Either \code{"complement"}, the default, or \code{"point"}.}
 
-\item{b1, b2}{Integer component counts between 1 and p, required for "point".}
+\item{b1, b2}{Whole numbers between 1 and the number of variables, required
+when \code{type = "point"}.}
 }
 \value{
-An unrounded numeric Bayes factor, in the stated direction. Zero or
-infinity can occur when one hypothesis receives no mass in the saved MCMC
-output. If both point hypotheses have zero mass, returns NA with a warning.
-A numerical Bayes factor is not a check of MCMC convergence.
+A single unrounded Bayes factor. \code{NA} with a warning if neither point
+hypothesis appears in the posterior. A result of 0 or \code{Inf} means the
+sampler never visited one of the two, so run more iterations rather than
+reading it as decisive.
 }
 \description{
-Calculates Bayes factors for the shifted-Poisson prior used by bgms 0.2.0.0:
-B - 1 ~ Poisson(lambda). B counts available components, including unoccupied
-components; it is not the occupied item-cluster count or latent dimensionality.
+For a network fitted with the Stochastic Block Model (SBM) edge prior, this
+gives a Bayes factor for the number of clusters. With \code{type = "complement"}
+it weighs more than one cluster against exactly one; with \code{type = "point"} it
+weighs \code{b1} clusters against \code{b2}. Values above 1 favour the first of the
+two; take the reciprocal to read the evidence the other way round.
 }
 \details{
-This replacement accounts for bgms 0.2.0.0 normalizing P(B | T) over 1:p
-separately for each occupied count T. It reconstructs probabilities under
-the fitted unbounded prior rather than truncating the prior to 1:p.
-Use it for fits with this prior and summary convention, not indiscriminately
-for historical fits or a future version with a different summary convention.
+The count is the number of clusters the model has available, which can be
+larger than the number that actually hold variables, since a cluster may come
+out empty. For the memberships themselves, see \code{\link[bgms:extract_sbm]{bgms::extract_sbm()}}.
+Evidence for clustering concerns the network's edge structure and is not by
+itself evidence of multidimensionality.
 }

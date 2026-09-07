@@ -421,29 +421,32 @@ beta_bernoulli_prob <- function(c, alpha, beta, p) {
   weights
 }
 
-#' Bayes factors for the number of available SBM components
+#' Test whether a network splits into clusters
 #'
-#' Calculates Bayes factors for the shifted-Poisson prior used by bgms 0.2.0.0:
-#' B - 1 ~ Poisson(lambda). B counts available components, including unoccupied
-#' components; it is not the occupied item-cluster count or latent dimensionality.
+#' For a network fitted with the Stochastic Block Model (SBM) edge prior, this
+#' gives a Bayes factor for the number of clusters. With `type = "complement"`
+#' it weighs more than one cluster against exactly one; with `type = "point"` it
+#' weighs `b1` clusters against `b2`. Values above 1 favour the first of the
+#' two; take the reciprocal to read the evidence the other way round.
 #'
-#' This replacement accounts for bgms 0.2.0.0 normalizing P(B | T) over 1:p
-#' separately for each occupied count T. It reconstructs probabilities under
-#' the fitted unbounded prior rather than truncating the prior to 1:p.
-#' Use it for fits with this prior and summary convention, not indiscriminately
-#' for historical fits or a future version with a different summary convention.
+#' The count is the number of clusters the model has available, which can be
+#' larger than the number that actually hold variables, since a cluster may come
+#' out empty. For the memberships themselves, see [bgms::extract_sbm()].
+#' Evidence for clustering concerns the network's edge structure and is not by
+#' itself evidence of multidimensionality.
 #'
-#' @param fit An easybgm or raw bgms fit with SBM output and stored lambda and
-#'   dirichlet_alpha. Raw allocation draws are used when available; otherwise
-#'   occupied-count probabilities are recovered from the full-precision summary.
-#' @param type "complement" for B > 1 versus B = 1, or "point" for B = b1
-#'   versus B = b2. Default: "complement".
-#' @param b1,b2 Integer component counts between 1 and p, required for "point".
-#' @return An unrounded numeric Bayes factor, in the stated direction. Zero or
-#'   infinity can occur when one hypothesis receives no mass in the saved MCMC
-#'   output. If both point hypotheses have zero mass, returns NA with a warning.
-#'   A numerical Bayes factor is not a check of MCMC convergence.
+#' @param fit A fit of class `easybgm` or `bgms`, fitted with
+#'   `edge_prior = bgms::sbm_prior()`. Raw draws are used when the fit carries
+#'   them, otherwise the stored summary, which must be at full precision.
+#' @param type Either `"complement"`, the default, or `"point"`.
+#' @param b1,b2 Whole numbers between 1 and the number of variables, required
+#'   when `type = "point"`.
+#' @return A single unrounded Bayes factor. `NA` with a warning if neither point
+#'   hypothesis appears in the posterior. A result of 0 or `Inf` means the
+#'   sampler never visited one of the two, so run more iterations rather than
+#'   reading it as decisive.
 #' @export
+
 clusterBayesfactor <- function(fit, type = "complement", b1 = NULL, b2 = NULL) {
   if (!is.character(type) || length(type) != 1L || is.na(type) ||
       !type %in% c("point", "complement"))
