@@ -2,37 +2,37 @@
 % Please edit documentation in R/AuxiliaryFunctions.R
 \name{clusterBayesfactor}
 \alias{clusterBayesfactor}
-\title{Calculate Clustering Bayes Factors for when using the Stochastic Block Model
-as an edge prior}
+\title{Test whether a network splits into clusters}
 \usage{
 clusterBayesfactor(fit, type = "complement", b1 = NULL, b2 = NULL)
 }
 \arguments{
-\item{fit}{A fitted object of class \code{easybgm} or \code{bgms} containing
-the clustering results.}
+\item{fit}{A fit of class \code{easybgm} or \code{bgms}, fitted with
+\code{edge_prior = bgms::sbm_prior()}. Raw draws are used when the fit carries
+them, otherwise the stored summary, which must be at full precision.}
 
-\item{type}{A character string specifying the type of Bayes factor to calculate.
-Options are \code{"point"} or \code{"complement"}. Defaults to \code{"complement"}.}
+\item{type}{Either \code{"complement"}, the default, or \code{"point"}.}
 
-\item{b1}{Indicates the number of clusters according to the first point hypothesis,
-required for \code{type = "point"}.}
-
-\item{b2}{Indicates the number of clusters according to the second point hypothesis,
-required for \code{type = "point"}.}
+\item{b1, b2}{Whole numbers between 1 and the number of variables, required
+when \code{type = "point"}.}
 }
 \value{
-A numeric value representing the Bayes factor. When type is \code{"point"},
-the Bayes factor represents evidence in favor of \code{b1} clusters against \code{b2}
-clusters. When type is \code{"complement"}, the Bayes factor represents evidence
-in favor of clustering (i.e., more than one cluster) against no clustering.
+A single unrounded Bayes factor. \code{NA} with a warning if neither point
+hypothesis appears in the posterior. A result of 0 or \code{Inf} means the
+sampler never visited one of the two, so run more iterations rather than
+reading it as decisive.
 }
 \description{
-This function calculates Bayes factors to evaluate evidence in favor of
-clustering for models fitted with the \code{bgms} package (i.e., with arguments
-\code{package = "bgms"} and \code{edge_prior = "Stochastic-Block"} within
-the \code{easybgm} function). The function supports two types of Bayes factors:
-Bayes factors between two point hypothesized number of clusters (\code{b1} and \code{b2}),
-and Bayes factor of the hypothesis of clustering (i.e., the complement hypothesis)
-against the hypothesis of no clustering (i.e., the null, which simply means
-that the network exibits one global cluster).
+For a network fitted with the Stochastic Block Model (SBM) edge prior, this
+gives a Bayes factor for the number of clusters. With \code{type = "complement"}
+it weighs more than one cluster against exactly one; with \code{type = "point"} it
+weighs \code{b1} clusters against \code{b2}. Values above 1 favour the first of the
+two; take the reciprocal to read the evidence the other way round.
+}
+\details{
+The count is the number of clusters the model has available, which can be
+larger than the number that actually hold variables, since a cluster may come
+out empty. For the memberships themselves, see \code{\link[bgms:extract_sbm]{bgms::extract_sbm()}}.
+Evidence for clustering concerns the network's edge structure and is not by
+itself evidence of multidimensionality.
 }

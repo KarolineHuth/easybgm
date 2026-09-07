@@ -338,87 +338,190 @@ beta_bernoulli_prob <- function(c, alpha, beta, p) {
   return(log_prob)
 }
 
-# ---------------------------------------------------------------------------------
-# 3. Function for calculating Clustering Bayes factors for Stochastic Block Model
-# --------------------------------------------------------------------------------
-#' Calculate Clustering Bayes Factors for when using the Stochastic Block Model
-#' as an edge prior
-#'
-#' This function calculates Bayes factors to evaluate evidence in favor of
-#' clustering for models fitted with the \code{bgms} package (i.e., with arguments
-#' \code{package = "bgms"} and \code{edge_prior = "Stochastic-Block"} within
-#' the \code{easybgm} function). The function supports two types of Bayes factors:
-#' Bayes factors between two point hypothesized number of clusters (`b1` and `b2`),
-#' and Bayes factor of the hypothesis of clustering (i.e., the complement hypothesis)
-#' against the hypothesis of no clustering (i.e., the null, which simply means
-#' that the network exibits one global cluster).
-#'
-#' @param fit A fitted object of class \code{easybgm} or \code{bgms} containing
-#' the clustering results.
-#' @param type A character string specifying the type of Bayes factor to calculate.
-#'   Options are `"point"` or `"complement"`. Defaults to `"complement"`.
-#' @param b1 Indicates the number of clusters according to the first point hypothesis,
-#'  required for `type = "point"`.
-#' @param b2 Indicates the number of clusters according to the second point hypothesis,
-#'  required for `type = "point"`.
+# Replacement for fits produced under bgms 0.2.0.0's shifted-Poisson SBM.
+# Source this file to use the replacement in the current R session, or put the
+# function AND its two internal helpers into the easybgm package source.
+# This file does not modify installed packages.
 
-#' @return A numeric value representing the Bayes factor. When type is `"point"`,
-#' the Bayes factor represents evidence in favor of `b1` clusters against `b2`
-#' clusters. When type is `"complement"`, the Bayes factor represents evidence
-#' in favor of clustering (i.e., more than one cluster) against no clustering.
-#'
-#' @export
-clusterBayesfactor <- function(fit,
-                               type = "complement",
-                               b1 = NULL,
-                               b2 = NULL) {
-  
-  # check if the type argument is valid
-  if (!type %in% c("point", "complement")) {
-    stop("The type argument must be either 'point' or 'complement'.")
+# P(B=b | T=t), using the unbounded shifted-Poisson prior. Rows 1:p are
+# returned, but each column is normalized over the full support b >= t.
+.sbm_count_kernels <- function(p, lambda, alpha, tol = 1e-12) {
+  logsumexp <- function(x) {
+    m <- max(x)
+    if (m == -Inf) return(-Inf)
+    m + log(sum(exp(x - m)))
   }
+  top <- max(p + 10, ceiling(lambda + 10 * sqrt(lambda) + 10))
+  for (attempt in seq_len(20)) {
+    if (!is.finite(top) || top > 1e6)
+      stop("Cannot evaluate the count-prior tail accurately within the numerical limit.")
+    b <- seq_len(top)
+    base <- stats::dpois(b - 1, lambda, log = TRUE) +
+      lgamma(alpha * b) - lgamma(alpha * b + p)
+    log_full <- matrix(-Inf, p, p)
+    truncated <- matrix(0, p, p)
+    tail_bound <- numeric(p)
+    for (t in seq_len(p)) {
+      keep <- b >= t
+      log_weight <- rep(-Inf, top)
+      log_weight[keep] <- base[keep] + lgamma(b[keep] + 1) -
+        lgamma(b[keep] - t + 1)
+      log_Z <- logsumexp(log_weight)
+      log_Z_p <- logsumexp(log_weight[seq_len(p)])
+      log_full[, t] <- log_weight[seq_len(p)] - log_Z
+      truncated[, t] <- exp(log_weight[seq_len(p)] - log_Z_p)
+      
+      # Successive unnormalized weights beyond b=top have ratios bounded by
+      # u = lambda/top * (top+1)/(top+1-t). The remaining rising-factorial
+      # ratio is <= 1. This bound decreases with b, so the tail is geometric.
+      u <- lambda / top * (top + 1) / (top + 1 - t)
+      tail_bound[t] <- if (u >= 1) Inf else
+        exp(log_weight[top] + log(u) - log1p(-u) - log_Z)
+    }
+    if (all(tail_bound <= tol))
+      return(list(log_full = log_full, truncated = truncated))
+    top <- 2 * top
+  }
+  stop("Count-prior normalizers did not reach the requested numerical accuracy.")
+}
+
+# The old summary is r = Q_truncated %*% P(T | data). Q is lower triangular,
+# because t occupied blocks require at least t available components.
+.sbm_occupied_probabilities <- function(reported, Q, allocations = NULL) {
+  p <- length(reported)
+  if (!is.null(allocations)) {
+    if (is.matrix(allocations)) allocations <- list(allocations)
+    if (!is.list(allocations) || !length(allocations))
+      stop("Saved cluster allocations have an unsupported structure.")
+    counts <- unlist(lapply(allocations, function(z) {
+      if (!is.matrix(z) || ncol(z) != p || !nrow(z) || anyNA(z))
+        stop("Saved cluster allocations do not match the SBM summary.")
+      apply(z, 1, function(row) length(unique(row)))
+    }), use.names = FALSE)
+    weights <- tabulate(counts, nbins = p) / length(counts)
+  } else {
+    if (rcond(Q) < 1e-12)
+      stop("The count summary is too ill-conditioned to invert; supply the raw bgms fit with saved allocations.")
+    weights <- as.numeric(forwardsolve(Q, reported))
+    if (any(!is.finite(weights)))
+      stop("Could not recover the occupied-count posterior from this summary.")
+    slack <- max(-min(c(weights, 0)), abs(sum(weights) - 1))
+    if (slack > 1e-4)
+      stop("This summary is not consistent with bgms 0.2.0.0's shifted-Poisson ",
+           "count convention (discrepancy ", format(slack, digits = 2),
+           "). If it came from another bgms version, recompute it from that fit.")
+    if (slack > 1e-8)
+      warning("The summary appears rounded (discrepancy ",
+              format(slack, digits = 2), "); projecting onto the simplex.")
+    weights <- pmax(weights, 0)
+    weights <- weights / sum(weights)
+  }
+  if (max(abs(as.numeric(Q %*% weights) - reported)) > 1e-4)
+    stop("Saved allocations/summary disagree with the assumed count-prior convention.")
+  weights
+}
+
+#' Test whether a network splits into clusters
+#'
+#' For a network fitted with the Stochastic Block Model (SBM) edge prior, this
+#' gives a Bayes factor for the number of clusters. With `type = "complement"`
+#' it weighs more than one cluster against exactly one; with `type = "point"` it
+#' weighs `b1` clusters against `b2`. Values above 1 favour the first of the
+#' two; take the reciprocal to read the evidence the other way round.
+#'
+#' The count is the number of clusters the model has available, which can be
+#' larger than the number that actually hold variables, since a cluster may come
+#' out empty. For the memberships themselves, see [bgms::extract_sbm()].
+#' Evidence for clustering concerns the network's edge structure and is not by
+#' itself evidence of multidimensionality.
+#'
+#' @param fit A fit of class `easybgm` or `bgms`, fitted with
+#'   `edge_prior = bgms::sbm_prior()`. Raw draws are used when the fit carries
+#'   them, otherwise the stored summary, which must be at full precision.
+#' @param type Either `"complement"`, the default, or `"point"`.
+#' @param b1,b2 Whole numbers between 1 and the number of variables, required
+#'   when `type = "point"`.
+#' @return A single unrounded Bayes factor. `NA` with a warning if neither point
+#'   hypothesis appears in the posterior. A result of 0 or `Inf` means the
+#'   sampler never visited one of the two, so run more iterations rather than
+#'   reading it as decisive.
+#' @export
+
+clusterBayesfactor <- function(fit, type = "complement", b1 = NULL, b2 = NULL) {
+  if (!is.character(type) || length(type) != 1L || is.na(type) ||
+      !type %in% c("point", "complement"))
+    stop("The type argument must be either 'point' or 'complement'.")
   
-  # Resolve the two pieces we need from either object shape. A raw bgms fit from
-  # bgms >= 0.2.0.0 is an S7 object: names()<- is not allowed on it, and it
-  # carries neither $fit_arguments nor $sbm, so both are read through the bgms
-  # extractors instead.
+  allocations <- NULL
   if (inherits(fit, "easybgm")) {
-    lambda <- fit$fit_arguments$lambda
+    args <- fit$fit_arguments
     num_blocks <- fit$sbm$posterior_num_blocks
   } else if (inherits(fit, "bgms")) {
-    lambda <- bgms::extract_arguments(fit)$lambda
+    args <- bgms::extract_arguments(fit)
     num_blocks <- bgms::extract_sbm(fit)$posterior_num_blocks
+    allocations <- tryCatch(fit$raw_samples$allocations, error = function(e) NULL)
   } else {
     stop("fit must be a fitted object of class 'easybgm' or 'bgms'.")
   }
-
-  if (is.null(num_blocks)) {
-    stop("The fit does not contain a posterior distribution over the number of ",
-         "clusters. Refit the model with the Stochastic Block Model edge prior, ",
-         "e.g. edge_prior = bgms::sbm_prior().")
-  }
-
+  if (is.null(num_blocks))
+    stop("The fit has no SBM count summary. Fit the model with an SBM edge prior.")
+  
+  lambda <- args$lambda
+  alpha <- args$dirichlet_alpha
+  positive_scalar <- function(x)
+    is.numeric(x) && length(x) == 1L && is.finite(x) && x > 0
+  if (!positive_scalar(lambda) || !positive_scalar(alpha))
+    stop("The fit must record positive 'lambda' and 'dirichlet_alpha' values.")
+  
+  if (!(is.data.frame(num_blocks) || is.matrix(num_blocks)) ||
+      ncol(num_blocks) != 1L || nrow(num_blocks) < 1L)
+    stop("Expected a single-column posterior_num_blocks matrix or data frame.")
+  post <- num_blocks[, 1]
+  if (!is.numeric(post) || any(!is.finite(post)) || any(post < 0) ||
+      abs(sum(post) - 1) > 1e-8)
+    stop("The count summary must contain finite probabilities summing to one.")
+  p <- length(post)
   if (type == "point") {
-    if (is.null(b1) || is.null(b2)) {
-      stop("For the point type, both b1 and b2, indicating the number of clusters to be tested, must be provided.")
-    }
-    # Calculate prior odds in favor of b1 against b2
-    prO <- (lambda^(b1 - b2) * factorial(b2)) / factorial(b1)
-    
-    # Calculate the posterior odds in favor of b1 against b2
-    poO <-  unname(num_blocks[b1, 1]) / unname(num_blocks[b2, 1])
-    
-    bayesFactor <- poO / prO
-    
-  } else if (type == "complement") {
-    # In favor of the complement
-    prO <- (exp(lambda) - 1 - lambda) / lambda
-    poO <- sum(num_blocks[-1, 1]) / unname(num_blocks[1, 1])
-    bayesFactor <- poO / prO
+    valid_count <- function(b)
+      is.numeric(b) && length(b) == 1L && is.finite(b) &&
+      b >= 1 && b <= p && b == floor(b)
+    if (!valid_count(b1) || !valid_count(b2))
+      stop("For type='point', b1 and b2 must be integers between 1 and ", p, ".")
+    if (b1 == b2) return(1)
   }
   
-  return(round(bayesFactor, 1))
+  kernels <- .sbm_count_kernels(p, lambda, alpha)
+  weights <- .sbm_occupied_probabilities(post, kernels$truncated, allocations)
+  log_probability <- function(b) {
+    x <- log(weights) + kernels$log_full[b, ]
+    m <- max(x)
+    if (m == -Inf) return(-Inf)
+    m + log(sum(exp(x - m)))
+  }
+  if (type == "point") {
+    log_post_b1 <- log_probability(b1)
+    log_post_b2 <- log_probability(b2)
+    if (log_post_b1 == -Inf && log_post_b2 == -Inf) {
+      warning("Neither point hypothesis has mass in the saved posterior; this Bayes factor cannot be estimated.")
+      return(NA_real_)
+    }
+    log_prior_odds <- stats::dpois(b1 - 1, lambda, log = TRUE) -
+      stats::dpois(b2 - 1, lambda, log = TRUE)
+    log_bf <- log_post_b1 - log_post_b2 - log_prior_odds
+  } else {
+    log_p1 <- min(log_probability(1), 0)
+    log_post_odds <- log(-expm1(log_p1)) - log_p1
+    # log(expm1(lambda)), evaluated without overflowing when lambda is large.
+    log_prior_odds <- lambda + log(-expm1(-lambda))
+    log_bf <- log_post_odds - log_prior_odds
+    if (!is.finite(log_bf))
+      warning("The saved posterior gives (near) no draws to B = 1, so this Bayes ",
+              "factor is unbounded. Report the posterior probabilities over the ",
+              "number of blocks instead.")
+  }
+  unname(exp(log_bf))
 }
+
 
 # function for calculating the MC uncertainty for the inclusion BF
 
