@@ -21,15 +21,14 @@ Returns a plot
 Plots the posterior structure probabilities of all visited structures, sorted from the most to the least probable.
 }
 \examples{
-\donttest{
+\dontrun{
 
 library(easybgm)
 library(bgms)
 
-data <- na.omit(Wenchuan)
+data <- na.omit(Wenchuan)[1:50, 1:5]
 fit <- easybgm(data, type = "ordinal", save = TRUE, edge_selection = TRUE,
-                iter = 100,   # for demonstration only
-                warmup = 300  # bgms defaults to 2000
+                iter = 100   # for demonstration only
                 )
 
 plot_structure_probabilities(fit)

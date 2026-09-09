@@ -309,15 +309,16 @@
 #' library(easybgm)
 #' library(bgms)
 #'
-#' data <- na.omit(Wenchuan)[1:100, 1:5]
+#' data <- na.omit(Wenchuan)[1:50, 1:3]
 #'
 #' # --- Continuous data (fitted by bgms >= 0.2.0.0, otherwise by BGGM) ---
 #' fit <- easybgm(data, type = "continuous",
-#'                 iter = 100   # for demonstration only; increase for real analyses
+#'                 iter = 100,   # for demonstration only; increase for real analyses
+#'                 warmup = 50, chain = 2, cores = 1    # arguments from bgms to reduce the runtime of the example
 #'                 )
 #' summary(fit)
 #'
-#' \donttest{
+#' \dontrun{
 #' # --- Mixed data using per-variable type vector (requires bgms >= 0.2.0.0) ---
 #' if (utils::packageVersion("bgms") >= "0.2.0.0") {
 #'   dat3 <- data[, 1:3]
@@ -328,7 +329,7 @@
 #'
 #' # --- Extract posterior samples and centrality ---
 #' fit_full <- easybgm(data, type = "continuous",
-#'                      iter = 100,
+#'                      iter = 100, 
 #'                      centrality = TRUE, save = TRUE)
 #'
 #' # --- Using BDgraph for continuous data ---

@@ -38,14 +38,13 @@ The network plot visualizes the strength of interactions between two nodes, the 
 }
 \examples{
 
-
+\dontrun{
 library(easybgm)
 library(bgms)
 
-data <- na.omit(Wenchuan)
+data <- na.omit(Wenchuan)[1:50, 1:5]
 fit <- easybgm(data, type = "continuous",
-                iter = 100,   # for demonstration only
-                warmup = 300  # bgms defaults to 2000
+                iter = 100   # for demonstration only
                 )
 
 plot_network(fit)
@@ -55,5 +54,5 @@ plot_network(fit, exc_prob = 0.1)
 
 # Indicate which edges have insufficient evidence for inclusion through a dashed line
 plot_network(fit, dashed = TRUE, evidence_thresh_strong = 10)
-
+}
 }

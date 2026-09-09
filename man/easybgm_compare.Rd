@@ -180,7 +180,7 @@ We always encourage researchers to conduct prior sensitivity checks.
 }
 \examples{
 
-\donttest{
+\dontrun{
 library(easybgm)
 library(bgms)
 
@@ -192,16 +192,15 @@ group2 <- data[11:20, 1:3]
 
 fit <- easybgm_compare(list(group1, group2),
                 type = "binary", save = TRUE,
-                iter = 50    # for demonstration only
+                iter = 100   # for demonstration only
                 )
 summary(fit)
 
 # --- Multi-group comparison (single dataframe + group_indicator) ---
-fit_multi <- easybgm_compare(data[1:200, 1:5],
-                group_indicator = rep(c(1, 2, 3, 4), each = 50),
+fit_multi <- easybgm_compare(data[1:80, 1:5],
+                group_indicator = rep(c(1, 2, 3, 4), each = 20),
                 type = "binary", save = TRUE,
-                iter = 100,   # for demonstration only
-                warmup = 300  # bgms defaults to 2000
+                iter = 100   # for demonstration only
                 )
 summary(fit_multi)
 }

@@ -19,7 +19,7 @@ Returns a plot
 Plots the 95\% highest density interval of the posterior distribution of the parameter estimates. The plot can be used to visualize the uncertainty of the partial association estimates. The x-axis indicates the strength of the partial association. The y-axis indicates the edge between nodes $i$ and $j$. The farther the posterior estimates (i.e., the points in the plot) are from zero, the stronger the partial association of the edge. The wider the highest density intervals (i.e., the error bar around the point), the less certain we are about the strength of the association.
 }
 \examples{
-\donttest{
+\dontrun{
 
 library(easybgm)
 library(bgms)
@@ -28,7 +28,6 @@ library(bgms)
 data <- na.omit(Wenchuan)
 fit <- easybgm(data[1:50, 1:5], type = "ordinal",
               iter = 100,    # for demonstration only
-              warmup = 300,  # bgms defaults to 2000
               edge_selection = TRUE, save = TRUE)
 plot_parameterHDI(fit)
 }

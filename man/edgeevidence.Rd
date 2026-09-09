@@ -43,14 +43,13 @@ This plot can be used to visualize the hypothesis testing results whether edge p
 plot can aid researchers in deciding which edges provide robust inferential conclusions.
 }
 \examples{
-\donttest{
+\dontrun{
 library(easybgm)
 library(bgms)
 
-data <- na.omit(Wenchuan)
+data <- na.omit(Wenchuan)[1:50, 1:5]
 fit <- easybgm(data, type = "continuous",
-                iter = 100,   # for demonstration only
-                warmup = 300  # bgms defaults to 2000
+                iter = 100   # for demonstration only
                 )
 
 plot_edgeevidence(fit)
