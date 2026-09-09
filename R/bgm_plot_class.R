@@ -14,15 +14,14 @@
 #' @importFrom dplyr group_by summarise mutate group_modify filter
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #'
 #' library(easybgm)
 #' library(bgms)
 #'
-#' data <- na.omit(Wenchuan)
+#' data <- na.omit(Wenchuan)[1:50, 1:5]
 #' fit <- easybgm(data, type = "ordinal", save = TRUE, edge_selection = TRUE,
-#'                 iter = 100,   # for demonstration only
-#'                 warmup = 300  # bgms defaults to 2000
+#'                 iter = 100   # for demonstration only
 #'                 )
 #'
 #' plot_structure_probabilities(fit)
@@ -56,15 +55,14 @@ plot_structure_probabilities <- function(output, as_BF = FALSE, ...) {
 #' @import ggplot2
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #'
 #' library(easybgm)
 #' library(bgms)
 #'
-#' data <- na.omit(Wenchuan)
+#' data <- na.omit(Wenchuan)[1:50, 1:5]
 #' fit <- easybgm(data, type = "ordinal", save = TRUE, edge_selection = TRUE,
-#'                 iter = 100,   # for demonstration only
-#'                 warmup = 300  # bgms defaults to 2000
+#'                 iter = 100   # for demonstration only
 #'                 )
 #'
 #' plot_complexity_probabilities(fit)
@@ -106,14 +104,13 @@ plot_complexity_probabilities <- function(output, ...) {
 #' @importFrom graphics legend par
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' library(easybgm)
 #' library(bgms)
 #'
-#' data <- na.omit(Wenchuan)
+#' data <- na.omit(Wenchuan)[1:50, 1:5]
 #' fit <- easybgm(data, type = "continuous",
-#'                 iter = 100,   # for demonstration only
-#'                 warmup = 300  # bgms defaults to 2000
+#'                 iter = 100   # for demonstration only
 #'                 )
 #'
 #' plot_edgeevidence(fit)
@@ -174,14 +171,13 @@ plot_edgeevidence <- function(output,
 #' @export
 #' @examples
 #'
-#'
+#' \dontrun{
 #' library(easybgm)
 #' library(bgms)
 #'
-#' data <- na.omit(Wenchuan)
+#' data <- na.omit(Wenchuan)[1:50, 1:5]
 #' fit <- easybgm(data, type = "continuous",
-#'                 iter = 100,   # for demonstration only
-#'                 warmup = 300  # bgms defaults to 2000
+#'                 iter = 100   # for demonstration only
 #'                 )
 #'
 #' plot_network(fit)
@@ -191,7 +187,7 @@ plot_edgeevidence <- function(output,
 #'
 #' # Indicate which edges have insufficient evidence for inclusion through a dashed line
 #' plot_network(fit, dashed = TRUE, evidence_thresh_strong = 10)
-#'
+#' }
 
 plot_network <- function(output, exc_prob = .5, 
                          evidence_thresh = NULL,
@@ -233,15 +229,14 @@ plot_network <- function(output, exc_prob = .5,
 #' @import qgraph
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #'
 #' library(easybgm)
 #' library(bgms)
 #'
 #' data <- na.omit(Wenchuan)
 #' fit <- easybgm(data[1:50, 1:5], type = "ordinal",
-#'                 iter = 100,   # for demonstration only
-#'                 warmup = 300  # bgms defaults to 2000
+#'                 iter = 100   # for demonstration only
 #'                )
 #'
 #' plot_structure(fit)
@@ -275,7 +270,7 @@ plot_structure <- function(output, ...) {
 #' @import ggplot2 HDInterval
 #' @importFrom stats median
 #' @examples
-#' \donttest{
+#' \dontrun{
 #'
 #' library(easybgm)
 #' library(bgms)
@@ -284,7 +279,6 @@ plot_structure <- function(output, ...) {
 #' data <- na.omit(Wenchuan)
 #' fit <- easybgm(data[1:50, 1:5], type = "ordinal",
 #'               iter = 100,    # for demonstration only
-#'               warmup = 300,  # bgms defaults to 2000
 #'               edge_selection = TRUE, save = TRUE)
 #' plot_parameterHDI(fit)
 #' }
@@ -323,14 +317,13 @@ plot_parameterHDI <- function(output, ...) {
 #'
 #' @examples
 #' 
-#' \donttest{
+#' \dontrun{
 #' library(easybgm)
 #' library(bgms)
 #'
 #' data <- na.omit(Wenchuan)
 #' fit <- easybgm(data[1:50, 1:5], type = "ordinal",
 #'                 iter = 100,    # for demonstration only
-#'                 warmup = 300,  # bgms defaults to 2000
 #'                 edge_selection = TRUE, save = TRUE,
 #'                 centrality = TRUE)
 #'
@@ -363,14 +356,14 @@ plot_centrality <- function(output, group_names = NULL, ...){
 #'
 #' @examples
 #' 
-#' \donttest{
+#' \dontrun{
 #' library(easybgm)
 #' library(bgms)
 #'
 #' #data <- na.omit(Wenchuan)
 #' #fit1 <- easybgm(data[1:50, 1:5], type = "ordinal",
 #' #               iter = 100,  # for demonstration only
-#' #                inclusion_probability = .1
+#' #               inclusion_probability = .1
 #' #               )
 #' #fit2 <- easybgm(data[1:50, 1:5], type = "ordinal",
 #' #                  iter = 100,
