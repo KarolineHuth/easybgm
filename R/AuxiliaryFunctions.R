@@ -14,6 +14,32 @@ vector2matrix <- function(vec, p, diag = FALSE, bycolumn = FALSE) {
   return(m)
 }
 
+# 1b. Places a named vector of pairwise quantities into a symmetric matrix by
+# pair name. For mixed variable types bgms groups pairwise quantities by type
+# pair rather than in triangle order, so a positional fill puts estimates on
+# the wrong edge. Names may come in either orientation ("A-B" or "B-A"); the
+# matrix is symmetric, so orientation carries no sign. Falls back to
+# vector2matrix() with a warning when the names are absent or do not match.
+vector2matrix_named <- function(vec, varnames) {
+  p <- length(varnames)
+  idx <- which(upper.tri(matrix(0, p, p)), arr.ind = TRUE)
+  pos <- NULL
+  if (!is.null(names(vec)) && length(vec) == nrow(idx)) {
+    forward  <- paste(varnames[idx[, 1]], varnames[idx[, 2]], sep = "-")
+    reversed <- paste(varnames[idx[, 2]], varnames[idx[, 1]], sep = "-")
+    pos <- match(names(vec), forward)
+    pos[is.na(pos)] <- match(names(vec)[is.na(pos)], reversed)
+  }
+  if (is.null(pos) || anyNA(pos) || anyDuplicated(pos)) {
+    warning("Pairwise estimates could not be matched to variable pairs by name; ",
+            "they are placed by position instead.", call. = FALSE)
+    return(vector2matrix(unname(vec), p = p))
+  }
+  m <- matrix(0, p, p)
+  m[idx[pos, , drop = FALSE]] <- vec
+  m + t(m)
+}
+
 # 2. Transform precision into partial correlations for interpretation
 pr2pc <- function(K) {
   D.Prec = diag(diag(K)^(-.5))
@@ -105,12 +131,22 @@ gwish_samples <- function(G, S, nsamples=1000) {
 # ...). TRUE fills the upper triangle, which is the order BGGM uses ((1,2),
 # (1,3), (2,3), (1,4), ...). The caller has to state this: the two orders
 # differ, and getting it wrong silently permutes the per-node strengths.
-centrality <- function(res, bycolumn = FALSE){
+centrality <- function(res, bycolumn = FALSE, varnames = NULL){
   Nsamples <- nrow(res$samples_posterior)
   p <- nrow(res$parameters)
+  samples <- res$samples_posterior
+  # With pair names available, reorder the draws once into the order
+  # vector2matrix() expects: bgms groups the pairs of mixed models by variable
+  # type, so their stored order is not the triangle order.
+  if(!is.null(varnames)){
+    position <- vector2matrix_named(
+      stats::setNames(seq_len(ncol(samples)), colnames(samples)), varnames)
+    samples <- samples[, position[lower.tri(position)], drop = FALSE]
+    bycolumn <- FALSE
+  }
   strength_samples <- matrix(0, nrow = Nsamples, ncol = p)
   for(i in 1:Nsamples){
-    strength_samples[i, ] <- rowSums(abs(vector2matrix(res$samples_posterior[i,],
+    strength_samples[i, ] <- rowSums(abs(vector2matrix(samples[i,],
                                                        p, bycolumn = bycolumn)))
   }
   return(strength_samples)

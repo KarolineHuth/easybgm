@@ -130,6 +130,8 @@
 #'
 #' \strong{Returned for bgms only:}
 #' \itemize{
+#'   \item \code{packagefit}: The underlying bgms fit object, on which bgms
+#'     extractor functions can be called without refitting.
 #'   \item \code{convergence_parameter}: The Gelman-Rubin (R-hat) convergence
 #'     statistic for each edge weight parameter. Values close to 1 indicate good
 #'     convergence.
@@ -314,7 +316,8 @@
 #' # --- Continuous data (fitted by bgms >= 0.2.0.0, otherwise by BGGM) ---
 #' fit <- easybgm(data, type = "continuous",
 #'                 iter = 100,   # for demonstration only; increase for real analyses
-#'                 warmup = 50, chain = 2, cores = 1    # arguments from bgms to reduce the runtime of the example
+#'                 # arguments from bgms to reduce the runtime of the example
+#'                 warmup = 50, chain = 2, cores = 1
 #'                 )
 #' summary(fit)
 #'

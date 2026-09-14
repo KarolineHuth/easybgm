@@ -1,3 +1,67 @@
+# easybgm 0.5.1
+
+## Bug fixes
+
+* **Changes returned values.** Pairwise estimates from bgms are now placed on
+  the edge they belong to. For mixed variable types bgms groups pairwise
+  quantities by variable-type pair rather than in triangle order, and easybgm
+  placed them by position, so whenever variable types were interleaved the
+  estimates landed on the wrong edges. The matrices easybgm builds from them
+  are now filled by pair name: `parameters` from `easybgm()`, and
+  `parameters`, `parameters_g1`, `parameters_g2` and `overall_estimate` from
+  `easybgm_compare()`. Models with a single variable type are unaffected.
+* Inclusion Bayes factors (`inc_BF`, and the `MCSE_BF` interval derived from
+  it) for bgms fits are now taken from `bgms::extract_inclusion_bf()`. Under a
+  stochastic block prior with different within- and between-block
+  hyperparameters, easybgm built the prior odds from the estimated posterior
+  partition instead of marginalizing over the prior partition, which could
+  misstate the Bayes factor by more than an order of magnitude. With bgms
+  older than 0.2.0.0, which lacks the extractor, the previous calculation is
+  kept.
+* **Changes returned values.** A bgms comparison of more than two groups
+  (fitted with `group_indicator`) no longer returns `parameters`. It held the average of the bgms contrast
+  coefficients of each edge, which depends on the contrast basis, is not a
+  group difference, and could have the opposite sign to every pairwise group
+  difference. It is replaced by `pairwise_group_differences` (one column per
+  pair of groups, e.g. `"group2 - group1"`) and `contrast_coefficients` (the
+  coefficients as bgms reports them, labelled `"edge (diffN)"`). `summary()`
+  no longer shows the "Average Difference" column, and `plot_network()` stops
+  with an error for these fits.
+* For a two-group bgms comparison, `parameters` is now documented as group 2
+  minus group 1.
+* **Changes returned values.** `overall_estimate`, shown as "Across-group
+  Estimate" by `summary()` for a bgms comparison fitted with
+  `group_indicator`, held the estimate of group 1. It now holds the bgms
+  baseline, which is the mean of the group estimates.
+* **Changes returned values.** Strength centrality of bgms fits with mixed
+  variable types is now computed with each posterior draw placed on the edge
+  it belongs to. It was placed by position, which permuted the edges.
+* Under a stochastic block prior, the prior inclusion probability that
+  `plot_prior_sensitivity()` places on its horizontal axis (`edge.prior`) is
+  now taken from `bgms::extract_prior_inclusion_probabilities()`. It was
+  computed from the estimated posterior partition. With bgms older than
+  0.2.0.0 the previous calculation is kept.
+* `summary()` of a bgms fit with mixed variable types now shows each edge its
+  own R-hat. The values were placed by position and could belong to another
+  edge.
+* The Monte Carlo interval of each inclusion Bayes factor (`MCSE_BF`) of a
+  bgms fit with mixed variable types now uses that edge's own Monte Carlo
+  error. The errors were placed by position, so an interval could combine one
+  edge's Bayes factor with another edge's error, and its row label could name
+  another edge.
+* `summary()` of a bgms comparison now shows each edge its own R-hat. bgms
+  reports these in a different edge order than the summary table, so some
+  edges (e.g. B-C and A-D) showed each other's R-hat.
+* `plot_network()` on a raw bgms comparison of more than two groups now warns
+  that the edge weights it shows are contrast coefficients rather than
+  pairwise group differences, and may be drawn on the wrong edges.
+
+## Other changes
+
+* The objects returned by `easybgm()` and `easybgm_compare()` for bgms now
+  include `packagefit`, the underlying bgms fit, so bgms extractors can be
+  called on it without refitting.
+
 # easybgm 0.5.0
 
 ## Support for bgms >= 0.2.0.0

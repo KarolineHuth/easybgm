@@ -135,6 +135,16 @@ summary.easybgm <- function(object,
     ## ---- 2i. Create results data frame ----
     ## ----  Create results data frame with convergence (newer bgms)----
     if("package_bgms" %in% class(object)){
+      # Match R-hat to each edge by name: bgms stores the pairs of mixed models
+      # grouped by variable type rather than in triangle order, and names them
+      # after its own column names, which the fit records.
+      convergence <- object$convergence_parameter
+      if(!is.null(names(convergence))){
+        pair_names <- if(!is.null(object$packagefit)) bgms::extract_arguments(object$packagefit)$data_columnnames
+        if(is.null(pair_names)) pair_names <- names
+        conv_mat <- vector2matrix_named(convergence, pair_names)
+        convergence <- conv_mat[lower.tri(conv_mat)]
+      }
       # if users want the BF uncertainty estimates
       if(BF_uncertainty){
         results <-
@@ -144,7 +154,7 @@ summary.easybgm <- function(object,
             inc_probs =  inc_probs,
             BF = BF,
             category = category,
-            convergence = round(object$convergence_parameter, 3),
+            convergence = round(convergence, 3),
             MCSE_2.5 = ifelse(
               is.na(object$MCSE_BF[, 1]),
               "",
@@ -172,7 +182,7 @@ summary.easybgm <- function(object,
             inc_probs =  inc_probs,
             BF = BF,
             category = category,
-            convergence = round(object$convergence_parameter, 3)
+            convergence = round(convergence, 3)
           )
         colnames(results) <- c(
           "Relation",

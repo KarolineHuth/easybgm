@@ -392,6 +392,10 @@ plot_network.bgmCompare <- function(output, exc_prob = .5,
                                     dashed = TRUE, ...) {
   
   warning("Note, the plot indicates the strength of the pairwise difference in edge parameters between the groups.")
+  if(isTRUE(bgms::extract_arguments(output)$num_groups > 2)){
+    warning("The model compares more than two groups, but this plot treats it as a two-group comparison: the edge weights shown are contrast coefficients, not pairwise group differences, and may be drawn on the wrong edges. Use easybgm_compare() and inspect pairwise_group_differences instead.",
+            call. = FALSE)
+  }
 
   fit_args <- bgms::extract_arguments(output)
   

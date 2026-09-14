@@ -150,6 +150,9 @@ plot_edgeevidence.easybgm <- function(output,
   
   if(any(class(output) == "easybgm_compare")){
     warning("Note, the plot indicates the edge evidence for the pairwise difference between the groups.")
+    # multi-group bgms comparisons return no single difference matrix; the
+    # layout and node names are taken from the structure instead
+    if(is.null(output$parameters)) output$parameters <- output$structure
   }
   
   if(output$model == "dgm-binary"){
@@ -420,6 +423,10 @@ plot_network.easybgm <- function(output, exc_prob = 0.5,
   }
   
   if(any(class(output) == "easybgm_compare")){
+    if(is.null(output$parameters)){
+      stop("The network plot shows one difference per edge, which is not defined for a comparison of more than two groups. See pairwise_group_differences in the fitted object instead.",
+           call. = FALSE)
+    }
     warning("Note, the plot indicates the strength of the pairwise difference in edge parameters between the groups.")
   }
   
@@ -494,6 +501,9 @@ plot_structure.easybgm <- function(output, ...) {
   
   if(any(class(output) == "easybgm_compare")){
     warning("Note, the plot indicates the structure of the pairwise difference between the groups.")
+    # multi-group bgms comparisons return no single difference matrix; the
+    # layout and node names are taken from the structure instead
+    if(is.null(output$parameters)) output$parameters <- output$structure
   }
   
   
