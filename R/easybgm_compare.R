@@ -276,19 +276,13 @@ easybgm_compare <- function(data,
         package <- "package_bgms_compare"
       }
     }
-    # bgms can not compare continuous or mixed data. change to BGGM instead.
-    if(package == "package_bgms_compare"){
-      override_reason <- if(is_vector_type){
-        "a per-variable 'type' vector"
-      } else if(!type %in% c("binary", "ordinal", "blume-capel")){
-        paste0("type = '", type, "'")
-      } else NULL
-      
-      if(!is.null(override_reason)){
-        warning("bgms can only fit 'binary', 'ordinal' or 'blume-capel' data, 
-                so it cannot ", "fit ", override_reason, "; 
-                the 'package' argument was ",
-                "overridden and BGGM will be used instead.",
+    # bgms cannot compare continuous or mixed data, so those fall to BGGM. A
+    # per-variable 'type' vector is bgms-only and is never a reason to switch.
+    if(package == "package_bgms_compare" && !is_vector_type){
+      if(!type %in% c("binary", "ordinal", "blume-capel")){
+        warning("bgms can only fit 'binary', 'ordinal' or 'blume-capel' data, ",
+                "so it cannot fit type = '", type, "'; the 'package' argument ",
+                "was overridden and BGGM will be used instead.",
                 call. = FALSE)
         package <- "package_bggm_compare"
       }

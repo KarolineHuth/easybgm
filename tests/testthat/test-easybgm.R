@@ -778,3 +778,14 @@ test_that("multi-group comparisons report pairwise group differences, not averag
   w <- capture_warnings(plot_network(res$packagefit))
   expect_true(any(grepl("more than two groups", w)))
 })
+
+test_that("an explicit package = 'bgms' survives a per-variable type vector", {
+  set.seed(1); n <- 40
+  dat <- data.frame(A = sample(1:3, n, TRUE), B = sample(1:3, n, TRUE),
+                    C = sample(1:3, n, TRUE))
+  grp <- rep(1:2, each = n / 2)
+  expect_no_warning(
+    easybgm_compare(dat, type = c("ordinal", "ordinal", "ordinal"),
+                    package = "bgms", group_indicator = grp, iter = 20)
+  )
+})
