@@ -103,6 +103,9 @@ bgm_extract.package_bgms <- function(fit, type, save, iter,
   # --- Extract model arguments and edge priors ---
   args <- bgms::extract_arguments(fit)
   args$save <- save
+  # bgms names pairwise quantities after its own column names, which differ
+  # from varnames for data without column names ("Variable 1" vs "V1")
+  pair_varnames <- if (is.null(args$data_columnnames)) varnames else args$data_columnnames
   # extract SBM information
   bgms_res <- list()
   dots <- list(...)
@@ -164,6 +167,13 @@ bgm_extract.package_bgms <- function(fit, type, save, iter,
     
     # Edge-specific prior inclusion probabilities (p × p matrix)
     prior_mat <- ifelse(same_cluster, pi_within, pi_between)
+
+    # The matrix above conditions on the estimated posterior partition. bgms
+    # marginalizes over the prior partition instead, so its probabilities are
+    # used where available; the matrix above is kept for older bgms.
+    if (packageVersion("bgms") >= "0.2.0.0") {
+      prior_mat <- extract_prior_inclusion_probabilities(fit)
+    }
     
     # Vectorize consistent with bgms edge ordering (lower triangle)
     edge.prior <- prior_mat[lower.tri(prior_mat)]
@@ -188,7 +198,7 @@ bgm_extract.package_bgms <- function(fit, type, save, iter,
       p <- args$no_variables
     }
     pars <- extract_pairwise_interactions(fit)
-    bgms_res$parameters <- vector2matrix(colMeans(pars), p = p)
+    bgms_res$parameters <- vector2matrix_named(colMeans(pars), pair_varnames)
     bgms_res$samples_posterior <- extract_pairwise_interactions(fit)
     if(packageVersion("bgms") >= "0.2.0.0"){
       bgms_res$thresholds <- extract_main_effects(fit)
@@ -199,7 +209,15 @@ bgm_extract.package_bgms <- function(fit, type, save, iter,
     bgms_res$structure <- matrix(1, ncol = p, nrow = p)
     if (args$edge_selection) {
       bgms_res$inc_probs <- extract_posterior_inclusion_probabilities(fit)
-      if (args$edge_prior[1] == "Bernoulli") {
+      if (packageVersion("bgms") >= "0.2.0.0") {
+        # bgms marginalizes the prior inclusion odds over the prior partition of
+        # the stochastic block prior (not the estimated posterior partition used
+        # below), and runs a prior-only chain where no closed form exists, so
+        # its Bayes factor is correct for every edge prior. The arithmetic below
+        # is kept for older bgms, which lacks this extractor.
+        bgms_res$inc_BF <- extract_inclusion_bf(fit)
+        diag(bgms_res$inc_BF) <- 0
+      } else if (args$edge_prior[1] == "Bernoulli") {
         bgms_res$inc_BF <- (bgms_res$inc_probs / (1 - bgms_res$inc_probs)) /
           (edge.prior / (1 - edge.prior))
       } else if (args$edge_prior[1] == "Beta-Bernoulli") {
@@ -244,7 +262,7 @@ bgm_extract.package_bgms <- function(fit, type, save, iter,
       p <- args$no_variables
     }
     pars <- extract_pairwise_interactions(fit)
-    bgms_res$parameters <- vector2matrix(colMeans(pars), p = p)
+    bgms_res$parameters <- vector2matrix_named(colMeans(pars), pair_varnames)
     if(packageVersion("bgms") >= "0.2.0.0"){
       bgms_res$thresholds <- extract_main_effects(fit)
     } else {
@@ -255,7 +273,15 @@ bgm_extract.package_bgms <- function(fit, type, save, iter,
                                  nrow = nrow(bgms_res$parameters))
     if (args$edge_selection) {
       bgms_res$inc_probs <- extract_posterior_inclusion_probabilities(fit)
-      if (args$edge_prior[1] == "Bernoulli") {
+      if (packageVersion("bgms") >= "0.2.0.0") {
+        # bgms marginalizes the prior inclusion odds over the prior partition of
+        # the stochastic block prior (not the estimated posterior partition used
+        # below), and runs a prior-only chain where no closed form exists, so
+        # its Bayes factor is correct for every edge prior. The arithmetic below
+        # is kept for older bgms, which lacks this extractor.
+        bgms_res$inc_BF <- extract_inclusion_bf(fit)
+        diag(bgms_res$inc_BF) <- 0
+      } else if (args$edge_prior[1] == "Bernoulli") {
         bgms_res$inc_BF <- (bgms_res$inc_probs / (1 - bgms_res$inc_probs)) /
           (edge.prior / (1 - edge.prior))
       } else if (args$edge_prior[1] == "Beta-Bernoulli") {
@@ -298,8 +324,10 @@ bgm_extract.package_bgms <- function(fit, type, save, iter,
   }
   # --- Optionally compute centrality ---
   if (centrality) {
-    # bgms stores pairwise interactions in lower-triangle column order
-    bgms_res$centrality <- centrality(bgms_res, bycolumn = FALSE)
+    # draws are placed on their edges by name: bgms stores the pairs of mixed
+    # models grouped by variable type rather than in lower-triangle order
+    bgms_res$centrality <- centrality(bgms_res, bycolumn = FALSE,
+                                      varnames = pair_varnames)
   }
   
   # --- Compute convergence diagnostics ---
@@ -310,8 +338,9 @@ bgm_extract.package_bgms <- function(fit, type, save, iter,
     #
     # inc_probs above is bgms's Rao-Blackwellized inclusion probability, so the
     # Monte Carlo error has to come from that same estimator. bgms reports it in
-    # posterior_summary_indicator$mcse, already on the RB scale and in the
-    # lower-triangle order that inc_BF[lower.tri()] uses. Passing the raw
+    # posterior_summary_indicator$mcse, already on the RB scale; it is placed
+    # by name into the lower-triangle order that inc_BF[lower.tri()] uses below
+    # (bgms lists the pairs of mixed models by variable type). Passing the raw
     # indicator average to BF_MCSE() instead (as easybgm did before) combined a
     # binomial variance belonging to the raw average with an effective sample
     # size computed for the smoother RB chain, which inflated the interval by up
@@ -322,6 +351,14 @@ bgm_extract.package_bgms <- function(fit, type, save, iter,
     mcse_rb <- ind_summary$mcse
 
     if (!is.null(mcse_rb) && length(mcse_rb) == length(bf_vec)) {
+      # bgms lists the pairs of mixed models grouped by variable type, so the
+      # MCSEs are placed into the lower-triangle order of bf_vec by name
+      pair_index <- which(lower.tri(bgms_res$inc_BF), arr.ind = TRUE)
+      if (!is.null(rownames(ind_summary))) {
+        mcse_mat <- vector2matrix_named(stats::setNames(mcse_rb, rownames(ind_summary)),
+                                        pair_varnames)
+        mcse_rb <- mcse_mat[lower.tri(mcse_mat)]
+      }
       p_rb <- bgms_res$inc_probs[lower.tri(bgms_res$inc_probs)]
       # delta method onto the log-BF scale: se(logBF) = se(p) / (p * (1 - p))
       se_log <- mcse_rb / (p_rb * (1 - p_rb))
@@ -335,7 +372,8 @@ bgm_extract.package_bgms <- function(fit, type, save, iter,
         upper = ifelse(valid, exp(log(bf_vec) + z * se_log), NA_real_)
       )
       if (!is.null(rownames(ind_summary))) {
-        rownames(bgms_res$MCSE_BF) <- rownames(ind_summary)
+        rownames(bgms_res$MCSE_BF) <- paste(pair_varnames[pair_index[, "col"]],
+                                            pair_varnames[pair_index[, "row"]], sep = "-")
       }
     } else {
       # bgms < 0.2.0.0 does not report an RB Monte Carlo error
@@ -378,6 +416,8 @@ bgm_extract.package_bgms <- function(fit, type, save, iter,
   # --- Finalize output ---
   bgms_res$model <- model_label
   bgms_res$fit_arguments <- args
+  # the underlying bgms fit, so bgms extractors can be called without refitting
+  bgms_res$packagefit <- fit
   output <- bgms_res
   class(output) <- c("package_bgms", "easybgm")
   return(output)

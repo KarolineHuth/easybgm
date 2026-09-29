@@ -130,6 +130,8 @@
 #'
 #' \strong{Returned for bgms only:}
 #' \itemize{
+#'   \item \code{packagefit}: The underlying bgms fit object, on which bgms
+#'     extractor functions can be called without refitting.
 #'   \item \code{convergence_parameter}: The Gelman-Rubin (R-hat) convergence
 #'     statistic for each edge weight parameter. Values close to 1 indicate good
 #'     convergence.

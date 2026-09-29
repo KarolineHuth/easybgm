@@ -79,7 +79,10 @@
 #' \strong{Always returned:}
 #' \itemize{
 #'   \item \code{parameters}: A p x p matrix of posterior mean differences in
-#'     partial associations across groups.
+#'     partial associations across groups. For two groups fitted with bgms, the
+#'     difference is group 2 minus group 1. Not returned for a bgms comparison
+#'     of more than two groups, where a single difference per edge is not
+#'     defined; see \code{pairwise_group_differences} below.
 #'   \item \code{inc_probs}: A p x p matrix of posterior inclusion probabilities
 #'     for group differences (i.e., the probability that an edge differs between
 #'     groups).
@@ -99,6 +102,17 @@
 #'   \item \code{convergence_parameter}: The Gelman-Rubin (R-hat) convergence
 #'     statistic for each difference parameter. Values close to 1 indicate
 #'     good convergence.
+#'   \item \code{pairwise_group_differences}: For a comparison fitted with
+#'     \code{group_indicator}, a matrix of posterior mean pairwise group
+#'     differences with one row per edge and one column per pair of groups
+#'     (e.g., \code{"group2 - group1"}).
+#'   \item \code{contrast_coefficients}: For a comparison fitted with
+#'     \code{group_indicator}, the posterior summaries of the contrast
+#'     coefficients as bgms reports them, labelled \code{"edge (diffN)"}.
+#'     These depend on the contrast basis and are not pairwise group
+#'     differences.
+#'   \item \code{packagefit}: The underlying bgms fit object, on which bgms
+#'     extractor functions can be called without refitting.
 #' }
 #'
 #' \strong{Returned when save = TRUE:}
@@ -262,19 +276,13 @@ easybgm_compare <- function(data,
         package <- "package_bgms_compare"
       }
     }
-    # bgms can not compare continuous or mixed data. change to BGGM instead.
-    if(package == "package_bgms_compare"){
-      override_reason <- if(is_vector_type){
-        "a per-variable 'type' vector"
-      } else if(!type %in% c("binary", "ordinal", "blume-capel")){
-        paste0("type = '", type, "'")
-      } else NULL
-      
-      if(!is.null(override_reason)){
-        warning("bgms can only fit 'binary', 'ordinal' or 'blume-capel' data, 
-                so it cannot ", "fit ", override_reason, "; 
-                the 'package' argument was ",
-                "overridden and BGGM will be used instead.",
+    # bgms cannot compare continuous or mixed data, so those fall to BGGM. A
+    # per-variable 'type' vector is bgms-only and is never a reason to switch.
+    if(package == "package_bgms_compare" && !is_vector_type){
+      if(!type %in% c("binary", "ordinal", "blume-capel")){
+        warning("bgms can only fit 'binary', 'ordinal' or 'blume-capel' data, ",
+                "so it cannot fit type = '", type, "'; the 'package' argument ",
+                "was overridden and BGGM will be used instead.",
                 call. = FALSE)
         package <- "package_bggm_compare"
       }
