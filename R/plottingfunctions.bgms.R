@@ -193,6 +193,14 @@ plot_edgeevidence.bgms <- function(output,
     
   )
   args <- set_defaults(default_args, ...)
+  if(length(args$edge.color) != 5){
+    stop("edge.color must be a vector of 5 colors, one for each evidence category ",
+         "(strong inclusion, moderate inclusion, inconclusive, moderate exclusion, ",
+         "strong exclusion).", call. = FALSE)
+  }
+  # Arguments the user passed that aren't among the ones we set explicitly
+  # below get forwarded to qgraph() as-is (see set_defaults()).
+  args_extra <- args[!names(args) %in% names(default_args)]
   graph <- output$inc_BF
   diag(graph) <- 1
   
@@ -219,20 +227,21 @@ plot_edgeevidence.bgms <- function(output,
       graph[output$inc_probs <= 1] <- 1
       diag(graph) <- 1
       colnames(graph) <- args$colnames
-      qgraph_plot <- qgraph::qgraph(graph,
-                                    edge.color = graph_color,
-                                    lty = graph_dashed,
-                                    layout = args$layout,# specifies the color of the edges
-                                    theme = args$theme,
-                                    vsize = args$vsize,
-                                    nodeNames = args$nodeNames,
-                                    legend = args$legend,
-                                    edge.width = args$edge.width,
-                                    label.cex = args$label.cex,
-                                    legend.cex = args$legend.cex,
-                                    layoutScale = c(1, 0.85),
-                                    ...
-      )
+      qgraph_plot <- do.call(qgraph::qgraph, c(
+        list(graph,
+             edge.color = graph_color,
+             lty = graph_dashed,
+             layout = args$layout,# specifies the color of the edges
+             theme = args$theme,
+             vsize = args$vsize,
+             nodeNames = args$nodeNames,
+             legend = args$legend,
+             edge.width = args$edge.width,
+             label.cex = args$label.cex,
+             legend.cex = args$legend.cex,
+             layoutScale = c(1, 0.85)),
+        args_extra
+      ))
       if(edge_legend){
         # Add edge legend
         par(xpd = TRUE)   # allows drawing outside plot region
@@ -265,20 +274,21 @@ plot_edgeevidence.bgms <- function(output,
       graph_inc[output$inc_probs < .5] <- 0
       diag(graph_inc) <- 1
       colnames(graph_inc) <- colnames(output$parameters)
-      qgraph_plot1 <- qgraph::qgraph(graph_inc,
-                                     edge.color = graph_color,
-                                     lty = graph_dashed,
-                                     layout = args$layout,# specifies the color of the edges
-                                     theme = args$theme,
-                                     vsize = args$vsize,
-                                     nodeNames = args$nodeNames,
-                                     legend = args$legend,
-                                     edge.width = args$edge.width,
-                                     label.cex = args$label.cex,
-                                     legend.cex = args$legend.cex, # specifies the color of the edges
-                                     layoutScale = c(1, 0.85),
-                                     ...
-      )
+      qgraph_plot1 <- do.call(qgraph::qgraph, c(
+        list(graph_inc,
+             edge.color = graph_color,
+             lty = graph_dashed,
+             layout = args$layout,# specifies the color of the edges
+             theme = args$theme,
+             vsize = args$vsize,
+             nodeNames = args$nodeNames,
+             legend = args$legend,
+             edge.width = args$edge.width,
+             label.cex = args$label.cex,
+             legend.cex = args$legend.cex, # specifies the color of the edges
+             layoutScale = c(1, 0.85)),
+        args_extra
+      ))
       if(edge_legend){
         # Add edge legend
         par(xpd = TRUE)   # allows drawing outside plot region
@@ -305,21 +315,22 @@ plot_edgeevidence.bgms <- function(output,
       graph_exc[output$inc_probs < .5] <- 1
       diag(graph_exc) <- 1
       colnames(graph_exc) <- colnames(output$parameters)
-      qgraph_plot2 <- qgraph::qgraph(graph_exc,
-                                     edge.color = graph_color,
-                                     lty = graph_dashed,
-                                     # specifies the color of the edges
-                                     layout = args$layout,# specifies the color of the edges
-                                     theme = args$theme,
-                                     vsize = args$vsize,
-                                     nodeNames = args$nodeNames,
-                                     legend = args$legend,
-                                     edge.width = args$edge.width,
-                                     label.cex = args$label.cex,
-                                     legend.cex = args$legend.cex,
-                                     layoutScale = c(1, 0.85),
-                                     ...
-      )
+      qgraph_plot2 <- do.call(qgraph::qgraph, c(
+        list(graph_exc,
+             edge.color = graph_color,
+             lty = graph_dashed,
+             # specifies the color of the edges
+             layout = args$layout,# specifies the color of the edges
+             theme = args$theme,
+             vsize = args$vsize,
+             nodeNames = args$nodeNames,
+             legend = args$legend,
+             edge.width = args$edge.width,
+             label.cex = args$label.cex,
+             legend.cex = args$legend.cex,
+             layoutScale = c(1, 0.85)),
+        args_extra
+      ))
       if(edge_legend){
         # Add edge legend
         par(xpd = TRUE)   # allows drawing outside plot region
@@ -356,19 +367,21 @@ plot_edgeevidence.bgms <- function(output,
     }
     diag(graph_show) <- 1
     colnames(graph_show) <- colnames(output$parameters)
-    qgraph_plot <- qgraph::qgraph(graph_show,
-                                  edge.color = graph_color,
-                                  lty = graph_dashed,
-                                  layout = args$layout,# specifies the color of the edges
-                                  theme = args$theme,
-                                  vsize = args$vsize,
-                                  nodeNames = args$nodeNames,
-                                  legend = args$legend,
-                                  label.cex = args$label.cex,
-                                  legend.cex = args$legend.cex,# specifies the color of the edges
-                                  layoutScale = c(1, 0.85),
-                                  ...
-    )
+    qgraph_plot <- do.call(qgraph::qgraph, c(
+      list(graph_show,
+           edge.color = graph_color,
+           lty = graph_dashed,
+           layout = args$layout,# specifies the color of the edges
+           theme = args$theme,
+           vsize = args$vsize,
+           nodeNames = args$nodeNames,
+           legend = args$legend,
+           edge.width = args$edge.width,
+           label.cex = args$label.cex,
+           legend.cex = args$legend.cex,# specifies the color of the edges
+           layoutScale = c(1, 0.85)),
+      args_extra
+    ))
     if(edge_legend){
       # Add edge legend
       par(xpd = TRUE)   # allows drawing outside plot region
@@ -459,28 +472,35 @@ plot_network.bgms <- function(output, exc_prob = .5,
     legend.cex = .6
   )
   args <- set_defaults(default_args, ...)
-  
+  args_extra <- args[!names(args) %in% names(default_args)]
+
   # Exclude edges with a inclusion probability lower exc_prob
   inc_probs_m <- output$inc_probs
   graph[inc_probs_m < exc_prob] <- 0
   diag(graph) <- 1
-  
+
   # Plot
   if(dashed){
     graph_dashed <- ifelse(output$inc_BF < evidence_thresh_strong, "dashed", "solid")
-    qgraph_plot <- qgraph::qgraph(graph, layout = args$layout, lty = graph_dashed,
-                                  theme = args$theme, vsize = args$vsize,
-                                  nodeNames = args$nodeNames,
-                                  legend = args$legend,
-                                  label.cex = args$label.cex,
-                                  legend.cex = args$legend.cex, ...)
+    qgraph_plot <- do.call(qgraph::qgraph, c(
+      list(graph, layout = args$layout, lty = graph_dashed,
+           theme = args$theme, vsize = args$vsize,
+           nodeNames = args$nodeNames,
+           legend = args$legend,
+           label.cex = args$label.cex,
+           legend.cex = args$legend.cex),
+      args_extra
+    ))
   } else {
-    qgraph_plot <- qgraph::qgraph(graph, theme = args$theme,
-                                  layout = args$layout, vsize = args$vsize,
-                                  nodeNames = args$nodeNames,
-                                  legend = args$legend,
-                                  label.cex = args$label.cex,
-                                  legend.cex = args$legend.cex, ...)
+    qgraph_plot <- do.call(qgraph::qgraph, c(
+      list(graph, theme = args$theme,
+           layout = args$layout, vsize = args$vsize,
+           nodeNames = args$nodeNames,
+           legend = args$legend,
+           label.cex = args$label.cex,
+           legend.cex = args$legend.cex),
+      args_extra
+    ))
   }
   return(invisible(qgraph_plot))
 }
@@ -516,18 +536,22 @@ plot_structure.bgms <- function(output, ...) {
     legend.cex = .6
   )
   args <- set_defaults(default_args, ...)
+  args_extra <- args[!names(args) %in% names(default_args)]
   if(!any(class(output) == "easybgm")){
     stop("Wrong input provided. The function requires as input the output of the easybgm function.")
   }
   graph <- output$structure
   colnames(graph) <- colnames(output$parameters)
   # Plot
-  qgraph_plot <- qgraph::qgraph(graph, layout = args$layout,
-                                theme = args$theme, vsize = args$vsize,
-                                nodeNames = args$nodeNames,
-                                legend = args$legend,
-                                label.cex = args$label.cex,
-                                legend.cex = args$legend.cex, ...)
+  qgraph_plot <- do.call(qgraph::qgraph, c(
+    list(graph, layout = args$layout,
+         theme = args$theme, vsize = args$vsize,
+         nodeNames = args$nodeNames,
+         legend = args$legend,
+         label.cex = args$label.cex,
+         legend.cex = args$legend.cex),
+    args_extra
+  ))
   return(invisible(qgraph_plot))
 }
 

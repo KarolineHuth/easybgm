@@ -106,11 +106,14 @@
 #'     \code{group_indicator}, a matrix of posterior mean pairwise group
 #'     differences with one row per edge and one column per pair of groups
 #'     (e.g., \code{"group2 - group1"}).
-#'   \item \code{contrast_coefficients}: For a comparison fitted with
-#'     \code{group_indicator}, the posterior summaries of the contrast
-#'     coefficients as bgms reports them, labelled \code{"edge (diffN)"}.
-#'     These depend on the contrast basis and are not pairwise group
-#'     differences.
+#'   \item \code{contrast_coefficients}: For a comparison of 3+ groups fitted
+#'     with \code{group_indicator}, bgms does not estimate each edge directly
+#'     per group. Instead it decomposes each edge into a shared baseline
+#'     across groups plus a set of contrast coefficients that describe how
+#'     each group deviates from that baseline. This element is that raw bgms
+#'     output, unprocessed, labelled \code{"edge (diff1)"}, \code{"edge
+#'     (diff2)"}, etc. For an interpretable "group A minus group B" difference
+#'     for every pair of groups, use \code{pairwise_group_differences} instead.
 #'   \item \code{packagefit}: The underlying bgms fit object, on which bgms
 #'     extractor functions can be called without refitting.
 #' }
