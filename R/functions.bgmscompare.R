@@ -75,6 +75,10 @@ bgm_extract.package_bgms_compare <- function(fit, type, save, group_indicator,
       varnames <- paste0("V", 1:extract_arguments(fit)$num_variables)
     }
   }
+  # bgms names pairwise quantities after its own column names, which differ
+  # from varnames for data without column names ("Variable 1" vs "V1")
+  pair_varnames <- extract_arguments(fit)$data_columnnames
+  if(is.null(pair_varnames)) pair_varnames <- varnames
 
   ######--------------------
   ## Two group estimation
@@ -104,8 +108,11 @@ bgm_extract.package_bgms_compare <- function(fit, type, save, group_indicator,
     bgms_res <- list()
 
     p <- args$num_variables
-    pars <- summary(fit)$pairwise_diff$mean
-    bgms_res$parameters <- vector2matrix(pars, p = p)
+    # bgms reports the two-group difference as group 2 minus group 1
+    pairwise_diff <- summary(fit)$pairwise_diff
+    pars <- stats::setNames(pairwise_diff$mean,
+                            sub(" \\(diff[0-9]+\\)$", "", pairwise_diff$parameter))
+    bgms_res$parameters <- vector2matrix_named(pars, pair_varnames)
     colnames(bgms_res$parameters) <- varnames
     bgms_res$structure <- matrix(1, ncol = ncol(bgms_res$parameters),
                                  nrow = nrow(bgms_res$parameters))
@@ -117,8 +124,8 @@ bgm_extract.package_bgms_compare <- function(fit, type, save, group_indicator,
 
     #Obtain structure information
     bgms_res$group_estimates <- extract_group_params(fit)$pairwise_effects_groups
-    bgms_res$parameters_g1 <- vector2matrix(extract_group_params(fit)$pairwise_effects_groups[, 1], p = p)
-    bgms_res$parameters_g2 <- vector2matrix(extract_group_params(fit)$pairwise_effects_groups[, 2], p = p)
+    bgms_res$parameters_g1 <- vector2matrix_named(extract_group_params(fit)$pairwise_effects_groups[, 1], pair_varnames)
+    bgms_res$parameters_g2 <- vector2matrix_named(extract_group_params(fit)$pairwise_effects_groups[, 2], pair_varnames)
 
     structures <- apply(extract_indicators(fit), 1, paste0, collapse="")
     table_structures <- as.data.frame(table(structures))
@@ -158,22 +165,36 @@ bgm_extract.package_bgms_compare <- function(fit, type, save, group_indicator,
     bgms_res <- list()
 
     p <- args$num_variables
-    # Compute average group difference
-    diffs <- summary(fit)$pairwise_diff
-    edge_labels <- sub(" .*", "", diffs$parameter)
-    edges <- unique(edge_labels)
-    average_difference <- numeric(length(edges))
-    for (i in seq_along(edges)) {
-      edge_name <- edges[i]
-      idx <- edge_labels == edge_name
-      vals <- diffs$mean[idx]
-      average_difference[i] <- mean(vals, na.rm = TRUE)
+    # With more than two groups bgms describes the group differences of an edge
+    # through several contrast coefficients. They depend on the contrast basis
+    # and are not pairwise differences, so they are not collapsed into a single
+    # difference matrix. The coefficients are returned as bgms reports them,
+    # and the pairwise group differences are derived from the group estimates
+    # (the posterior mean of a difference is the difference of the means).
+    bgms_res$contrast_coefficients <- summary(fit)$pairwise_diff
+    group_estimates <- extract_group_params(fit)$pairwise_effects_groups
+    group_pairs <- utils::combn(ncol(group_estimates), 2)
+    bgms_res$pairwise_group_differences <- matrix(
+      vapply(seq_len(ncol(group_pairs)), function(k)
+        group_estimates[, group_pairs[2, k]] - group_estimates[, group_pairs[1, k]],
+        numeric(nrow(group_estimates))),
+      nrow = nrow(group_estimates),
+      dimnames = list(rownames(group_estimates),
+                      paste(colnames(group_estimates)[group_pairs[2, ]], "-",
+                            colnames(group_estimates)[group_pairs[1, ]])))
+    # the bgms baseline, which is the mean of the group estimates
+    bgms_res$overall_estimate <- vector2matrix_named(
+      colMeans(extract_pairwise_interactions(fit)), pair_varnames)
+    # With exactly two groups there is a single contrast per edge, which is the
+    # group 2 minus group 1 difference, so the difference matrix is kept
+    if (ncol(group_estimates) == 2) {
+      bgms_res$parameters <- vector2matrix_named(
+        stats::setNames(bgms_res$contrast_coefficients$mean,
+                        sub(" \\(diff[0-9]+\\)$", "", bgms_res$contrast_coefficients$parameter)),
+        pair_varnames)
+      colnames(bgms_res$parameters) <- varnames
     }
-    bgms_res$parameters <- vector2matrix(average_difference, p = p)
-    colnames(bgms_res$parameters) <- varnames
-    bgms_res$overall_estimate <- vector2matrix(extract_group_params(fit)$pairwise_effects_groups[, 1], p = p)
-    bgms_res$structure <- matrix(1, ncol = ncol(bgms_res$parameters),
-                                 nrow = nrow(bgms_res$parameters))
+    bgms_res$structure <- matrix(1, ncol = p, nrow = p)
     inc_prob_mat <- extract_posterior_inclusion_probabilities(fit)
     diag(inc_prob_mat) <- 0
     bgms_res$inc_probs <- inc_prob_mat
@@ -193,8 +214,8 @@ bgm_extract.package_bgms_compare <- function(fit, type, save, group_indicator,
   }
 
   # Adapt column names of output
-  colnames(bgms_res$inc_probs) <- colnames(bgms_res$parameters)
-  colnames(bgms_res$inc_BF) <- colnames(bgms_res$parameters)
+  colnames(bgms_res$inc_probs) <- varnames
+  colnames(bgms_res$inc_BF) <- varnames
 
   bgms_res$model <- if(length(type) > 1) {
     if(length(unique(type)) == 1) unique(type) else "mixed"
@@ -203,6 +224,8 @@ bgm_extract.package_bgms_compare <- function(fit, type, save, group_indicator,
   }
   bgms_res$fit_arguments <- args
   bgms_res$edge.prior <- edge.prior # otherwise it stores a whole matrix
+  # the underlying bgms fit, so bgms extractors can be called without refitting
+  bgms_res$packagefit <- fit
 
   output <- bgms_res
   class(output) <- c("package_bgms_compare", "easybgm_compare", "easybgm")

@@ -361,16 +361,19 @@ test_that("easybgm_compare returns expected structure across valid type–packag
     expect_true(any(grepl("package_", class(res))))  # backend tag present
     
     # --- field presence check ---
-    expect_true(all(c("parameters", "inc_probs", "inc_BF", "structure", "model") %in% names(res)))
+    # multi-group bgms comparisons return pairwise group differences instead
+    # of a single difference matrix
+    par_field <- if (is.null(cmb$multi_group)) "parameters" else "pairwise_group_differences"
+    expect_true(all(c(par_field, "inc_probs", "inc_BF", "structure", "model") %in% names(res)))
     
     # --- dimensions check ---
-    expect_equal(dim(res$parameters), c(p, p))
+    if (is.null(cmb$multi_group)) expect_equal(dim(res$parameters), c(p, p))
     expect_equal(dim(res$inc_probs),  c(p, p))
     expect_equal(dim(res$inc_BF),     c(p, p))
     expect_equal(dim(res$structure),  c(p, p))
     
     # --- sanity check ---
-    expect_false(all(is.na(res$parameters)))
+    expect_false(all(is.na(res[[par_field]])))
     expect_false(all(is.na(res$inc_probs)))
     
     if(sv == TRUE && pkg != "bgms") {
@@ -592,4 +595,197 @@ test_that("Blume-Capel samples are only stored when save = TRUE", {
   expect_s3_class(res$blume_capel_parameters, "data.frame")
   # the interval does not depend on save = TRUE
   expect_false(any(is.na(res$blume_capel_parameters[["Lower 2.5%"]])))
+})
+
+
+###-------------
+### Regression checks against the raw bgms fit (easybgm 0.5.1)
+###-------------
+
+test_that("mixed-type pairwise estimates are placed on the edge they belong to", {
+  skip_if(packageVersion("bgms") < "0.2.0.0")
+  set.seed(1)
+  n <- 100
+  dat <- data.frame(A = sample(0:2, n, TRUE), B = rnorm(n),
+                    C = sample(0:2, n, TRUE), D = rnorm(n))
+
+  res <- suppressWarnings(
+    easybgm(dat, type = c("ordinal", "continuous", "ordinal", "continuous"),
+            iter = 50, warmup = 300, cores = 2L, save = TRUE, centrality = TRUE,
+            progress = FALSE)
+  )
+  # the returned object carries the bgms fit it was built from
+  expect_true(inherits(res$packagefit, "bgms"))
+  draws <- bgms::extract_pairwise_interactions(res$packagefit)
+  means <- colMeans(draws)
+
+  # bgms groups the pairs by variable type, so a positional fill would misplace them
+  vars <- colnames(dat)
+  expect_false(identical(names(means), combn(vars, 2, paste, collapse = "-")))
+
+  for (i in 1:3) for (j in (i + 1):4) {
+    pair <- intersect(c(paste(vars[i], vars[j], sep = "-"),
+                        paste(vars[j], vars[i], sep = "-")), names(means))
+    expect_equal(res$parameters[i, j], means[[pair]])
+    expect_equal(res$parameters[j, i], means[[pair]])
+  }
+
+  # strength centrality places each draw on its edge by name
+  expected <- t(apply(draws, 1, function(r) rowSums(abs(vector2matrix_named(r, vars)))))
+  expect_equal(unname(res$centrality), unname(expected))
+
+  # summary shows every edge its own R-hat
+  rhat <- bgms::extract_rhat(res$packagefit)$pairwise
+  s <- summary(res)$parameters
+  own <- vapply(strsplit(s$Relation, "-"), function(v)
+    rhat[[intersect(c(paste(v, collapse = "-"), paste(rev(v), collapse = "-")), names(rhat))]],
+    numeric(1))
+  expect_equal(s[[grep("^Convergence", colnames(s), value = TRUE)]], round(own, 3))
+
+  # each Monte Carlo interval of an inclusion BF uses that edge's own MCSE
+  ind <- res$packagefit$posterior_summary_indicator
+  pairs <- which(lower.tri(res$inc_BF), arr.ind = TRUE)
+  forward <- paste(vars[pairs[, "col"]], vars[pairs[, "row"]], sep = "-")
+  reversed <- paste(vars[pairs[, "row"]], vars[pairs[, "col"]], sep = "-")
+  own_mcse <- ind$mcse[ifelse(forward %in% rownames(ind), match(forward, rownames(ind)),
+                              match(reversed, rownames(ind)))]
+  bf <- res$inc_BF[lower.tri(res$inc_BF)]
+  p <- res$inc_probs[lower.tri(res$inc_probs)]
+  se_log <- own_mcse / (p * (1 - p))
+  upper <- ifelse(is.finite(se_log), exp(log(bf) + stats::qnorm(0.975) * se_log), NA_real_)
+  expect_false(all(is.na(upper)))
+  expect_equal(res$MCSE_BF$upper, upper)
+  expect_equal(rownames(res$MCSE_BF), forward)
+})
+
+test_that("vector2matrix_named matches either orientation and falls back by position", {
+  expected <- vector2matrix(c(1, 2, 3), p = 3)
+  expect_equal(vector2matrix_named(c("C-B" = 3, "A-B" = 1, "A-C" = 2), c("A", "B", "C")),
+               expected)
+  expect_warning(m <- vector2matrix_named(c(1, 2, 3), c("A", "B", "C")), "by position")
+  expect_equal(m, expected)
+})
+
+test_that("inclusion Bayes factors match bgms for every edge prior", {
+  skip_if(packageVersion("bgms") < "0.2.0.0")
+  set.seed(2)
+  dat <- as.data.frame(matrix(sample(0:2, 100 * 5, TRUE), 100, 5))
+  names(dat) <- LETTERS[1:5]
+
+  cases <- list(
+    list(prior = bgms::bernoulli_prior(), save = TRUE),
+    list(prior = bgms::beta_bernoulli_prior(alpha = 2, beta = 3), save = TRUE),
+    list(prior = bgms::sbm_prior(), save = TRUE),
+    # unequal within- and between-block shapes: the prior odds cannot be read
+    # off the posterior partition; checked on both extraction branches
+    list(prior = bgms::sbm_prior(alpha = 9, beta = 1, alpha_between = 1, beta_between = 9),
+         save = TRUE),
+    list(prior = bgms::sbm_prior(alpha = 9, beta = 1, alpha_between = 1, beta_between = 9),
+         save = FALSE)
+  )
+  for (cs in cases) {
+    res <- suppressWarnings(
+      easybgm(dat, type = "ordinal", iter = 50, warmup = 300, cores = 2L,
+              save = cs$save, progress = FALSE, edge_prior = cs$prior)
+    )
+    expected <- bgms::extract_inclusion_bf(res$packagefit)
+    diag(expected) <- 0
+    expect_equal(unname(res$inc_BF), unname(expected))
+    # the prior inclusion probability the prior sensitivity plot uses
+    prior_probs <- bgms::extract_prior_inclusion_probabilities(res$packagefit)
+    expect_equal(res$edge.prior[1], prior_probs[2, 1])
+  }
+})
+
+test_that("two-group bgms comparison differences are group 2 minus group 1", {
+  skip_if(packageVersion("bgms") < "0.2.0.0")
+  set.seed(4)
+  n <- 60
+  dat <- as.data.frame(matrix(sample(0:2, 2 * n * 4, TRUE), 2 * n, 4))
+  names(dat) <- LETTERS[1:4]
+
+  res <- suppressWarnings(
+    easybgm_compare(list(dat[1:n, ], dat[n + 1:n, ]), type = "ordinal",
+                    iter = 50, warmup = 300, cores = 2L, progress = FALSE)
+  )
+  expect_true(inherits(res$packagefit, "bgmCompare"))
+  gp <- bgms::extract_group_params(res$packagefit)$pairwise_effects_groups
+  # matrix positions of each named pair
+  ij <- matrix(match(do.call(rbind, strsplit(rownames(gp), "-")), names(dat)), ncol = 2)
+
+  expect_equal(res$parameters[ij], unname(gp[, 2] - gp[, 1]))
+  expect_equal(res$parameters_g1[ij], unname(gp[, 1]))
+  expect_equal(res$parameters_g2[ij], unname(gp[, 2]))
+
+  # summary shows every edge its own R-hat
+  s <- summary(res)$parameters
+  pd <- summary(res$packagefit)$pairwise_diff
+  rhat <- stats::setNames(pd$Rhat, sub(" \\(diff[0-9]+\\)$", "", pd$parameter))
+  expect_equal(s$Convergence, unname(round(rhat[s$Relation], 3)))
+
+  # the same holds when the two groups are given through group_indicator, which
+  # takes the multi-group path with a single contrast per edge
+  res_gi <- suppressWarnings(
+    easybgm_compare(dat, type = "ordinal", group_indicator = rep(1:2, each = n),
+                    iter = 50, warmup = 300, cores = 2L, progress = FALSE)
+  )
+  gp_gi <- bgms::extract_group_params(res_gi$packagefit)$pairwise_effects_groups
+  ij_gi <- matrix(match(do.call(rbind, strsplit(rownames(gp_gi), "-")), names(dat)), ncol = 2)
+  expect_equal(res_gi$parameters[ij_gi], unname(gp_gi[, 2] - gp_gi[, 1]))
+  expect_true("Average Difference" %in% colnames(summary(res_gi)$parameters))
+  expect_no_error(suppressWarnings(plot_network(res_gi)))
+})
+
+test_that("multi-group comparisons report pairwise group differences, not averaged contrasts", {
+  skip_if(packageVersion("bgms") < "0.2.0.0")
+  set.seed(3)
+  n <- 60
+  dat <- as.data.frame(matrix(sample(0:2, 3 * n * 4, TRUE), 3 * n, 4))
+  names(dat) <- LETTERS[1:4]
+
+  res <- suppressWarnings(
+    easybgm_compare(dat, type = "ordinal", group_indicator = rep(1:3, each = n),
+                    iter = 50, warmup = 300, cores = 2L, progress = FALSE)
+  )
+  gp <- bgms::extract_group_params(res$packagefit)$pairwise_effects_groups
+  d <- res$pairwise_group_differences
+
+  expect_equal(colnames(d), c("group2 - group1", "group3 - group1", "group3 - group2"))
+  expect_equal(rownames(d), rownames(gp))
+  expect_equal(unname(d[, "group2 - group1"]), unname(gp[, 2] - gp[, 1]))
+  expect_equal(unname(d[, "group3 - group1"]), unname(gp[, 3] - gp[, 1]))
+  expect_equal(unname(d[, "group3 - group2"]), unname(gp[, 3] - gp[, 2]))
+
+  # the across-group estimate is the mean of the group estimates
+  ij <- matrix(match(do.call(rbind, strsplit(rownames(gp), "-")), names(dat)), ncol = 2)
+  expect_equal(res$overall_estimate[ij], unname(rowMeans(gp)))
+
+  # summary shows every edge its own (baseline) R-hat
+  s_rhat <- summary(res)$parameters
+  pb <- summary(res$packagefit)$pairwise
+  rhat <- stats::setNames(pb$Rhat, pb$parameter)
+  expect_equal(s_rhat$Convergence, unname(round(rhat[s_rhat$Relation], 3)))
+
+  # the per-contrast coefficients keep their bgms labels, and no field holds a
+  # single difference per edge across the three groups
+  expect_true(all(grepl(" \\(diff[0-9]+\\)$", res$contrast_coefficients$parameter)))
+  expect_null(res$parameters)
+  s <- summary(res)
+  expect_false("Average Difference" %in% colnames(s$parameters))
+  expect_error(suppressWarnings(plot_network(res)), "pairwise_group_differences")
+
+  # the raw fit is plotted as a two-group comparison, which is flagged
+  w <- capture_warnings(plot_network(res$packagefit))
+  expect_true(any(grepl("more than two groups", w)))
+})
+
+test_that("an explicit package = 'bgms' survives a per-variable type vector", {
+  set.seed(1); n <- 40
+  dat <- data.frame(A = sample(1:3, n, TRUE), B = sample(1:3, n, TRUE),
+                    C = sample(1:3, n, TRUE))
+  grp <- rep(1:2, each = n / 2)
+  expect_no_warning(
+    easybgm_compare(dat, type = c("ordinal", "ordinal", "ordinal"),
+                    package = "bgms", group_indicator = grp, iter = 20)
+  )
 })

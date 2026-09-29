@@ -34,7 +34,8 @@ summary.easybgm_compare <- function(object,
   ## 1. Determine number of nodes
   ## -----------------------------
   
-  p <- ncol(object$parameters)
+  # multi-group bgms comparisons return no single difference matrix
+  p <- ncol(if(is.null(object$parameters)) object$inc_probs else object$parameters)
   
   ## -----------------------------
   ## 2. Create data frame with edge-specific results
@@ -82,14 +83,16 @@ summary.easybgm_compare <- function(object,
   
   
   ## ---- 2a. General case: parameters + inclusion probs + Bayes Factors
-  names <- colnames(object$parameters)
+  names <- colnames(if(is.null(object$parameters)) object$inc_probs else object$parameters)
   names_bycol <- matrix(rep(names, each = p), ncol = p)
   names_byrow <- matrix(rep(names, each = p), ncol = p, byrow = T)
   names_comb <- matrix(paste0(names_byrow, "-", names_bycol), ncol = p)
   mat_names <- names_comb[upper.tri(names_comb)]
   
   ## ---- 2b. Extract and round relevant values ----
-  parameter_values <- round(object$parameters, 3)[upper.tri(object$parameters)]
+  if(!is.null(object$parameters)){
+    parameter_values <- round(object$parameters, 3)[upper.tri(object$parameters)]
+  }
   BF <- round(object$inc_BF, 3)[upper.tri(object$inc_BF)]
   if(!is.null(object$parameters_g1)){
     group1 <- round(object$parameters_g1, 3)[upper.tri(object$parameters_g1)]
@@ -111,6 +114,18 @@ summary.easybgm_compare <- function(object,
   ## ---- 2d. Create results data frame ----
   ## ----  Create results data frame with convergence (newer bgms)----
   if("package_bgms_compare" %in% class(object)){
+    # bgms reports R-hat without pair names, in the edge order of the group
+    # estimates (A-B, A-C, A-D, B-C, ...), which differs from the order of this
+    # table, so it is matched to the rows by name
+    convergence <- object$convergence_parameter
+    if(!is.null(object$group_estimates) &&
+       length(convergence) == nrow(object$group_estimates)){
+      pair_names <- if(!is.null(object$packagefit)) bgms::extract_arguments(object$packagefit)$data_columnnames
+      if(is.null(pair_names)) pair_names <- names
+      conv_mat <- vector2matrix_named(
+        stats::setNames(convergence, rownames(object$group_estimates)), pair_names)
+      convergence <- conv_mat[upper.tri(conv_mat)]
+    }
     if(is.null(object$multi_group)){
       results <-
         data.frame(
@@ -120,7 +135,7 @@ summary.easybgm_compare <- function(object,
           parameter_values = parameter_values,
           BF = BF,
           category = category,
-          convergence = round(object$convergence_parameter, 3)
+          convergence = round(convergence, 3)
         )
       colnames(results) <- c(
         "Relation",
@@ -136,18 +151,21 @@ summary.easybgm_compare <- function(object,
         data.frame(
           relation = mat_names,
           overall_estimate = round(object$overall_estimate, 3)[upper.tri(object$overall_estimate)],
-          parameter_values = parameter_values,
           BF = BF,
           category = category,
-          convergence = round(object$convergence_parameter, 3)
+          convergence = round(convergence, 3)
         )
       colnames(results) <- c(
         "Relation",
         "Across-group Estimate",
-        "Average Difference",
         "Difference BF",
         "Category",
         "Convergence")
+      # with exactly two groups the single contrast is the group 2 minus group 1
+      # difference, so it is still shown
+      if(!is.null(object$parameters)){
+        results <- cbind(results[1:2], "Average Difference" = parameter_values, results[-(1:2)])
+      }
     }
   } else {
     ## ----  Create results data frame without convergence----
