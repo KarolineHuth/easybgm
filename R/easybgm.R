@@ -314,7 +314,8 @@
 #' # --- Continuous data (fitted by bgms >= 0.2.0.0, otherwise by BGGM) ---
 #' fit <- easybgm(data, type = "continuous",
 #'                 iter = 100,   # for demonstration only; increase for real analyses
-#'                 warmup = 50, chain = 2, cores = 1    # arguments from bgms to reduce the runtime of the example
+#'                 # arguments from bgms to reduce the runtime of the example
+#'                 warmup = 50, chain = 2, cores = 1, precision_graph_prior = "joint"   
 #'                 )
 #' summary(fit)
 #'
